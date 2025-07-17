@@ -333,9 +333,45 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
         'emit',              // Component's emit method.
         'registerCleanup',   // Component's registerCleanup method.
         'generateScopedId',  // Component's generateScopedId method.
+        '$actions',          // New: Injected actions object
         scriptNode.textContent || '' // The actual JavaScript code.
       )
-      // Call the function, binding 'this' to the component's root and passing the context variables.
+
+      // Object to hold dynamically registered actions from this script
+      const componentActions: { [key: string]: Function } = {};
+      const exportFunctionRegex = /export\s+function\s+(\w+)\s*\(([^)]*)\)\s*\{([\s\S]*?)\}/g;
+      let match;
+
+      // Extract and register exported functions as actions
+      while ((match = exportFunctionRegex.exec(scriptNode.textContent || '')) !== null) {
+        const actionName = match[1];
+        const args = match[2];
+        const body = match[3];
+
+        // Create a function that has access to the component's context
+        const actionFn = new Function(
+          'componentInstance', 'ds', '$signals', '$props', 'emit', 'registerCleanup', 'generateScopedId', 'args', 'body',
+          `return function(${args}) { ${body} }`
+        ).call(null, componentInstance, ctx, 
+          new Proxy(ctx.signals, { // Re-create proxy for action's scope
+            get(target, prop, receiver) {
+              if (typeof prop === 'string' && prop.startsWith('$')) {
+                const signalPath = `${componentIdPrefix}.${prop.substring(1)}`;
+                return target.signal(signalPath)?.value;
+              }
+              return Reflect.get(target, prop, receiver);
+            }
+          }),
+          ctx.signals.signal(`${componentIdPrefix}.$props`)?.value,
+          componentInstance.emit.bind(componentInstance),
+          componentInstance.registerCleanup.bind(componentInstance),
+          componentInstance.generateScopedId.bind(componentInstance),
+          args, body
+        );
+        componentActions[actionName] = actionFn;
+      }
+
+      // Call the main script function, binding 'this' to the component's root and passing the context variables.
       scriptFunction.call(
         componentInstance.root,
         componentInstance,
@@ -355,7 +391,8 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
         ctx.signals.signal(`${componentIdPrefix}.$props`)?.value,
         componentInstance.emit.bind(componentInstance),
         componentInstance.registerCleanup.bind(componentInstance),
-        componentInstance.generateScopedId.bind(componentInstance)
+        componentInstance.generateScopedId.bind(componentInstance),
+        componentActions // Pass the new $actions object
       )
     } catch (e) {
       console.error(`[Datastar] Error executing inline script for <${componentInstance.tagName}>:`, e)
