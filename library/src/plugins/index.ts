@@ -19,6 +19,7 @@ import { Persist } from './official/browser/attributes/persist'
 import { ReplaceUrl } from './official/browser/attributes/replaceUrl'
 import { ScrollIntoView } from './official/browser/attributes/scrollIntoView'
 import { ViewTransition } from './official/browser/attributes/viewTransition'
+import { Component } from './official/browser/attributes/component'
 import { Attr } from './official/dom/attributes/attr'
 import { Bind } from './official/dom/attributes/bind'
 import { Class } from './official/dom/attributes/class'
@@ -62,6 +63,7 @@ export {
   ReplaceUrl,
   ScrollIntoView,
   ViewTransition,
+  Component,
   // Logic
   Fit,
   SetAll,
