@@ -21,6 +21,7 @@ import { Persist } from '../plugins/official/browser/attributes/persist'
 import { ReplaceUrl } from '../plugins/official/browser/attributes/replaceUrl'
 import { ScrollIntoView } from '../plugins/official/browser/attributes/scrollIntoView'
 import { ViewTransition } from '../plugins/official/browser/attributes/viewTransition'
+import { Component } from '../plugins/official/browser/attributes/component'
 import { Attr } from '../plugins/official/dom/attributes/attr'
 import { Bind } from '../plugins/official/dom/attributes/bind'
 import { Class } from '../plugins/official/dom/attributes/class'
@@ -65,6 +66,7 @@ load(
   ReplaceUrl,
   ScrollIntoView,
   ViewTransition,
+  Component,
   // Logic
   Fit,
   SetAll,
