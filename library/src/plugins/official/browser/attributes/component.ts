@@ -212,7 +212,7 @@ export class DatastarComponent extends HTMLElement {
  * @param source The value of the data-component attribute (URL or inline HTML).
  * @returns A promise that resolves with the component's HTML string.
  */
-async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], source: string): Promise<string> {
+async function getTemplateHtml(source: string): Promise<string> {
   // The source itself might be a signal, so we evaluate it reactively.
   const evaluatedSource = source
   if (typeof evaluatedSource !== 'string' || !evaluatedSource) {
@@ -414,7 +414,7 @@ async function defineComponent(ctx: Parameters<AttributePlugin['onLoad']>[0], el
   if (customElements.get(tagName)) return
 
   // Fetch and parse the component's HTML.
-  const htmlContent = await getTemplateHtml(ctx, componentSrc)
+  const htmlContent = await getTemplateHtml(componentSrc)
   const { templateContent, styles, scripts, shadowMode, formAssociated } = parseComponentHTML(htmlContent, tagName)
 
   // Define the custom element class dynamically.
@@ -496,7 +496,7 @@ export const Component: AttributePlugin = {
           // If definition fails, check for a fallback attribute and try to render its content.
           const fallbackAttr = el.getAttribute('data-component-fallback')
           if (fallbackAttr) {
-            getTemplateHtml(ctx, fallbackAttr)
+            getTemplateHtml(fallbackAttr)
                   .then(fallbackHtml => { el.innerHTML = fallbackHtml })
                   .catch(fallbackError => {
                     console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError)
