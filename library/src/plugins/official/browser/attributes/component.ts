@@ -214,7 +214,7 @@ export class DatastarComponent extends HTMLElement {
  */
 async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], source: string): Promise<string> {
   // The source itself might be a signal, so we evaluate it reactively.
-  const evaluatedSource = ctx.genRX()(source) // Use genRX() for evaluation
+  const evaluatedSource = source
   if (typeof evaluatedSource !== 'string' || !evaluatedSource) {
     throw new Error('data-component attribute must resolve to a non-empty string (URL or inline template).')
   }
