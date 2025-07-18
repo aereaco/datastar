@@ -452,7 +452,7 @@ async function defineComponent(ctx: Parameters<AttributePlugin['onLoad']>[0], el
 export const Component: AttributePlugin = {
   type: PluginType.Attribute,
   name: 'component',
-  keyReq: Requirement.Denied, // data-component does not use a key (e.g., data-component:key)
+  keyReq: Requirement.Allowed, // data-component does not use a key (e.g., data-component:key)
   valReq: Requirement.Must,   // data-component requires a value (the source URL or inline HTML)
   onLoad: (ctx) => {
     const { el, value: componentSrc, signals, effect } = ctx
