@@ -45,7 +45,6 @@ module Consts =
 
     /// Default: morph - Morphs the fragment into the existing element using idiomorph.
     let DefaultFragmentMergeMode = Morph
-    
 
     let [<Literal>] DefaultFragmentsUseViewTransitions = false
     let [<Literal>] DefaultMergeSignalsOnlyIfMissing = false
