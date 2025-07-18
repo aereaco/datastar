@@ -42,10 +42,11 @@ export class DatastarComponent extends HTMLElement {
   _styles?: (HTMLStyleElement | HTMLLinkElement)[]
   _scripts?: HTMLScriptElement[]
 
-  constructor() {
+  constructor(dsCtx: Parameters<AttributePlugin['onLoad']>[0]) {
     super()
     this.internals = this.attachInternals()
     this.root = this // Initialize root to 'this' to satisfy strictPropertyInitialization
+    this._dsCtx = dsCtx // Assign the passed context
   }
 
   // --- Public Methods for Component Authors ---
@@ -424,14 +425,11 @@ async function defineComponent(ctx: Parameters<AttributePlugin['onLoad']>[0], el
       static formAssociated = formAssociated // Set form association based on template metadata.
 
       constructor() {
-        super()
+        super(ctx) // Pass ctx to the base constructor
         this._componentSrc = componentSrc
         this._isShadowDOM = !!shadowMode
-        // Attach Shadow DOM if specified, otherwise use the element itself as the root.
         this.root = this._isShadowDOM ? this.attachShadow({ mode: shadowMode as ShadowRootMode }) : this
         
-        // Store the Datastar context and parsed content on the instance for use in connectedCallback.
-        this._dsCtx = ctx
         this._templateContent = templateContent
         this._styles = styles
         this._scripts = scripts
