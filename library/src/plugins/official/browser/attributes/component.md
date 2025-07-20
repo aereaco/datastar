@@ -1,4 +1,4 @@
-# `component.ts`: A Deep Dive
+# `component.ts`: Hypermedia Web Component Plugin
 
 The `component.ts` plugin is a cornerstone of building larger, more organized applications with Nexus UX. It provides a powerful, HTML-first component model that allows you to create reusable, encapsulated, and stateful UI pieces using simple HTML attributes and templates.
 
