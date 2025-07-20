@@ -124,7 +124,7 @@ export class DatastarComponent extends HTMLElement {
    */
   connectedCallback() {
     // Handle declarative `data-component-connected` attribute.
-    const connectedExpr = this.getAttribute('data-component-connected')
+    const connectedExpr = this.getAttribute('data-component:connected')
     if (connectedExpr && this._dsCtx) {
       try {
         this._dsCtx.genRX()(connectedExpr)
@@ -180,12 +180,12 @@ export class DatastarComponent extends HTMLElement {
    * functions are executed to prevent memory leaks.
    */
   disconnectedCallback() {
-    // Handle declarative cleanup via `data-on-disconnect` attribute.
-    const disconnectExpr = this.getAttribute('data-on-disconnect')
+    // Handle declarative cleanup via `data-component:disconnected` attribute.
+    const disconnectExpr = this.getAttribute('data-component:disconnected')
     if (disconnectExpr && this._dsCtx) {
       try {
         // Evaluate the expression in the context of the component instance.
-        this._dsCtx.genRX()(disconnectExpr) // Use genRX() for evaluation
+        this._dsCtx.genRX()(disconnectExpr)
       } catch (e) {
         console.error(`[Datastar] Error in data-on-disconnect for <${this.tagName}>:`, e)
       }
@@ -249,7 +249,6 @@ function parseComponentHTML(htmlString: string, tagName: string) {
   }
 
   const shadowMode = templateElement.getAttribute('shadowroot')
-  const formAssociated = templateElement.hasAttribute('data-component-form-associated') // FIX: Changed to data-component-form-associated
   const templateContent = templateElement.content
   const styles = Array.from(templateContent.querySelectorAll('style, link[rel="stylesheet"]')) as (HTMLStyleElement | HTMLLinkElement)[];
   const scripts = Array.from(templateContent.querySelectorAll('script')) as HTMLScriptElement[];
@@ -259,7 +258,7 @@ function parseComponentHTML(htmlString: string, tagName: string) {
   styles.forEach((s) => s.remove())
   scripts.forEach((s) => s.remove())
 
-  return { templateContent, styles, scripts, shadowMode, formAssociated }
+  return { templateContent, styles, scripts, shadowMode }
 }
 
 /**
@@ -409,14 +408,14 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
  * @param componentSrc The source URL or inline HTML of the component.
  * @returns A promise that resolves when the custom element class has been defined.
  */
-async function defineComponent(ctx: Parameters<AttributePlugin['onLoad']>[0], el: HTMLElement, componentSrc: string) {
+async function defineComponent(ctx: Parameters<AttributePlugin['onLoad']>[0], el: HTMLElement, componentSrc: string, formAssociated: boolean) {
   const tagName = el.tagName.toLowerCase()
   // If the custom element is already defined, return immediately.
   if (customElements.get(tagName)) return
 
   // Fetch and parse the component's HTML.
   const htmlContent = await getTemplateHtml(componentSrc)
-  const { templateContent, styles, scripts, shadowMode, formAssociated } = parseComponentHTML(htmlContent, tagName)
+  const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName)
 
   // Define the custom element class dynamically.
   customElements.define(
@@ -455,11 +454,10 @@ export const Component: AttributePlugin = {
   onLoad: (ctx) => {
     const { el, value: componentSrc, signals, effect } = ctx
     const tagName = el.tagName.toLowerCase()
-    const definitionCacheKey = `${tagName}-${componentSrc}`
 
-    // Generate a unique prefix for signals scoped to this component instance.
-    // This ensures that each component instance has its own isolated set of signals.
-    const componentIdPrefix = `${tagName}-${el.id || componentSrc.replace(/[^a-zA-Z0-9]/g, '')}`;
+    // If a key is present (e.g., data-component:connected), do nothing.
+    // The logic is handled by the custom element's lifecycle callbacks which read these attributes.
+    if (ctx.key) return
 
     // 1. Set up reactive properties (data-signals-*)
     // This section creates signals within the component's scope that are automatically
@@ -470,7 +468,7 @@ export const Component: AttributePlugin = {
     for (const attr of Array.from(el.attributes)) {
       if (attr.name.startsWith('data-signals-')) {
         const propName = attr.name.substring('data-signals-'.length)
-        const signalPath = `${componentIdPrefix}.${propName}`;
+        const signalPath = `${tagName}.${propName}`;
         const { signal: propSignal } = signals.upsertIfMissing<any>(signalPath, undefined);
         propSignals[propName] = propSignal;
         
@@ -483,27 +481,34 @@ export const Component: AttributePlugin = {
     }
     // Expose all reactive properties as a single reactive object under $props on the component's scope.
     // The $props signal itself holds a plain object where keys are prop names and values are the actual signals.
-    signals.upsertIfMissing(`${componentIdPrefix}.$props`, propSignals);
+    signals.upsertIfMissing(`${tagName}.$props`, propSignals);
 
     // 2. Handle component definition and rendering.
-    // This logic is now unconditional, as conditional loading is handled by `data-show` on a wrapper.
+    const isFormAssociated = el.hasAttribute('data-component:formAssociated');
+    const definitionCacheKey = `${tagName}-${componentSrc}`
     if (!componentDefinitionCache.has(definitionCacheKey)) {
-      const definitionPromise = defineComponent(ctx, el as HTMLElement, componentSrc)
+      const definitionPromise = defineComponent(ctx, el as HTMLElement, componentSrc, isFormAssociated)
         .catch(error => {
           console.error(`[Datastar] Error defining component <${tagName}> from source "${componentSrc}":`, error)
           // If definition fails, check for a fallback attribute and try to render its content.
-          const fallbackAttr = el.getAttribute('data-component-fallback')
+          const fallbackAttr = el.getAttribute('data-component:fallback')
           if (fallbackAttr) {
-            getTemplateHtml(fallbackAttr)
-                  .then(fallbackHtml => { el.innerHTML = fallbackHtml })
-                  .catch(fallbackError => {
-                    console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError)
-                    // If fallback also fails, display a generic error message.
-                    el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
-                  })
+            getTemplateHtml(fallbackAttr).then(fallbackHtml => {
+              try {
+                const { templateContent } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`)
+                el.innerHTML = '' // Clear any existing content
+                el.appendChild(templateContent)
+              } catch (e) {
+                console.error(`[Datastar] Error parsing fallback for <${tagName}>:`, e)
+                el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
               }
-              throw error // Re-throw the error to propagate it further if needed.
+            }).catch(fallbackError => {
+              console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError)
+              el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
             })
+          }
+          throw error // Re-throw the error to propagate it further if needed.
+        })
           componentDefinitionCache.set(definitionCacheKey, definitionPromise)
         }
 

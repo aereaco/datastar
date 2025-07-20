@@ -12,18 +12,19 @@ Our initial foray into this new territory has been incredibly exciting. With the
 
 #### 🔭 New Discoveries (In Development)
 
-*   **The `component.ts` Plugin:** We are deep in the development of a powerful new browser attribute plugin: `data-component`. Our goal is to provide a first-class, HTML-native component model directly within Nexus UX. This will allow you to build reusable, encapsulated UI pieces with their own scoped logic and styles, without ever leaving the comfort of HTML.
+*   **The `component.ts` Plugin:** We have completed the initial version of our powerful new browser attribute plugin: `data-component`. This provides a first-class, HTML-native component model directly within Nexus UX, allowing you to build reusable, encapsulated UI pieces with their own scoped logic and styles.
 
-    We envision a system where you can define a component in a separate HTML file and instantiate it with reactive props, like so:
+    You can now define a component in a separate HTML file (or inline) and instantiate it with reactive props, lifecycle hooks, and more, all using declarative attributes:
 
     ```html
     <user-profile
       data-component="/components/profile.html"
-      data-signals-userId="123"
+      data-signals-userId="'123'"
+      data-component:connected="console.log('Profile loaded!')"
     ></user-profile>
     ```
 
-    This plugin is a critical step towards enabling larger, more organized applications while maintaining the simplicity and declarative nature that is central to our mission. It's about structure and reusability, done the Nexus UX way.
+    This plugin is a critical step towards enabling larger, more organized applications while maintaining the simplicity and declarative nature that is central to our mission. It's structure and reusability, done the Nexus UX way.
 
 #### 🗺️ Charting the Course (What's Next)
 

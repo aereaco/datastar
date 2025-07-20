@@ -143,32 +143,34 @@ Here's a breakdown of each plugin, its functionality, and how it's typically use
         <my-profile
           data-component="/components/profile.html"
           data-signals-userName="'Alice'"
-          data-signals-userAge="25"
-          data-component-connected="$signals.userName.value = 'Connected!'"
-          data-component-fallback="<p>Failed to load profile.</p>"
+          data-signals-userAge="30"
+          data-component:connected="console.log('Component is ready!')"
+          data-component:disconnected="console.log('Component is being removed.')"
+          data-component:formAssociated
+          data-component:fallback="<template><p>Failed to load profile.</p></template>"
         ></my-profile>
 
         <!-- In /components/profile.html -->
-        <template shadowroot="open" data-component-form-associated>
+        <template shadowroot="open">
           <style>
             :host {
               display: block;
               border: 1px solid gray;
               padding: 1rem;
             }
-            .name { color: blue; }
           </style>
           <div data-signals-internalCount="0">
-            <h3 class="name" data-text="userName"></h3>
-            <p data-text="userAge"></p>
+            <h3 data-text="$props.userName"></h3>
+            <p data-text="$props.userAge"></p>
             <button data-on-click="$signals.internalCount.value++">
-              Clicked <span data-text="internalCount"></span> times
+              Clicked <span data-text="$signals.internalCount"></span> times
             </button>
             <script type="module">
-              // Access instance-scoped signals
-              console.log("Component connected! User:", $signals.userName.value);
-              // Access props via $props
-              console.log("Props object:", $props.userName.value);
+              // Access props passed into the component via the $props object
+              console.log("User from props:", $props.userName);
+
+              // Access signals defined within this component's template
+              console.log("Initial internal count:", $signals.internalCount);
 
               // Define a component-scoped action
               export function resetCount() {
@@ -177,7 +179,7 @@ Here's a breakdown of each plugin, its functionality, and how it's typically use
 
               // Use component instance methods
               componentInstance.registerCleanup(() => {
-                console.log("Component disconnected!");
+                console.log("Cleanup function for my-profile is running!");
               });
             </script>
           </div>
