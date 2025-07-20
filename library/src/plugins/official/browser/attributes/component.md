@@ -2,11 +2,11 @@
 
 The `component.ts` plugin is a cornerstone of building larger, more organized applications with Nexus UX. It provides a powerful, HTML-first component model that allows you to create reusable, encapsulated, and stateful UI pieces using simple HTML attributes and templates.
 
-This guide provides a detailed overview of how to utilize the `data-component` attribute, covering both its declarative HTML API and its imperative JavaScript API.
+This guide provides a detailed overview of how to create and use components, covering both the external declarative API on the host element and the internal imperative API within the component's template.
 
 ## Overview
 
-The primary goal of the `component.ts` plugin is to turn any element with a `data-component` attribute into a custom element on the fly. It handles:
+The primary goal of the `component.ts` plugin is to turn any element with a `data-component` attribute into a custom element on the fly. It handles everything you need:
 
 - **Template Loading**: Fetches component templates from external files or inline strings.
 - **Scope Isolation**: Creates a private, reactive state (signals) for each component instance.
@@ -17,20 +17,34 @@ The primary goal of the `component.ts` plugin is to turn any element with a `dat
 
 ---
 
-## Declarative Usage (The HTML API)
+## Configuring the Host Element (The Declarative API)
 
-This is how you use and configure components directly within your HTML.
+This is how you use and configure components from the outside, by adding attributes directly to the host element (e.g., `<my-component ...>`).
 
-### `data-component`
+### Host Attribute Summary
 
-This is the main attribute that activates the plugin. It accepts either a URL to an external HTML file or an inline HTML string. **Crucially, the content for both external and inline sources must be encapsulated within a top-level `<template>` tag.**
+| Attribute | Description |
+|---|---|
+| `data-component` | **(Required)** The core attribute. Loads the component's template from a URL or an inline string. The content **must** be wrapped in a `<template>` tag. |
+| `data-signals-*` | Passes reactive data (props) from the parent scope into the component. Available inside as the `$props` object. |
+| `data-component:connected` | An expression to run when the component is fully initialized and connected to the DOM. |
+| `data-component:disconnected` | An expression to run just before the component is removed from the DOM. |
+| `data-component:fallback` | A fallback template (URL or inline string) to render if the main `data-component` template fails to load. |
+| `data-component:formAssociated` | A boolean attribute that makes the component compatible with native `<form>` elements. |
+| `data-component:noGlobalStyles` | A boolean attribute that prevents global styles from being inherited by a component using the Shadow DOM. |
+
+### Host Attribute Examples
+
+#### `data-component`
+
+This is the main attribute that activates the plugin. It accepts either a URL to an external HTML file or an inline HTML string.
 
 ```html
 <!-- 1. External Template -->
 <user-card data-component="/components/user-card.html"></user-card>
 
 <!-- 2. Inline Template -->
-<item-counter data-component="<template>...</template>"></item-counter>
+<item-counter data-component="<template><p>Hello!</p></template>"></item-counter>
 ```
 
 ### Passing Reactive Props (`data-signals-*`)

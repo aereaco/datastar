@@ -182,6 +182,7 @@ Now that you understand the architecture, let's explore the tools at your dispos
         - **Lifecycle Hooks**: Use keys like `data-component:connected` and `data-component:disconnected`.
         - **DOM Encapsulation**: Use the `shadowroot="open|closed"` attribute on the `<template>` tag for Shadow DOM.
         - **Form Integration**: Make components form-associated with the `data-component:formAssociated` key.
+        - **Style Isolation**: Prevent global styles from being inherited by Shadow DOM components with `data-component:noGlobalStyles`.
         - **Error Handling**: Provide a graceful fallback with the `data-component:fallback` key.
         ```html
         <!-- Example: A form-associated user-card component -->

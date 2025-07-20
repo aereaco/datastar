@@ -136,7 +136,7 @@ Here's a breakdown of each plugin, its functionality, and how it's typically use
 **A. Browser-Specific Attribute Plugins (`library/src/plugins/official/browser/attributes/`)**
 
 1.  **`component.ts` (Our Plugin)**
-    *   **Functionality:** Defines a powerful HTML-first component model. It dynamically defines custom elements, manages their lifecycle, handles reactive props (`data-signals-*`), executes component-scoped scripts, and supports Shadow DOM.
+    *   **Functionality:** Defines a powerful HTML-first component model. It dynamically defines custom elements, manages their lifecycle, handles reactive props (`data-signals-*`), executes component-scoped scripts, and supports Shadow DOM. By default, components using the Shadow DOM inherit global styles from the main document; this can be disabled with `data-component:noGlobalStyles`.
     *   **Usage Example:**
         ```html
         <!-- In your main HTML -->
@@ -147,6 +147,7 @@ Here's a breakdown of each plugin, its functionality, and how it's typically use
           data-component:connected="console.log('Component is ready!')"
           data-component:disconnected="console.log('Component is being removed.')"
           data-component:formAssociated
+          data-component:noGlobalStyles
           data-component:fallback="<template><p>Failed to load profile.</p></template>"
         ></my-profile>
 
