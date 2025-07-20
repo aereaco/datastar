@@ -176,13 +176,44 @@ Now that you understand the architecture, let's explore the tools at your dispos
 ---
 #### `browser/`
 *   ##### `attributes/`
-    *   **`component.ts`**: Defines a powerful HTML-first component model with lifecycle hooks, props, and Shadow DOM support.
+    *   **`component.ts`**: Defines a powerful HTML-first component model. It can load templates from an external file or an inline string, and supports both Light DOM and Shadow DOM (`open` or `closed`) for encapsulation.
         ```html
-        <!-- Defines a custom element <user-profile> from an external HTML file -->
-        <user-profile
-          data-component="/components/profile.html"
-          data-signals-userId="123"
-        ></user-profile>
+        <!-- Example 1: External Template with Open Shadow DOM -->
+        <user-card data-component="/components/user-card.html" data-signals-username="'Alice'"></user-card>
+
+        <!-- /components/user-card.html -->
+        <template shadowroot="open">
+          <style>
+            :host { display: block; border: 1px solid #ccc; padding: 1rem; }
+            .username { color: blue; }
+          </style>
+          <p>User: <span class="username" data-text="$username"></span></p>
+        </template>
+        ```
+        ```html
+        <!-- Example 2: Inline Template with Light DOM on a custom element -->
+        <item-counter
+          data-component="
+            <template>
+              <style>
+                .counter { font-weight: bold; }
+              </style>
+              <div data-signals-count='0'>
+                <p>Count: <span class='counter' data-text='$count'></span></p>
+                <button data-on-click='$count++'>Increment</button>
+              </div>
+            </template>
+          "
+        ></item-counter>
+        ```
+        ```html
+        <!-- Example 3: Closed Shadow DOM for full encapsulation -->
+        <secret-widget data-component="/components/secret-widget.html"></secret-widget>
+        
+        <!-- /components/secret-widget.html -->
+        <template shadowroot="closed">
+          <p>This content is completely encapsulated.</p>
+        </template>
         ```
     *   **`customValidity.ts`**: Sets a custom validation message on a form element.
         ```html
