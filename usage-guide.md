@@ -152,7 +152,7 @@ Here's a breakdown of each plugin, its functionality, and how it's typically use
         ></my-profile>
 
         <!-- In /components/profile.html -->
-        <template shadowroot="open">
+        <template shadowrootmode="open">
           <style>
             :host {
               display: block;

@@ -92,9 +92,9 @@ If an external component template fails to load, you can provide fallback HTML t
 
 The `<template>` tag within your component's HTML file can be configured with special attributes.
 
-- **`shadowroot="open|closed"`**: Controls DOM encapsulation.
-  - `open`: Creates an open Shadow DOM. The component's styles and structure are encapsulated, but the shadow root is accessible from outside JavaScript.
-  - `closed`: Creates a closed Shadow DOM for complete encapsulation.
+- **`shadowrootmode="open|closed"`**: Controls DOM encapsulation using the native Declarative Shadow DOM API.
+  - `open`: Creates an open Shadow DOM. The component's styles and structure are encapsulated, but the shadow root is accessible from outside JavaScript (`element.shadowRoot`).
+  - `closed`: Creates a closed Shadow DOM for complete encapsulation. The shadow root is not accessible from outside JavaScript.
   - *No attribute*: The component will use the Light DOM, and its content will be rendered directly inside the host element.
 
 ### Form-Associated Components (`data-component:formAssociated`)

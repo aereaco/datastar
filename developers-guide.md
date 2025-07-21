@@ -180,7 +180,7 @@ Now that you understand the architecture, let's explore the tools at your dispos
         It supports:
         - **Reactive Props**: Pass data in via `data-signals-*` attributes, accessible via `$props`.
         - **Lifecycle Hooks**: Use keys like `data-component:connected` and `data-component:disconnected`.
-        - **DOM Encapsulation**: Use the `shadowroot="open|closed"` attribute on the `<template>` tag for Shadow DOM.
+        - **DOM Encapsulation**: Use the native `shadowrootmode="open|closed"` attribute on the `<template>` tag for Declarative Shadow DOM.
         - **Form Integration**: Make components form-associated with the `data-component:formAssociated` key.
         - **Style Isolation**: Prevent global styles from being inherited by Shadow DOM components with `data-component:noGlobalStyles`.
         - **Error Handling**: Provide a graceful fallback with the `data-component:fallback` key.
@@ -195,7 +195,7 @@ Now that you understand the architecture, let's explore the tools at your dispos
         ></user-card>
 
         <!-- /components/user-card.html -->
-        <template shadowroot="open">
+        <template shadowrootmode="open">
           <style>
             :host { display: block; border: 1px solid #ccc; padding: 1rem; }
           </style>
