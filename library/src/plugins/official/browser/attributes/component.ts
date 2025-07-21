@@ -23,22 +23,26 @@ export class DatastarComponent extends HTMLElement {
   _dsInstanceId: number = Date.now() + Math.random()
   // Flag to ensure content is attached only once, especially important for hydration.
   _dsContentAttached = false
+  // The source URL or inline HTML of the component.
+  _componentSrc = ''
+  // Indicates if the component uses Shadow DOM.
+  _isShadowDOM = false
   // Indicates if the component should inherit global styles. Defaults to true.
   _dsInheritGlobalStyles = true
   // Stores the Datastar context for use in lifecycle methods like disconnectedCallback.
   _dsCtx?: Parameters<AttributePlugin['onLoad']>[0]
-
-  // These properties hold the parsed content, styles, and scripts from the component's template.
-  _templateContent?: DocumentFragment
-  _styles?: (HTMLStyleElement | HTMLLinkElement)[]
-  _scripts?: HTMLScriptElement[]
-  _isShadowDOM = false
 
   // --- Public properties ---
   // The root where the component's content is rendered (ShadowRoot or the element itself).
   root: ShadowRoot | this
   // Provides access to the element's form-associated capabilities.
   internals: ElementInternals
+
+  // These properties hold the parsed content, styles, and scripts from the component's template.
+  // They are populated during the component definition phase and used in connectedCallback.
+  _templateContent?: DocumentFragment
+  _styles?: (HTMLStyleElement | HTMLLinkElement)[]
+  _scripts?: HTMLScriptElement[]
 
   constructor(dsCtx: Parameters<AttributePlugin['onLoad']>[0]) {
     super()
@@ -131,14 +135,16 @@ export class DatastarComponent extends HTMLElement {
       }
     }
 
-    // Prevent re-attaching content if already attached or if context is missing.
+    // Prevent re-attaching content if the component is re-connected (e.g., moved in DOM).
     if (this._dsContentAttached || !this._dsCtx) return
     this._dsContentAttached = true
 
     // If using Shadow DOM, inherit global styles by default unless opted out.
+    // This must be done before appending the component's own content and styles
+    // to allow component-specific styles to override global ones.
     if (this._isShadowDOM && this._dsInheritGlobalStyles) {
       document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((styleNode) => {
-        this.root.appendChild(styleNode.cloneNode(true))
+        this.root.appendChild(styleNode.cloneNode(true));
       })
     }
 
@@ -153,12 +159,17 @@ export class DatastarComponent extends HTMLElement {
     }
 
     // IMPORTANT: Recursively walk the newly attached DOM within the component's root.
-    // This initializes all Datastar attributes inside the component.
+    // This initializes all Datastar attributes (data-*, data-on-*, etc.) inside the component.
     if (this._isShadowDOM) {
+      // When using Shadow DOM, the content is appended to this.root (the ShadowRoot).
+      // We need to apply Datastar to the elements *inside* the ShadowRoot.
+      // The applyToElement function expects an Element, not a ShadowRoot.
+      // So, we iterate over the children of the ShadowRoot.
       Array.from(this.root.children).forEach(child => {
         this._dsCtx!.applyToElement(child as HTMLElement); // Cast to HTMLElement
       });
     } else {
+      // For Light DOM, this.root is the custom element itself, which is an HTMLElement.
       this._dsCtx.applyToElement(this.root as HTMLElement); // Cast to HTMLElement
     }
 
@@ -427,12 +438,15 @@ async function defineComponent(
   customElements.define(
     tagName,
     class extends DatastarComponent {
-      static formAssociated = formAssociated
+      static formAssociated = formAssociated // Set form association based on template metadata.
+
       constructor() {
         super(ctx) // Pass ctx to the base constructor
-        this._dsInheritGlobalStyles = inheritGlobalStyles
+        this._componentSrc = componentSrc
         this._isShadowDOM = !!shadowMode
+        this._dsInheritGlobalStyles = inheritGlobalStyles
         this.root = this._isShadowDOM ? this.attachShadow({ mode: shadowMode as ShadowRootMode }) : this
+        
         this._templateContent = templateContent
         this._styles = styles
         this._scripts = scripts
@@ -500,16 +514,9 @@ export const Component: AttributePlugin = {
           if (fallbackAttr) {
             getTemplateHtml(fallbackAttr).then(fallbackHtml => {
               try {
-                const { templateContent, shadowMode } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`)
-                // Fallback doesn't get styles or scripts processed, just content.
-                if (shadowMode) {
-                  // If the fallback itself wants a shadow root, create it.
-                  const shadow = el.attachShadow({ mode: shadowMode as ShadowRootMode })
-                  shadow.appendChild(templateContent)
-                } else {
-                  el.innerHTML = '' // Clear element
-                  el.appendChild(templateContent)
-                }
+                const { templateContent } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`)
+                el.innerHTML = '' // Clear any existing content
+                el.appendChild(templateContent)
               } catch (e) {
                 console.error(`[Datastar] Error parsing fallback for <${tagName}>:`, e)
                 el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
