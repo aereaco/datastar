@@ -143,8 +143,29 @@ export class DatastarComponent extends HTMLElement {
     // This must be done before appending the component's own content and styles
     // to allow component-specific styles to override global ones.
     if (this._isShadowDOM && this._dsInheritGlobalStyles) {
-      document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((styleNode) => {
-        this.root.appendChild(styleNode.cloneNode(true));
+      // Inherit global styles by cloning them into the shadow root.
+      document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
+        this.root.appendChild(node.cloneNode(true))
+      })
+
+      // Inherit global scripts. This is crucial for libraries like Tailwind UI,
+      // Flowbite, etc., whose JS needs to run within the shadow DOM scope.
+      document.querySelectorAll('script').forEach((scriptNode) => {
+        // To ensure execution, we must create a new script element.
+        // Cloning and appending is not reliable for inline scripts.
+        const newScript = document.createElement('script')
+
+        // Copy all attributes (src, type, defer, async, etc.)
+        for (const attr of scriptNode.attributes) {
+          newScript.setAttribute(attr.name, attr.value)
+        }
+
+        // Copy the content for inline scripts.
+        if (!scriptNode.hasAttribute('src')) {
+          newScript.textContent = scriptNode.textContent
+        }
+
+        this.root.appendChild(newScript)
       })
     }
 
