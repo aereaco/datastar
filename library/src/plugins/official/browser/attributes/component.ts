@@ -27,8 +27,6 @@ export class DatastarComponent extends HTMLElement {
   _componentSrc = ''
   // Indicates if the component uses Shadow DOM.
   _isShadowDOM = false
-  // Indicates if the component should inherit global styles. Defaults to true.
-  _dsInheritGlobalStyles = true
   // Stores the Datastar context for use in lifecycle methods like disconnectedCallback.
   _dsCtx?: Parameters<AttributePlugin['onLoad']>[0]
 
@@ -138,16 +136,6 @@ export class DatastarComponent extends HTMLElement {
     // Prevent re-attaching content if the component is re-connected (e.g., moved in DOM).
     if (this._dsContentAttached || !this._dsCtx) return
     this._dsContentAttached = true
-
-    // If using Shadow DOM, inherit global styles by default unless opted out.
-    // This must be done before appending the component's own content and styles
-    // to allow component-specific styles to override global ones.
-    if (this._isShadowDOM && this._dsInheritGlobalStyles) {
-      // Inherit global styles by cloning them into the shadow root.
-      document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
-        this.root.appendChild(node.cloneNode(true))
-      })
-    }
 
     // Attach the pre-parsed template content to the component's root.
     if (this._templateContent) {
@@ -425,7 +413,6 @@ async function defineComponent(
   el: HTMLElement,
   componentSrc: string,
   formAssociated: boolean,
-  inheritGlobalStyles: boolean,
 ) {
   const tagName = el.tagName.toLowerCase()
   // If the custom element is already defined, return immediately.
@@ -445,7 +432,6 @@ async function defineComponent(
         super(ctx) // Pass ctx to the base constructor
         this._componentSrc = componentSrc
         this._isShadowDOM = !!shadowMode
-        this._dsInheritGlobalStyles = inheritGlobalStyles
         this.root = this._isShadowDOM ? this.attachShadow({ mode: shadowMode as ShadowRootMode }) : this
         
         this._templateContent = templateContent
@@ -504,10 +490,9 @@ export const Component: AttributePlugin = {
 
     // 2. Handle component definition and rendering.
     const isFormAssociated = el.hasAttribute('data-component:formAssociated');
-    const inheritGlobalStyles = !el.hasAttribute('data-component:noGlobalStyles');
     const definitionCacheKey = `${tagName}-${componentSrc}`
     if (!componentDefinitionCache.has(definitionCacheKey)) {
-      const definitionPromise = defineComponent(ctx, el as HTMLElement, componentSrc, isFormAssociated, inheritGlobalStyles)
+      const definitionPromise = defineComponent(ctx, el as HTMLElement, componentSrc, isFormAssociated)
         .catch(error => {
           console.error(`[Datastar] Error defining component <${tagName}> from source "${componentSrc}":`, error)
           // If definition fails, check for a fallback attribute and try to render its content.

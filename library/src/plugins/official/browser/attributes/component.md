@@ -31,7 +31,6 @@ This is how you use and configure components from the outside, by adding attribu
 | `data-component:disconnected` | An expression to run just before the component is removed from the DOM. |
 | `data-component:fallback` | A fallback template (URL or inline string) to render if the main `data-component` template fails to load. |
 | `data-component:formAssociated` | A boolean attribute that makes the component compatible with native `<form>` elements. |
-| `data-component:noGlobalStyles` | A boolean attribute that prevents global styles from being inherited by a component using the Shadow DOM. |
 
 ### Host Attribute Examples
 
