@@ -244,9 +244,12 @@ async function getTemplateHtml(source: string): Promise<string> {
  * @throws Error if no <template> tag is found.
  */
 function parseComponentHTML(htmlString: string, tagName: string) {
-  // With Declarative Shadow DOM, we just need to ensure the template tag exists.
-  // The browser will do the heavy lifting of parsing and attaching.
-  if (!htmlString.trim().startsWith('<template>')) {
+  // Use DOMParser to robustly check for the presence of a <template> tag,
+  // allowing for leading whitespace or comments in the HTML file. The previous
+  // `startsWith` check was too brittle for real-world HTML files.
+  const doc = new DOMParser().parseFromString(htmlString, 'text/html')
+  const templateElement = doc.querySelector('template')
+  if (!templateElement) {
     throw new Error(`Component HTML for <${tagName}> must be wrapped in a <template> tag.`)
   }
 }
