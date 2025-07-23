@@ -75,6 +75,10 @@ export const EventTypes = {
     RemoveSignals: "datastar-remove-signals",
     // An event for executing <script/> elements in the browser.
     ExecuteScript: "datastar-execute-script",
+    // An event for patching elements.
+    PatchElements: "patch-elements",
+    // An event for patching signals.
+    PatchSignals: "patch-signals",
 } as const;
 // #endregion
 

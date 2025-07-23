@@ -156,6 +156,11 @@ export function walkNestedValues(
   }
 }
 
+export type SignalFilterOptions = {
+  include?: RegExp
+  exclude?: RegExp
+}
+
 export class SignalsRoot {
   #signals: NestedSignal = {}
 
@@ -299,5 +304,34 @@ export class SignalsRoot {
 
   public toString() {
     return this.JSON()
+  }
+
+  /**
+   * Returns a filtered subset of signals as NestedValues.
+   */
+  filtered(opts?: SignalFilterOptions, obj?: NestedValues): NestedValues {
+    const result: NestedValues = {};
+    const source = obj || this.#signals;
+
+    function walk(nv: NestedValues, path: string[] = []) {
+      for (const key in nv) {
+        if (!Object.hasOwn(nv, key)) continue;
+        const value = nv[key];
+        const fullPath = [...path, key].join('.');
+
+        let include = true;
+        if (opts?.include && !opts.include.test(fullPath)) include = false;
+        if (opts?.exclude && opts.exclude.test(fullPath)) include = false;
+
+        if (include) result[fullPath] = value;
+
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          walk(value as NestedValues, [...path, key]);
+        }
+      }
+    }
+
+    walk(source);
+    return result;
   }
 }

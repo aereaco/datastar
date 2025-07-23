@@ -4,14 +4,8 @@
 // Description: must be a valid signal name
 
 import {
-  type AttributePlugin,
-  PluginType,
-  Requirement,
-} from '../../../../engine/types'
-import { modifyCasing, trimDollarSignPrefix } from '../../../../utils/text'
-import {
-  DATASTAR_SSE_EVENT,
-  type DatastarSSEEvent,
+  DATASTAR_FETCH_EVENT,
+  type DatastarFetchEvent,
   FINISHED,
   STARTED,
 } from '../shared'
@@ -26,12 +20,12 @@ export const Indicator: AttributePlugin = {
       ? modifyCasing(key, mods)
       : trimDollarSignPrefix(value)
     const { signal } = signals.upsertIfMissing(signalName, false)
-    const watcher = ((event: CustomEvent<DatastarSSEEvent>) => {
+    const watcher = ((event: CustomEvent<DatastarFetchEvent>) => {
       const {
         type,
-        elId,
+        el,
       } = event.detail
-      if (elId !== el.id) return
+      if (event.detail.el !== el) return
       switch (type) {
         case STARTED:
           signal.value = true
@@ -39,11 +33,11 @@ export const Indicator: AttributePlugin = {
         case FINISHED:
           signal.value = false
           // Remove the event listener only when finished, in case the element is removed while the request is still in progress
-          document.removeEventListener(DATASTAR_SSE_EVENT, watcher)
+          document.removeEventListener(DATASTAR_FETCH_EVENT, watcher)
           break
       }
     }) as EventListener
 
-    document.addEventListener(DATASTAR_SSE_EVENT, watcher)
+    document.addEventListener(DATASTAR_FETCH_EVENT, watcher)
   },
 }

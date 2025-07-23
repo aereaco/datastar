@@ -3,7 +3,7 @@ import { camel } from '../utils/text'
 import { effect } from '../vendored/preact-core'
 import { DSP, DSS } from './consts'
 import { initErr, runtimeErr } from './errors'
-import { SignalsRoot } from './signals'
+import { SignalsRoot, type SignalFilterOptions } from './signals'
 import {
   type ActionPlugin,
   type ActionPlugins,
@@ -14,6 +14,7 @@ import {
   type InitContext,
   type OnRemovalFn,
   type AttributeUpdateCallback,
+  type NestedValues,
   PluginType,
   Requirement,
   type RuntimeContext,
@@ -240,6 +241,10 @@ function applyAttributePlugin(
     key,
     value,
     mods: new Map(),
+    runtimeErr: (reason: string, metadata?: object) => runtimeErr(reason, ctx, metadata),
+    filtered: (opts?: SignalFilterOptions, obj?: NestedValues) => signals.filtered(opts, obj),
+    fnContent: undefined,
+    evt: undefined,
   }
 
   // Check the requirements

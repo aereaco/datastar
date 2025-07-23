@@ -70,7 +70,7 @@ export type ActionPlugins = Record<string, ActionPlugin>
 export type ActionMethod = (ctx: RuntimeContext, ...args: any[]) => any
 
 export interface ActionPlugin extends DatastarPlugin {
-  type: PluginType.Action
+  type: PluginType
   fn: ActionMethod
 }
 
@@ -97,11 +97,26 @@ export type RuntimeContext = InitContext & {
   mods: Modifiers // the tags and their arguments
   genRX: () => <T>(...args: any[]) => T // a reactive expression
   fnContent?: string // the content of the function
+  evt?: Event // The event that triggered the action
+  runtimeErr: (reason: string, metadata?: object) => Error // runtimeErr is a method
+  filtered: (opts?: SignalFilterOptions | undefined, obj?: NestedValues | undefined) => NestedValues // filtered is a method
 }
 
+export type SignalFilterOptions = {
+  include?: RegExp
+  exclude?: RegExp
+}
+
+
+
+export type Computed<T = any> = () => T
+
+export type Effect = () => void
+
+
+
 export type NestedValues = { [key: string]: NestedValues | any }
-export type NestedSignal = {
-  [key: string]: NestedSignal | Signal<any>
+export type NestedSignal = { [key: string]: NestedSignal | Signal<any>
 }
 
 export type RuntimeExpressionFunction = (
