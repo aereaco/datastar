@@ -104,6 +104,10 @@ pub enum EventType {
     RemoveSignals,
     /// An event for executing <script/> elements in the browser.
     ExecuteScript,
+    /// An event for patching elements.
+    PatchElements,
+    /// An event for patching signals.
+    PatchSignals,
 }
 
 impl EventType {
@@ -115,6 +119,8 @@ impl EventType {
             Self::RemoveFragments => "datastar-remove-fragments",
             Self::RemoveSignals => "datastar-remove-signals",
             Self::ExecuteScript => "datastar-execute-script",
+            Self::PatchElements => "patch-elements",
+            Self::PatchSignals => "patch-signals",
         }
     }
 }

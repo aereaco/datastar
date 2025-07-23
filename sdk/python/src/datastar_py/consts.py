@@ -58,6 +58,12 @@ class EventType(StrEnum):
     # An event for executing <script/> elements in the browser.
     EXECUTE_SCRIPT = "datastar-execute-script"
 
+    # An event for patching elements.
+    PATCH_ELEMENTS = "patch-elements"
+
+    # An event for patching signals.
+    PATCH_SIGNALS = "patch-signals"
+
 
 # endregion EventType
 

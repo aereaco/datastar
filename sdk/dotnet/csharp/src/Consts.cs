@@ -36,6 +36,10 @@ public enum EventType
     RemoveSignals,
     /// An event for executing &lt;script/&gt; elements in the browser.
     ExecuteScript,
+    /// An event for patching elements.
+    PatchElements,
+    /// An event for patching signals.
+    PatchSignals,
 
 }
 
@@ -85,6 +89,8 @@ public static class Consts
         EventType.RemoveFragments => "datastar-remove-fragments",
         EventType.RemoveSignals => "datastar-remove-signals",
         EventType.ExecuteScript => "datastar-execute-script",
+        EventType.PatchElements => "patch-elements",
+        EventType.PatchSignals => "patch-signals",
         _ => throw new NotImplementedException($"EventType.{enumValue}")
     };
 }

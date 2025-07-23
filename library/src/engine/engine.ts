@@ -235,6 +235,7 @@ function applyAttributePlugin(
     actions,
     removals,
     genRX: () => genRX(ctx, ...(plugin.argNames || [])),
+    rx: () => ctx.genRX()(),
     plugin,
     el,
     rawKey,

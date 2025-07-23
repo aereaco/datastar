@@ -106,6 +106,10 @@ pub const EventType = enum {
     remove_signals,
     /// An event for executing <script/> elements in the browser.
     execute_script,
+    /// An event for patching elements.
+    patch_elements,
+    /// An event for patching signals.
+    patch_signals,
 
     pub fn format(
         self: @This(),
@@ -123,6 +127,8 @@ pub const EventType = enum {
                 .remove_fragments => "datastar-remove-fragments",
                 .remove_signals => "datastar-remove-signals",
                 .execute_script => "datastar-execute-script",
+                .patch_elements => "patch-elements",
+                .patch_signals => "patch-signals",
             },
         );
     }

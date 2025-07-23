@@ -22,4 +22,10 @@ enum EventType: string
 
     // An event for executing &lt;script/&gt; elements in the browser.
     case ExecuteScript = 'datastar-execute-script';
+
+    // An event for patching elements.
+    case PatchElements = 'patch-elements';
+
+    // An event for patching signals.
+    case PatchSignals = 'patch-signals';
 }

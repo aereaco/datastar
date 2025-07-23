@@ -33,6 +33,10 @@ type EventType =
 | RemoveSignals
 /// An event for executing &lt;script/&gt; elements in the browser.
 | ExecuteScript
+/// An event for patching elements.
+| PatchElements
+/// An event for patching signals.
+| PatchSignals
 
 
 module Consts =
@@ -83,3 +87,5 @@ module Consts =
                 | EventType.RemoveFragments -> "datastar-remove-fragments"
                 | EventType.RemoveSignals -> "datastar-remove-signals"
                 | EventType.ExecuteScript -> "datastar-execute-script"
+                | EventType.PatchElements -> "patch-elements"
+                | EventType.PatchSignals -> "patch-signals"

@@ -7,8 +7,8 @@ import "time"
 const (
     DatastarKey = "datastar"
     Version                   = "1.0.0-beta.11"
-    VersionClientByteSize     = 49660
-    VersionClientByteSizeGzip = 18244
+    VersionClientByteSize     = 49562
+    VersionClientByteSizeGzip = 18188
 
     //region Default durations
 
@@ -108,6 +108,12 @@ const (
 
     // An event for executing <script/> elements in the browser.
     EventTypeExecuteScript EventType = "datastar-execute-script"
+
+    // An event for patching elements.
+    EventTypePatchElements EventType = "patch-elements"
+
+    // An event for patching signals.
+    EventTypePatchSignals EventType = "patch-signals"
 
 )
 //endregion EventType

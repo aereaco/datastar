@@ -124,3 +124,11 @@
 (def event-type-execute-script
   "An event for executing <script/> elements in the browser."
   "datastar-execute-script")
+
+(def event-type-patch-elements
+  "An event for patching elements."
+  "patch-elements")
+
+(def event-type-patch-signals
+  "An event for patching signals."
+  "patch-signals")

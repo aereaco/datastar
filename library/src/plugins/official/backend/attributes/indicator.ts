@@ -10,22 +10,26 @@ import {
   STARTED,
 } from '../shared'
 
+import {
+  type AttributePlugin,
+  PluginType,
+  Requirement,
+} from '../../../../engine/types'
+
+import { modifyCasing, trimDollarSignPrefix } from '../../../../utils/text'
+
 export const Indicator: AttributePlugin = {
   type: PluginType.Attribute,
   name: 'indicator',
   keyReq: Requirement.Exclusive,
   valReq: Requirement.Exclusive,
-  onLoad: ({ el, key, mods, signals, value }) => {
+  onLoad: ({ key, mods, signals, value }) => {
     const signalName = key
       ? modifyCasing(key, mods)
       : trimDollarSignPrefix(value)
     const { signal } = signals.upsertIfMissing(signalName, false)
     const watcher = ((event: CustomEvent<DatastarFetchEvent>) => {
-      const {
-        type,
-        el,
-      } = event.detail
-      if (event.detail.el !== el) return
+      const { type } = event.detail
       switch (type) {
         case STARTED:
           signal.value = true
