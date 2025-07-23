@@ -3,6 +3,11 @@
 // Slug: Bind attributes to expressions
 // Description: Any attribute can be bound to an expression. The attribute will be updated reactively whenever the expression signal changes.
 
+// Authors: Delaney Gillilan
+// Icon: material-symbols:edit-attributes-outline
+// Slug: Bind attributes to expressions
+// Description: Any attribute can be bound to an expression. The attribute will be updated reactively whenever the expression signal changes.
+
 import {
   type AttributePlugin,
   type NestedValues,
@@ -17,38 +22,57 @@ export const Attr: AttributePlugin = {
   valReq: Requirement.Must,
   onLoad: ({ el, key, effect, genRX }) => {
     const rx = genRX()
-    if (key === '') {
-      return effect(async () => {
+
+    const effectCallback = () => {
+      if (key === '') {
         const binds = rx<NestedValues>()
-        for (const [key, val] of Object.entries(binds)) {
+        for (const [k, val] of Object.entries(binds)) {
           if (val === false) {
-            el.removeAttribute(key)
+            el.removeAttribute(k)
           } else {
-            el.setAttribute(key, val)
+            el.setAttribute(k, val)
           }
         }
-      })
+      } else {
+        // Attributes are always kebab-case
+        key = kebab(key)
+
+        let value = false
+        try {
+          value = rx()
+        } catch (e) {} //
+        let v: string
+        if (typeof value === 'string') {
+          v = value
+        } else {
+          v = JSON.stringify(value)
+        }
+        if (!v || v === 'false' || v === 'null' || v === 'undefined') {
+          el.removeAttribute(key)
+        } else {
+          el.setAttribute(key, v)
+        }
+      }
     }
 
-    // Attributes are always kebab-case
-    key = kebab(key)
+    const cleanup = effect(effectCallback)
 
-    return effect(async () => {
-      let value = false
-      try {
-        value = rx()
-      } catch (e) {} //
-      let v: string
-      if (typeof value === 'string') {
-        v = value
+    const updateCallback = (newValue: string | null) => {
+      if (key === '') {
+        // If key is empty, it means we are binding an object of attributes.
+        // We need to re-evaluate the expression to get the latest object.
+        effectCallback() 
       } else {
-        v = JSON.stringify(value)
+        // For single attribute binding, directly use newValue
+        if (newValue === null) {
+          el.removeAttribute(key)
+        } else {
+          el.setAttribute(key, newValue)
+        }
       }
-      if (!v || v === 'false' || v === 'null' || v === 'undefined') {
-        el.removeAttribute(key)
-      } else {
-        el.setAttribute(key, v)
-      }
-    })
+    }
+
+    return [cleanup, updateCallback]
   },
 }
+

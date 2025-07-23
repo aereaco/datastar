@@ -28,6 +28,7 @@ import { Class } from '../plugins/official/dom/attributes/class'
 import { On } from '../plugins/official/dom/attributes/on'
 import { Ref } from '../plugins/official/dom/attributes/ref'
 import { Show } from '../plugins/official/dom/attributes/show'
+import { Style } from '../plugins/official/dom/attributes/style'
 import { Text } from '../plugins/official/dom/attributes/text'
 import { Fit } from '../plugins/official/logic/actions/fit'
 import { SetAll } from '../plugins/official/logic/actions/setAll'
@@ -41,6 +42,7 @@ load(
   On,
   Ref,
   Show,
+  Style,
   Text,
   // Backend
   Indicator,

@@ -2,21 +2,24 @@
 // Slug: Sets inline styles on an element based on an expression.
 // Description: Sets CSS styles on an element using either key-based or object syntax, and keeps them in sync with reactive signals.
 
-import type { AttributePlugin } from '../../engine/types'
-import { kebab } from '../../utils/text'
+import {
+  AttributePlugin,
+  PluginType,
+  Requirement,
+} from '../../../../engine/types'
+import { kebab } from '../../../../utils/text'
 
 export const Style: AttributePlugin = {
-  type: 'attribute',
+  type: PluginType.Attribute,
   name: 'style',
-  valReq: 'must',
-  returnsValue: true,
+  valReq: Requirement.Must,
   onLoad: ({ key, el, effect, rx }) => {
     const { style } = el
     const initialStyles = new Map<string, string>()
 
     key &&= kebab(key)
 
-    const apply = (prop: string, value: any) => {
+    const applyStyle = (prop: string, value: any) => {
       const initial = initialStyles.get(prop)
       if (!value && value !== 0) {
         initial !== undefined &&
@@ -30,11 +33,9 @@ export const Style: AttributePlugin = {
       }
     }
 
-    const update = () => {
-      observer.disconnect()
-
+    const effectCallback = () => {
       if (key) {
-        apply(key, rx())
+        applyStyle(key, rx())
       } else {
         const styles = rx<Record<string, any>>()
 
@@ -46,22 +47,23 @@ export const Style: AttributePlugin = {
         }
 
         for (const prop in styles) {
-          apply(kebab(prop), styles[prop])
+          applyStyle(kebab(prop), styles[prop])
         }
       }
-
-      observer.observe(el, { attributeFilter: ['style'] })
     }
 
-    const observer = new MutationObserver(update)
-    const cleanup = effect(update)
+    const cleanup = effect(effectCallback)
 
-    return () => {
-      observer.disconnect()
-      cleanup()
-      for (const [prop, initial] of initialStyles) {
-        initial ? style.setProperty(prop, initial) : style.removeProperty(prop)
+    const updateCallback = (newValue: string | null) => {
+      if (key) {
+        applyStyle(key, newValue)
+      } else {
+        // If key is empty, it means we are binding an object of styles.
+        // We need to re-evaluate the expression to get the latest object.
+        effectCallback()
       }
     }
+
+    return [cleanup, updateCallback]
   },
 }

@@ -17,9 +17,11 @@ export const Show: AttributePlugin = {
   name: 'show',
   keyReq: Requirement.Denied,
   valReq: Requirement.Must,
-  onLoad: ({ el: { style: s }, genRX, effect }) => {
+  onLoad: ({ el, genRX, effect }) => {
+    const { style: s } = el
     const rx = genRX()
-    return effect(async () => {
+
+    const effectCallback = () => {
       const shouldShow = rx<boolean>()
       if (shouldShow) {
         if (s.display === NONE) {
@@ -28,6 +30,20 @@ export const Show: AttributePlugin = {
       } else {
         s.setProperty(DISPLAY, NONE)
       }
-    })
+    }
+
+    const cleanup = effect(effectCallback)
+
+    const updateCallback = (newValue: string | null) => {
+      if (newValue === null || newValue === 'false') {
+        s.setProperty(DISPLAY, NONE)
+      } else {
+        if (s.display === NONE) {
+          s.removeProperty(DISPLAY)
+        }
+      }
+    }
+
+    return [cleanup, updateCallback]
   },
 }

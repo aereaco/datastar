@@ -17,13 +17,22 @@ export const Text: AttributePlugin = {
   valReq: Requirement.Must,
   onLoad: (ctx) => {
     const { el, effect, genRX } = ctx
-    const rx = genRX()
     if (!(el instanceof HTMLElement)) {
       runtimeErr('TextInvalidElement', ctx)
     }
-    return effect(() => {
+    const rx = genRX()
+
+    const effectCallback = () => {
       const res = rx(ctx)
       el.textContent = `${res}`
-    })
+    }
+
+    const cleanup = effect(effectCallback)
+
+    const updateCallback = (newValue: string | null) => {
+      el.textContent = newValue ?? ''
+    }
+
+    return [cleanup, updateCallback]
   },
 }

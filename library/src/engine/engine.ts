@@ -13,6 +13,7 @@ import {
   type HTMLorSVGElement,
   type InitContext,
   type OnRemovalFn,
+  type AttributeUpdateCallback,
   PluginType,
   Requirement,
   type RuntimeContext,
@@ -23,6 +24,9 @@ import {
 const signals: SignalsRoot = new SignalsRoot()
 const actions: ActionPlugins = {}
 const plugins: AttributePlugin[] = []
+
+// Map of attribute update callbacks by element and attribute name
+const attributeOwnership = new Map<Element, Map<string, AttributeUpdateCallback>>()
 
 // Map of cleanup functions by element ID, keyed by a dataset key-value hash
 const removals = new Map<string, Map<number, OnRemovalFn>>()
@@ -138,7 +142,7 @@ function observe() {
   mutationObserver = new MutationObserver((mutations) => {
     const toRemove = new Set<HTMLorSVGElement>()
     const toApply = new Set<HTMLorSVGElement>()
-    for (const { target, type, addedNodes, removedNodes } of mutations) {
+    for (const { target, type, attributeName, addedNodes, removedNodes } of mutations) {
       switch (type) {
         case 'childList':
           {
@@ -151,8 +155,15 @@ function observe() {
           }
           break
         case 'attributes': {
-          toApply.add(target as HTMLorSVGElement)
-
+          const el = target as HTMLorSVGElement
+          const attrName = attributeName! // attributeName will be present for 'attributes' mutations
+          const elAttributeOwnership = attributeOwnership.get(el)
+          if (elAttributeOwnership) {
+            const updateCallback = elAttributeOwnership.get(attrName)
+            if (updateCallback) {
+              updateCallback(el.getAttribute(attrName))
+            }
+          }
           break
         }
       }
@@ -168,6 +179,8 @@ function observe() {
           removals.delete(el.id)
         }
       }
+      // Remove from attribute ownership map
+      attributeOwnership.delete(el)
     }
     for (const el of toApply) {
       applyToElement(el)
@@ -264,7 +277,16 @@ function applyAttributePlugin(
   }
 
   // Load the plugin
-  const cleanup = plugin.onLoad(ctx) ?? (() => {})
+  const result = plugin.onLoad(ctx)
+  let cleanup: OnRemovalFn = () => {}
+  let updateCallback: AttributeUpdateCallback | undefined
+
+  if (Array.isArray(result)) {
+    cleanup = result[0]
+    updateCallback = result[1]
+  } else if (typeof result === 'function') {
+    cleanup = result
+  }
 
   // Store the cleanup function
   let elTracking = removals.get(el.id)
@@ -273,6 +295,23 @@ function applyAttributePlugin(
     removals.set(el.id, elTracking)
   }
   elTracking.set(hash, cleanup)
+
+  // Register the attribute with the ownership map
+  let elAttributeOwnership = attributeOwnership.get(el)
+  if (!elAttributeOwnership) {
+    elAttributeOwnership = new Map()
+    attributeOwnership.set(el, elAttributeOwnership)
+  }
+  if (updateCallback) {
+    elAttributeOwnership.set(plugin.name, updateCallback)
+  } else {
+    // If no specific updateCallback is provided, default to re-applying the plugin
+    elAttributeOwnership.set(plugin.name, (_newValue: string | null) => {
+      // This is the fallback callback for plugins that don't provide their own.
+      // It re-applies the plugin to re-synchronize with the signal's value.
+      applyAttributePlugin(el, camelCasedKey, hash)
+    })
+  }
 }
 
 function genRX(
@@ -291,11 +330,6 @@ function genRX(
   // double quotes      "(\\"|[^\"])*"
   // single quotes      '(\\'|[^'])*'
   // ticks              `(\\`|[^`])*`
-  // iife               \(\s*((function)\s*\(\s*\)|(\(\s*\))\s*=>)\s*(?:\{[\s\S]*?\}|[^;)\{]*)\s*\)\s*\(\s*\)
-  //
-  // The iife support is (intentionally) limited. It only supports
-  // function and arrow syntax with no arguments, and does not support nested
-  // IIFEs.
   //
   // We also want to match the non delimiter part of statements
   // note we only support ; statement delimiters:
@@ -303,7 +337,7 @@ function genRX(
   // [^;]
   //
   const statementRe =
-    /(\/(\\\/|[^\/])*\/|"(\\"|[^\"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|\(\s*((function)\s*\(\s*\)|(\(\s*\))\s*=>)\s*(?:\{[\s\S]*?\}|[^;)\{]*)\s*\)\s*\(\s*\)|[^;])+/gm
+    /(\/(\\\/|[^\/])*\/|"(\\"|[^\"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|[^;])+/gm
   const statements = ctx.value.trim().match(statementRe)
   if (statements) {
     const lastIdx = statements.length - 1

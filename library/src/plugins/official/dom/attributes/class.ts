@@ -17,7 +17,8 @@ export const Class: AttributePlugin = {
   onLoad: ({ el, key, mods, effect, genRX }) => {
     const cl = el.classList
     const rx = genRX()
-    return effect(() => {
+
+    const effectCallback = () => {
       if (key === '') {
         const classes = rx<Record<string, boolean>>()
         for (const [k, v] of Object.entries(classes)) {
@@ -40,6 +41,27 @@ export const Class: AttributePlugin = {
           cl.remove(className)
         }
       }
-    })
+    }
+
+    const cleanup = effect(effectCallback)
+
+    const updateCallback = (newValue: string | null) => {
+      if (key === '') {
+        // If key is empty, it means we are binding an object of classes.
+        // We need to re-evaluate the expression to get the latest object.
+        effectCallback()
+      } else {
+        // For single class binding, directly use newValue
+        let className = kebab(key)
+        className = modifyCasing(className, mods)
+        if (newValue === null || newValue === 'false') {
+          cl.remove(className)
+        } else {
+          cl.add(className)
+        }
+      }
+    }
+
+    return [cleanup, updateCallback]
   },
 }
