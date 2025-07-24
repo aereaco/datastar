@@ -1,36 +1,62 @@
-## Nexus UX: Our Mission
+[![Version](https://img.shields.io/github/package-json/v/starfederation/datastar?filename=library/package.json)](https://github.com/starfederation/datastar/releases)
+[![License](https://img.shields.io/github/license/starfederation/datastar)](https://github.com/starfederation/datastar/blob/main/LICENSE)
+[![Stars](https://img.shields.io/github/stars/starfederation/datastar?style=flat)](https://github.com/starfederation/datastar/stargazers)
 
-In the ever-evolving landscape of web development, complexity has often become the price of progress. We believe it doesn't have to be. Our journey began with a shared admiration for a powerful idea: uniting the declarative simplicity of hypermedia with the instant feedback of client-side reactivity. This elegant fusion promised to let developers build rich, modern user experiences while keeping logic where it belongs—on the server.
+<p align="center"><img width="200" src="https://data-star.dev/static/images/rocket.webp"></p>
 
-Nexus UX was born from the desire to see this promise through to its full potential, creating a framework that is not only powerful but also principled.
+# Datastar
 
-### Why Nexus UX?
+### The hypermedia framework.
 
-We believe that the best tools are built in the open, alongside the community they serve. When Datastar began to diverge from this core belief—by moving essential features behind commercial licenses and replacing battle-tested, open-source foundations like Preact Signals and idiomorph with proprietary, less robust alternatives—we knew a different path was necessary.
+Datastar helps you build reactive web applications with the simplicity of server-side rendering and the power of a full-stack SPA framework.
 
-Nexus UX is our commitment to that path. It is a continuation of the original Datastar vision, built on its stable, proven beta version that the community first embraced. We forked the project not to divide, but to preserve the trust and principles that should be at the heart of open-source development.
+Getting started is as easy as adding a single 18.0 KiB script tag to your HTML.
 
-### Our Pledge to the Community
+```html
+<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.0-beta.11/bundles/datastar.js"></script>
+```
 
-Nexus UX is more than just a library; it is a promise. We are building a framework you can rely on, guided by the following unwavering principles:
+Then start adding frontend reactivity using declarative <code>data-*</code> attributes.
 
-1.  **Forever Open, Forever Free.** Nexus UX is, and always will be, licensed under the MIT license. We will never move core features to a "pro" version or introduce commercial licenses for essential functionality. The tools you build with today will be yours to build with tomorrow, without restriction.
+```html
+<input data-bind-title />
+<div data-text="$title.toUpperCase()"></div>
+<button data-on-click="@post('/endpoint')">Save</button>
+```
 
-2.  **Community-Driven at its Core.** We are building *with* you, not just for you. We believe in transparent development, respectful collaboration, and that the collective wisdom of the community is our greatest asset. Your voice matters here.
+Visit the [Datastar Website »](https://data-star.dev/)
 
-3.  **A Stable and Proven Foundation.** We believe in building on the shoulders of giants. Nexus UX will continue to leverage the battle-tested power of Preact Signals for its reactivity and the robust intelligence of idiomorph for its DOM morphing. We choose proven stability over reinvention for its own sake.
+Watch the [Videos »](https://www.youtube.com/@data-star)
 
-4.  **Part of a Cohesive Vision.** Nexus UX is the reactivity layer of the **Aerea Nexus** framework, a larger, integrated open-source ecosystem designed to provide a seamless developer experience. It works in concert with its sibling components:
-    *   **Nexus UI**: The Visual Layer (a fork of DaisyUI)
-    *   **Nexus DB**: The Database Layer (a fork of SurrealDB)
-    *   **Nexus Logic**: The Backend Layer (a fork of Danet)
-    *   **Nexus CLI**: The CLI Layer (a fork of Cliffy)
-    *   **Nexus App**: The Application Packaging & Deployment Layer (a fork of Tauri)
+Join the [Discord Server »](https://discord.com/channels/1296224603642925098/1296224603642925102)
 
-5.  **Vibe-Code Friendly.** We recognize that not all code starts perfect. "Vibe coding"—the process of quickly bringing an idea to life with AI assistance—is a valid and crucial part of modern development. Whether you're a seasoned engineer prototyping a new feature or a newcomer learning the ropes, we provide a welcoming space for your ideas to grow. We believe in progress over perfection and support developers at every stage of their journey.
+## Getting Started
 
-### Join the Expedition
+Read the [Getting Started Guide »](https://data-star.dev/guide/getting_started)
 
-We are not just building a framework; we are building a new home for developers who believe in the power of open collaboration and the elegant simplicity of hypermedia. If you believe in a future where powerful tools remain accessible to all, we invite you to join us.
+## Contributing
 
-Whether you are a developer, a designer, a writer, or simply an enthusiast, there is a place for you here. Let's build the future of the web, together.
+Read the [Contribution Guidelines »](https://github.com/starfederation/datastar/blob/develop/CONTRIBUTING.md)
+
+## Custom Plugins
+
+You can manually add your own plugins to the core:
+
+```html
+<script type="importmap">
+{
+    "imports": {
+      "datastar": "https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.0-beta.11/bundles/datastar.js"
+    }
+}
+</script>
+<script type="module">
+    import { load } from 'datastar'
+
+    load(
+        // Look ma’, I made a plugin!
+    )
+</script>
+```
+
+[![Star History Chart](https://api.star-history.com/svg?repos=starfederation/datastar&type=Date)](https://www.star-history.com/#starfederation/datastar&Date)
