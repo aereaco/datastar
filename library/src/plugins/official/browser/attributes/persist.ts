@@ -1,13 +1,10 @@
-// Authors: Delaney Gillilan
-// Icon: mdi:floppy-variant
-// Slug: Persist data to local storage or session storage
-// Description: This plugin allows you to persist data to local storage or session storage.  Once you add this attribute the data will be persisted to local storage or session storage.
-
 import { DATASTAR } from '../../../../engine/consts'
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { getMatchingSignalPaths } from '../../../../utils/paths'
 
@@ -16,27 +13,47 @@ export const Persist: AttributePlugin = {
   name: 'persist',
   keyReq: Requirement.Denied,
   onLoad: ({ effect, mods, signals, value }) => {
-    const key = DATASTAR
-    const storage = mods.has('session') ? sessionStorage : localStorage
-    
-    // If the value is empty, persist all signals
-    const paths = value !== '' ? value : '**'
+    const storageKey = DATASTAR
+    let currentStorage = mods.has('session') ? sessionStorage : localStorage
+    let currentPaths = value !== '' ? value : '**'
 
-    const storageToSignals = () => {
-      const data = storage.getItem(key) || '{}'
-      const nestedValues = JSON.parse(data)
-      signals.merge(nestedValues)
+    const setupPersist = (storage: Storage, paths: string) => {
+      const storageToSignals = () => {
+        const data = storage.getItem(storageKey) || '{}'
+        const nestedValues = JSON.parse(data)
+        signals.merge(nestedValues)
+      }
+
+      const signalsToStorage = () => {
+        const signalPaths = getMatchingSignalPaths(signals, paths)
+        const nv = signals.subset(...signalPaths)
+        storage.setItem(storageKey, JSON.stringify(nv))
+      }
+
+      storageToSignals()
+      return effect(() => {
+        signalsToStorage()
+      })
     }
 
-    const signalsToStorage = () => {
-      const signalPaths = getMatchingSignalPaths(signals, paths)
-      const nv = signals.subset(...signalPaths)
-      storage.setItem(key, JSON.stringify(nv))
+    let currentCleanup: OnRemovalFn = setupPersist(currentStorage, currentPaths)
+
+    const cleanup: OnRemovalFn = () => {
+      currentCleanup()
     }
 
-    storageToSignals()
-    return effect(() => {
-      signalsToStorage()
-    })
+    const updateCallback: AttributeUpdateCallback = (newValue) => {
+      const newPaths = newValue !== '' ? newValue || '**' : '**'
+      const newStorage = mods.has('session') ? sessionStorage : localStorage
+
+      if (newPaths !== currentPaths || newStorage !== currentStorage) {
+        currentCleanup() // Clean up old effect
+        currentPaths = newPaths
+        currentStorage = newStorage
+        currentCleanup = setupPersist(currentStorage, currentPaths) // Set up new effect
+      }
+    }
+
+    return [cleanup, updateCallback]
   },
 }

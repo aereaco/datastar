@@ -1,13 +1,10 @@
-// Authors: Delaney Gillilan
-// Icon: tabler:typography
-// Slug: Set the text content of an element
-// Description: This attribute sets the text content of an element to the result of the expression.
-
 import { runtimeErr } from '../../../../engine/errors'
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 
 export const Text: AttributePlugin = {
@@ -22,15 +19,15 @@ export const Text: AttributePlugin = {
     }
     const rx = genRX()
 
-    const effectCallback = () => {
+    const applyText = () => {
       const res = rx(ctx)
       el.textContent = `${res}`
     }
 
-    const cleanup = effect(effectCallback)
+    const cleanup: OnRemovalFn = effect(applyText)
 
-    const updateCallback = (newValue: string | null) => {
-      el.textContent = newValue ?? ''
+    const updateCallback: AttributeUpdateCallback = () => {
+      applyText()
     }
 
     return [cleanup, updateCallback]

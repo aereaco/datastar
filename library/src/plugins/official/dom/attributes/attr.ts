@@ -1,18 +1,10 @@
-// Authors: Delaney Gillilan
-// Icon: material-symbols:edit-attributes-outline
-// Slug: Bind attributes to expressions
-// Description: Any attribute can be bound to an expression. The attribute will be updated reactively whenever the expression signal changes.
-
-// Authors: Delaney Gillilan
-// Icon: material-symbols:edit-attributes-outline
-// Slug: Bind attributes to expressions
-// Description: Any attribute can be bound to an expression. The attribute will be updated reactively whenever the expression signal changes.
-
 import {
   type AttributePlugin,
   type NestedValues,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { kebab } from '../../../../utils/text'
 
@@ -23,56 +15,34 @@ export const Attr: AttributePlugin = {
   onLoad: ({ el, key, effect, genRX }) => {
     const rx = genRX()
 
-    const effectCallback = () => {
+    const applyAttributes = () => {
       if (key === '') {
         const binds = rx<NestedValues>()
         for (const [k, val] of Object.entries(binds)) {
-          if (val === false) {
+          if (val === false || val === null || val === undefined) {
             el.removeAttribute(k)
           } else {
-            el.setAttribute(k, val)
+            el.setAttribute(k, String(val))
           }
         }
       } else {
-        // Attributes are always kebab-case
-        key = kebab(key)
-
-        let value = false
-        try {
-          value = rx()
-        } catch (e) {} //
-        let v: string
-        if (typeof value === 'string') {
-          v = value
+        const attributeName = kebab(key)
+        const value = rx()
+        if (value === false || value === null || value === undefined) {
+          el.removeAttribute(attributeName)
         } else {
-          v = JSON.stringify(value)
-        }
-        if (!v || v === 'false' || v === 'null' || v === 'undefined') {
-          el.removeAttribute(key)
-        } else {
-          el.setAttribute(key, v)
+          el.setAttribute(attributeName, String(value))
         }
       }
     }
 
-    const cleanup = effect(effectCallback)
+    const cleanup: OnRemovalFn = effect(applyAttributes)
 
-    const updateCallback = (newValue: string | null) => {
-      if (key === '') {
-        // If key is empty, it means we are binding an object of attributes.
-        // We need to re-evaluate the expression to get the latest object.
-        effectCallback() 
-      } else {
-        // For single attribute binding, directly use newValue
-        if (newValue === null) {
-          el.removeAttribute(key)
-        } else {
-          el.setAttribute(key, newValue)
-        }
-      }
+    const updateCallback: AttributeUpdateCallback = () => {
+      // Re-run the effect to apply the latest attribute values
+      applyAttributes()
     }
 
     return [cleanup, updateCallback]
   },
 }
-

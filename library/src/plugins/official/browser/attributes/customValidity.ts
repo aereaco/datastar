@@ -1,13 +1,10 @@
-// Authors: Ben Croker
-// Icon: mdi-message-alert
-// Slug: Add custom validity to an element using an expression
-// Description: This plugin allows you to add custom validity to an element using an expression. The expression should evaluate to a string that will be set as the custom validity message. This can be used to provide custom error messages for form validation.
-
 import { runtimeErr } from '../../../../engine/errors'
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 
 export const CustomValidity: AttributePlugin = {
@@ -21,12 +18,21 @@ export const CustomValidity: AttributePlugin = {
       throw runtimeErr('CustomValidityInvalidElement', ctx)
     }
     const rx = genRX()
-    return effect(() => {
+
+    const applyCustomValidity = () => {
       const result = rx<string>()
       if (typeof result !== 'string') {
         throw runtimeErr('CustomValidityInvalidExpression', ctx, { result })
       }
       el.setCustomValidity(result)
-    })
+    }
+
+    const cleanup: OnRemovalFn = effect(applyCustomValidity)
+
+    const updateCallback: AttributeUpdateCallback = () => {
+      applyCustomValidity()
+    }
+
+    return [cleanup, updateCallback]
   },
 }

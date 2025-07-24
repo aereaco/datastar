@@ -2,6 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { Signal } from '../../../../vendored/preact-core'
 
@@ -519,9 +521,31 @@ export const Component: AttributePlugin = {
 
         // Wait for the custom element class to be fully defined before proceeding.
         // This ensures that when the element is connected, its custom element definition is ready.
-        effect(async () => {
+        const initialLoadEffect = effect(async () => {
           await componentDefinitionCache.get(definitionCacheKey)
         });
+
+        const cleanup: OnRemovalFn = () => {
+          // Disconnect the initial load effect
+          initialLoadEffect();
+          // Additional cleanup logic for the component instance can be added here
+          // For example, if we need to manually call disconnectedCallback on the instance
+          if (el instanceof DatastarComponent) {
+            el.disconnectedCallback();
+          }
+        };
+
+        const updateCallback: AttributeUpdateCallback = (newSrc) => {
+          if (newSrc && newSrc !== (el as DatastarComponent)._componentSrc) {
+            // Cleanup the old component instance
+            cleanup();
+            
+            // Re-run the onLoad logic with the new source
+            Component.onLoad({ ...ctx, value: newSrc });
+          }
+        };
+
+        return [cleanup, updateCallback];
       },
     }
 // #endregion

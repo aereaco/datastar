@@ -1,12 +1,9 @@
-// Authors: Delaney Gillilan
-// Icon: mdi-light:vector-intersection
-// Slug: Executes an expression when an element intersects with the viewport
-// Description: An attribute that executes an expression when an element intersects with the viewport.
-
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { modifyTiming } from '../../../../utils/timing'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -16,31 +13,56 @@ export const OnIntersect: AttributePlugin = {
   name: 'onIntersect',
   keyReq: Requirement.Denied,
   onLoad: ({ el, rawKey, mods, genRX }) => {
-    let callback = modifyTiming(genRX(), mods)
-    callback = modifyViewTransition(callback, mods)
+    let observer: IntersectionObserver | null = null
+    let currentCleanup: OnRemovalFn = () => {}
 
-    const options = { threshold: 0 }
-    if (mods.has('full')) {
-      options.threshold = 1
-    } else if (mods.has('half')) {
-      options.threshold = 0.5
-    }
+    const setupObserver = () => {
+      // Disconnect any existing observer before setting up a new one
+      if (observer) {
+        observer.disconnect()
+        observer = null
+      }
+      currentCleanup() // Clean up any previous effect
 
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          callback()
+      let callback = modifyTiming(genRX(), mods)
+      callback = modifyViewTransition(callback, mods)
 
-          if (mods.has('once')) {
-            observer.disconnect()
-            delete el.dataset[rawKey]
+      const options = { threshold: 0 }
+      if (mods.has('full')) {
+        options.threshold = 1
+      } else if (mods.has('half')) {
+        options.threshold = 0.5
+      }
+
+      observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            callback()
+
+            if (mods.has('once')) {
+              observer?.disconnect()
+              delete el.dataset[rawKey]
+            }
           }
         }
-      }
-    }, options)
-    
-    observer.observe(el)
+      }, options)
+      
+      observer.observe(el)
 
-    return () => observer.disconnect()
+      currentCleanup = () => observer?.disconnect()
+    }
+
+    // Initial setup
+    setupObserver()
+
+    const cleanup: OnRemovalFn = () => {
+      currentCleanup()
+    }
+
+    const updateCallback: AttributeUpdateCallback = () => {
+      setupObserver()
+    }
+
+    return [cleanup, updateCallback]
   },
 }

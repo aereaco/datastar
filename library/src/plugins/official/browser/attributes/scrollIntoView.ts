@@ -1,13 +1,10 @@
-// Authors: Delaney Gillilan
-// Icon: hugeicons:mouse-scroll-01
-// Slug: Scroll an element into view
-// Description: This attribute scrolls the element into view.
-
 import { runtimeErr } from '../../../../engine/errors'
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 
 const SMOOTH = 'smooth'
@@ -27,7 +24,6 @@ const END = 'end'
 const NEAREST = 'nearest'
 const FOCUS = 'focus'
 
-// Scrolls the element into view
 export const ScrollIntoView: AttributePlugin = {
   type: PluginType.Attribute,
   name: 'scrollIntoView',
@@ -35,36 +31,52 @@ export const ScrollIntoView: AttributePlugin = {
   valReq: Requirement.Denied,
   onLoad: (ctx) => {
     const { el, mods, rawKey } = ctx
-    if (!el.tabIndex) el.setAttribute('tabindex', '0')
-    const opts: ScrollIntoViewOptions = {
-      behavior: SMOOTH,
-      block: CENTER,
-      inline: CENTER,
-    }
-    if (mods.has(SMOOTH)) opts.behavior = SMOOTH
-    if (mods.has(INSTANT)) opts.behavior = INSTANT
-    if (mods.has(AUTO)) opts.behavior = AUTO
-    if (mods.has(HSTART)) opts.inline = START
-    if (mods.has(HCENTER)) opts.inline = CENTER
-    if (mods.has(HEND)) opts.inline = END
-    if (mods.has(HNEAREST)) opts.inline = NEAREST
-    if (mods.has(VSTART)) opts.block = START
-    if (mods.has(VCENTER)) opts.block = CENTER
-    if (mods.has(VEND)) opts.block = END
-    if (mods.has(VNEAREST)) opts.block = NEAREST
 
-    if (!(el instanceof HTMLElement || el instanceof SVGElement)) {
-      throw runtimeErr('ScrollIntoViewInvalidElement', ctx)
-    }
-    if (!el.tabIndex) {
-      el.setAttribute('tabindex', '0')
+    const performScroll = () => {
+      if (!(el instanceof HTMLElement || el instanceof SVGElement)) {
+        throw runtimeErr('ScrollIntoViewInvalidElement', ctx)
+      }
+
+      if (!el.tabIndex) el.setAttribute('tabindex', '0')
+
+      const opts: ScrollIntoViewOptions = {
+        behavior: SMOOTH,
+        block: CENTER,
+        inline: CENTER,
+      }
+      if (mods.has(SMOOTH)) opts.behavior = SMOOTH
+      if (mods.has(INSTANT)) opts.behavior = INSTANT
+      if (mods.has(AUTO)) opts.behavior = AUTO
+      if (mods.has(HSTART)) opts.inline = START
+      if (mods.has(HCENTER)) opts.inline = CENTER
+      if (mods.has(HEND)) opts.inline = END
+      if (mods.has(HNEAREST)) opts.inline = NEAREST
+      if (mods.has(VSTART)) opts.block = START
+      if (mods.has(VCENTER)) opts.block = CENTER
+      if (mods.has(VEND)) opts.block = END
+      if (mods.has(VNEAREST)) opts.block = NEAREST
+
+      el.scrollIntoView(opts)
+      if (mods.has(FOCUS)) {
+        el.focus()
+      }
+
+      // Since this is a one-time action, remove the attribute after execution
+      // This prevents it from re-firing on subsequent DOM mutations unless re-added
+      delete el.dataset[rawKey]
     }
 
-    el.scrollIntoView(opts)
-    if (mods.has(FOCUS)) {
-      el.focus()
+    // Perform the scroll action immediately on load
+    performScroll()
+
+    // Cleanup function (no-op for this plugin as it's a one-time action)
+    const cleanup: OnRemovalFn = () => {}
+
+    // Update callback: if the attribute is somehow re-added or changed, re-perform the scroll
+    const updateCallback: AttributeUpdateCallback = () => {
+      performScroll()
     }
 
-    delete el.dataset[rawKey]
+    return [cleanup, updateCallback]
   },
 }

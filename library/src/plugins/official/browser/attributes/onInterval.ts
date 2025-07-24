@@ -1,12 +1,9 @@
-// Authors: Ben Croker
-// Icon: material-symbols:timer-outline
-// Slug: Runs an expression on an interval
-// Description: This attribute runs an expression on an interval. The interval can be set to a specific duration, and can be set to trigger immediately.
-
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { tagHas, tagToMs } from '../../../../utils/tags'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -17,22 +14,42 @@ export const OnInterval: AttributePlugin = {
   keyReq: Requirement.Denied,
   valReq: Requirement.Must,
   onLoad: ({ mods, genRX }) => {
-    const callback = modifyViewTransition(genRX(), mods)
+    let intervalId: number | undefined
 
-    let duration = 1000
-    const durationArgs = mods.get('duration')
-    if (durationArgs) {
-      duration = tagToMs(durationArgs)
-      const leading = tagHas(durationArgs, 'leading', false)
-      if (leading) {
-        callback()
+    const setupInterval = () => {
+      // Clear any existing interval before setting up a new one
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+
+      const callback = modifyViewTransition(genRX(), mods)
+
+      let duration = 1000
+      const durationArgs = mods.get('duration')
+      if (durationArgs) {
+        duration = tagToMs(durationArgs)
+        const leading = tagHas(durationArgs, 'leading', false)
+        if (leading) {
+          callback()
+        }
+      }
+
+      intervalId = setInterval(callback, duration)
+    }
+
+    // Initial setup
+    setupInterval()
+
+    const cleanup: OnRemovalFn = () => {
+      if (intervalId) {
+        clearInterval(intervalId)
       }
     }
 
-    const intervalId = setInterval(callback, duration)
-
-    return () => {
-      clearInterval(intervalId)
+    const updateCallback: AttributeUpdateCallback = () => {
+      setupInterval()
     }
+
+    return [cleanup, updateCallback]
   },
 }

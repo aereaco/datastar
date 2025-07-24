@@ -1,12 +1,9 @@
-// Authors: Delaney Gillilan
-// Icon: streamline:interface-edit-view-eye-eyeball-open-view
-// Slug: Show or hide an element
-// Description: This attribute shows or hides an element based on the value of the expression. If the expression is true, the element is shown. If the expression is false, the element is hidden. The element is hidden by setting the display property to none.
-
 import {
   type AttributePlugin,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 
 const NONE = 'none'
@@ -21,7 +18,7 @@ export const Show: AttributePlugin = {
     const { style: s } = el
     const rx = genRX()
 
-    const effectCallback = () => {
+    const applyShow = () => {
       const shouldShow = rx<boolean>()
       if (shouldShow) {
         if (s.display === NONE) {
@@ -32,16 +29,10 @@ export const Show: AttributePlugin = {
       }
     }
 
-    const cleanup = effect(effectCallback)
+    const cleanup: OnRemovalFn = effect(applyShow)
 
-    const updateCallback = (newValue: string | null) => {
-      if (newValue === null || newValue === 'false') {
-        s.setProperty(DISPLAY, NONE)
-      } else {
-        if (s.display === NONE) {
-          s.removeProperty(DISPLAY)
-        }
-      }
+    const updateCallback: AttributeUpdateCallback = () => {
+      applyShow()
     }
 
     return [cleanup, updateCallback]

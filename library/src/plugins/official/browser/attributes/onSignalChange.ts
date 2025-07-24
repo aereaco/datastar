@@ -1,14 +1,11 @@
-// Authors: Ben Croker
-// Icon: material-symbols:bigtop-updates
-// Slug: Runs an expression whenever a signal changes
-// Description: This attribute runs an expression whenever a signal changes. 
-
 import {
   type AttributePlugin,
   DATASTAR_SIGNAL_EVENT,
   type DatastarSignalEvent,
   PluginType,
   Requirement,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { pathMatchesPattern } from '../../../../utils/paths'
 import { modifyCasing } from '../../../../utils/text'
@@ -21,34 +18,53 @@ export const OnSignalChange: AttributePlugin = {
   name: 'onSignalChange',
   valReq: Requirement.Must,
   onLoad: ({ key, mods, signals, genRX }) => {
-    let callback = modifyTiming(genRX(), mods)
-    callback = modifyViewTransition(callback, mods)
+    let currentCleanup: OnRemovalFn = () => {}
 
-    if (key === '') {
-      const signalFn = (event: CustomEvent<DatastarSignalEvent>) =>
-        callback(event)
-      document.addEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+    const setupSignalChangeWatcher = () => {
+      currentCleanup() // Clean up any previous watcher
 
-      return () => {
-        document.removeEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+      let callback = modifyTiming(genRX(), mods)
+      callback = modifyViewTransition(callback, mods)
+
+      if (key === '') {
+        const signalFn = (event: CustomEvent<DatastarSignalEvent>) =>
+          callback(event)
+        document.addEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+
+        currentCleanup = () => {
+          document.removeEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+        }
+      } else {
+        const pattern = modifyCasing(key, mods)
+        const signalValues = new Map<Signal, any>()
+        signals.walk((path, signal) => {
+          if (pathMatchesPattern(path, pattern)) {
+            signalValues.set(signal, signal.value)
+          }
+        })
+
+        currentCleanup = effect(() => {
+          for (const [signal, prev] of signalValues) {
+            if (prev !== signal.value) {
+              callback()
+              signalValues.set(signal, signal.value)
+            }
+          }
+        })
       }
     }
 
-    const pattern = modifyCasing(key, mods)
-    const signalValues = new Map<Signal, any>()
-    signals.walk((path, signal) => {
-      if (pathMatchesPattern(path, pattern)) {
-        signalValues.set(signal, signal.value)
-      }
-    })
+    // Initial setup
+    setupSignalChangeWatcher()
 
-    return effect(() => {
-      for (const [signal, prev] of signalValues) {
-        if (prev !== signal.value) {
-          callback()
-          signalValues.set(signal, signal.value)
-        }
-      }
-    })
+    const cleanup: OnRemovalFn = () => {
+      currentCleanup()
+    }
+
+    const updateCallback: AttributeUpdateCallback = () => {
+      setupSignalChangeWatcher()
+    }
+
+    return [cleanup, updateCallback]
   },
 }
