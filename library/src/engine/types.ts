@@ -4,6 +4,9 @@ import type { SignalsRoot } from './signals'
 
 export type OnRemovalFn = () => void
 export type AttributeUpdateCallback = (newValue: string | null) => void
+export type ResizeUpdateCallback = (entry: ResizeObserverEntry) => void
+export type IntersectionUpdateCallback = (entry: IntersectionObserverEntry) => void
+export type PerformanceUpdateCallback = (element: HTMLorSVGElement, entry: PerformanceObserverEntryList) => void
 
 export enum PluginType {
   Attribute = 1,
@@ -54,10 +57,14 @@ declare global {
 export interface AttributePlugin extends DatastarPlugin {
   type: PluginType.Attribute
   onGlobalInit?: (ctx: InitContext) => void // Called once on registration of the plugin
-  onLoad: (ctx: RuntimeContext) => [OnRemovalFn, AttributeUpdateCallback] | OnRemovalFn | void // Return a function to be called on removal
+  onLoad: (ctx: RuntimeContext) => [OnRemovalFn, AttributeUpdateCallback, ResizeUpdateCallback?, IntersectionUpdateCallback?, PerformanceUpdateCallback?] | OnRemovalFn | void // Return a function to be called on removal
   keyReq?: Requirement // The rules for the key requirements
   valReq?: Requirement // The rules for the value requirements
   argNames?: string[] // argument names for the reactive expression
+  affectsDOM?: boolean; // NEW: Indicates if the plugin directly manipulates the DOM visually
+  observesResize?: boolean; // NEW: Indicates if the plugin needs to observe resize events
+  observesIntersection?: boolean; // NEW: Indicates if the plugin needs to observe intersection events
+  observesPerformance?: boolean; // NEW: Indicates if the plugin needs to observe performance events
 }
 
 // A plugin that runs on the global scope of the DastaStar instance

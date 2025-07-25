@@ -14,6 +14,9 @@ import {
   type InitContext,
   type OnRemovalFn,
   type AttributeUpdateCallback,
+  type ResizeUpdateCallback,
+  type IntersectionUpdateCallback,
+  type PerformanceUpdateCallback,
   type NestedValues,
   PluginType,
   Requirement,
@@ -29,10 +32,27 @@ const plugins: AttributePlugin[] = []
 // Map of attribute update callbacks by element and attribute name
 const attributeOwnership = new Map<Element, Map<string, AttributeUpdateCallback>>()
 
+// Map of resize update callbacks by element and plugin name
+const resizeOwnership = new Map<Element, Map<string, ResizeUpdateCallback>>()
+
+// Map of intersection update callbacks by element and plugin name
+const intersectionOwnership = new Map<Element, Map<string, IntersectionUpdateCallback>>()
+
+// Map of performance update callbacks by element and plugin name
+const performanceOwnership = new Map<Element, Map<string, PerformanceUpdateCallback>>()
+
 // Map of cleanup functions by element ID, keyed by a dataset key-value hash
 const removals = new Map<string, Map<number, OnRemovalFn>>()
 
-let mutationObserver: MutationObserver | null = null
+import { MutationObserverService } from './mutationObserverService';
+import { ResizeObserverService } from './resizeObserverService';
+import { IntersectionObserverService } from './intersectionObserverService';
+import { PerformanceObserverService } from './performanceObserverService';
+
+let mutationObserverService: MutationObserverService | null = null;
+let resizeObserverService: ResizeObserverService | null = null;
+let intersectionObserverService: IntersectionObserverService | null = null;
+let performanceObserverService: PerformanceObserverService | null = null;
 
 let alias = ''
 export function setAlias(value: string) {
@@ -89,7 +109,10 @@ export function apply() {
   // Delay applying plugins to give custom plugins a chance to load
   queueMicrotask(() => {
     applyToElement(document.documentElement)
-    observe()
+    if (!mutationObserverService) {
+      mutationObserverService = new MutationObserverService(handleMutation);
+      mutationObserverService.startObserving(document.body);
+    }
   })
 }
 
@@ -134,66 +157,80 @@ function applyToElement(rootElement: HTMLorSVGElement) {
   })
 }
 
-// Set up a mutation observer to run plugin removal and apply functions
-function observe() {
-  if (mutationObserver) {
-    return
+function handleMutation(
+  element: HTMLorSVGElement,
+  attributeName: string,
+  newValue: string | null,
+) {
+  if (attributeName === 'elementRemoved') {
+    const elTracking = removals.get(element.id)
+    if (elTracking) {
+      for (const [hash, cleanup] of elTracking) {
+        cleanup()
+        elTracking.delete(hash)
+      }
+      if (elTracking.size === 0) {
+        removals.delete(element.id)
+      }
+    }
+    // Remove from attribute ownership map
+    attributeOwnership.delete(element)
+    resizeOwnership.delete(element)
+    intersectionOwnership.delete(element)
+    performanceOwnership.delete(element)
+    if (resizeObserverService) {
+      resizeObserverService.unobserve(element);
+    }
+    if (intersectionObserverService) {
+      intersectionObserverService.unobserve(element);
+    }
+  } else if (attributeName === 'elementAdded') {
+    applyToElement(element)
+  } else {
+    const elAttributeOwnership = attributeOwnership.get(element)
+    if (elAttributeOwnership) {
+      const updateCallback = elAttributeOwnership.get(attributeName)
+      if (updateCallback) {
+        updateCallback(newValue)
+      }
+    }
   }
+}
 
-  mutationObserver = new MutationObserver((mutations) => {
-    const toRemove = new Set<HTMLorSVGElement>()
-    const toApply = new Set<HTMLorSVGElement>()
-    for (const { target, type, attributeName, addedNodes, removedNodes } of mutations) {
-      switch (type) {
-        case 'childList':
-          {
-            for (const node of removedNodes) {
-              toRemove.add(node as HTMLorSVGElement)
-            }
-            for (const node of addedNodes) {
-              toApply.add(node as HTMLorSVGElement)
-            }
-          }
-          break
-        case 'attributes': {
-          const el = target as HTMLorSVGElement
-          const attrName = attributeName! // attributeName will be present for 'attributes' mutations
-          const elAttributeOwnership = attributeOwnership.get(el)
-          if (elAttributeOwnership) {
-            const updateCallback = elAttributeOwnership.get(attrName)
-            if (updateCallback) {
-              updateCallback(el.getAttribute(attrName))
-            }
-          }
-          break
-        }
-      }
+function handleResize(
+  element: HTMLorSVGElement,
+  entry: ResizeObserverEntry,
+) {
+  const elResizeOwnership = resizeOwnership.get(element)
+  if (elResizeOwnership) {
+    for (const [_, resizeCallback] of elResizeOwnership) {
+      resizeCallback(entry)
     }
-    for (const el of toRemove) {
-      const elTracking = removals.get(el.id)
-      if (elTracking) {
-        for (const [hash, cleanup] of elTracking) {
-          cleanup()
-          elTracking.delete(hash)
-        }
-        if (elTracking.size === 0) {
-          removals.delete(el.id)
-        }
-      }
-      // Remove from attribute ownership map
-      attributeOwnership.delete(el)
-    }
-    for (const el of toApply) {
-      applyToElement(el)
-    }
-  })
+  }
+}
 
-  mutationObserver.observe(document.body, {
-    attributes: true,
-    attributeOldValue: true,
-    childList: true,
-    subtree: true,
-  })
+function handleIntersection(
+  element: HTMLorSVGElement,
+  entry: IntersectionObserverEntry,
+) {
+  const elIntersectionOwnership = intersectionOwnership.get(element)
+  if (elIntersectionOwnership) {
+    for (const [_, intersectionCallback] of elIntersectionOwnership) {
+      intersectionCallback(entry)
+    }
+  }
+}
+
+function handlePerformance(
+  element: HTMLorSVGElement,
+  entry: PerformanceObserverEntryList,
+) {
+  const elPerformanceOwnership = performanceOwnership.get(element)
+  if (elPerformanceOwnership) {
+    for (const [_, performanceCallback] of elPerformanceOwnership) {
+      performanceCallback(element, entry)
+    }
+  }
 }
 
 function applyAttributePlugin(
@@ -286,10 +323,16 @@ function applyAttributePlugin(
   const result = plugin.onLoad(ctx)
   let cleanup: OnRemovalFn = () => {}
   let updateCallback: AttributeUpdateCallback | undefined
+  let resizeCallback: ResizeUpdateCallback | undefined
+  let intersectionCallback: IntersectionUpdateCallback | undefined
+  let performanceCallback: PerformanceUpdateCallback | undefined
 
   if (Array.isArray(result)) {
     cleanup = result[0]
     updateCallback = result[1]
+    resizeCallback = result[2]
+    intersectionCallback = result[3]
+    performanceCallback = result[4]
   } else if (typeof result === 'function') {
     cleanup = result
   }
@@ -317,6 +360,82 @@ function applyAttributePlugin(
       // It re-applies the plugin to re-synchronize with the signal's value.
       applyAttributePlugin(el, camelCasedKey, hash)
     })
+  }
+
+  // Register the resize callback with the ownership map
+  if (plugin.observesResize) {
+    let elResizeOwnership = resizeOwnership.get(el)
+    if (!elResizeOwnership) {
+      elResizeOwnership = new Map()
+      resizeOwnership.set(el, elResizeOwnership)
+    }
+    if (resizeCallback) {
+      elResizeOwnership.set(plugin.name, resizeCallback)
+    } else {
+      // If no specific resizeCallback is provided, default to re-applying the plugin
+      elResizeOwnership.set(plugin.name, (_entry: ResizeObserverEntry) => {
+        applyAttributePlugin(el, camelCasedKey, hash)
+      })
+    }
+  }
+
+  // Register the intersection callback with the ownership map
+  if (plugin.observesIntersection) {
+    let elIntersectionOwnership = intersectionOwnership.get(el)
+    if (!elIntersectionOwnership) {
+      elIntersectionOwnership = new Map()
+      intersectionOwnership.set(el, elIntersectionOwnership)
+    }
+    if (intersectionCallback) {
+      elIntersectionOwnership.set(plugin.name, intersectionCallback)
+    } else {
+      // If no specific intersectionCallback is provided, default to re-applying the plugin
+      elIntersectionOwnership.set(plugin.name, (_entry: IntersectionObserverEntry) => {
+        applyAttributePlugin(el, camelCasedKey, hash)
+      })
+    }
+  }
+
+  // Register the performance callback with the ownership map
+  if (plugin.observesPerformance) {
+    let elPerformanceOwnership = performanceOwnership.get(el)
+    if (!elPerformanceOwnership) {
+      elPerformanceOwnership = new Map()
+      performanceOwnership.set(el, elPerformanceOwnership)
+    }
+    if (performanceCallback) {
+      elPerformanceOwnership.set(plugin.name, performanceCallback)
+    } else {
+      // If no specific performanceCallback is provided, default to re-applying the plugin
+      elPerformanceOwnership.set(plugin.name, (_element: HTMLorSVGElement, _entry: PerformanceObserverEntryList) => {
+        applyAttributePlugin(el, camelCasedKey, hash)
+      })
+    }
+  }
+
+  // If the plugin observes resize events, register the element with the ResizeObserverService
+  if (plugin.observesResize) {
+    if (!resizeObserverService) {
+      resizeObserverService = new ResizeObserverService(handleResize);
+    }
+    resizeObserverService.observe(el);
+  }
+
+  // If the plugin observes intersection events, register the element with the IntersectionObserverService
+  if (plugin.observesIntersection) {
+    if (!intersectionObserverService) {
+      intersectionObserverService = new IntersectionObserverService(handleIntersection);
+    }
+    intersectionObserverService.observe(el);
+  }
+
+  // If the plugin observes performance events, initialize the PerformanceObserverService
+  if (plugin.observesPerformance) {
+    if (!performanceObserverService) {
+      // TODO: Determine appropriate entryTypes based on plugin needs
+      performanceObserverService = new PerformanceObserverService(handlePerformance, ['mark', 'measure']);
+    }
+    // PerformanceObserver does not observe specific elements, so no observe(el) call here
   }
 }
 
