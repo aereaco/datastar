@@ -58,7 +58,7 @@ func createBundles(version string) error {
 			"library/src/bundles/datastar-aliased.ts",
 		},
 		Banner: map[string]string{
-			"js": "// Datastar v" + version,
+			"js": "// Nexus UX v" + version,
 		},
 		Outdir:            outDir,
 		Bundle:            true,
