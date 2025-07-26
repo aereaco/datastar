@@ -20,7 +20,7 @@ const componentDefinitionCache = new Map<string, Promise<void>>()
 export class DatastarComponent extends HTMLElement {
   // --- Internal properties for Datastar management ---
   // Functions to execute when the component is disconnected from the DOM.
-  _dsCleanupFunctions: (() => void)[] = []
+  _dsCleanupFunctions: CleanupUpdateCallback[] = []
   // A unique ID for each component instance, used for scoped IDs.
   _dsInstanceId: number = Date.now() + Math.random()
   // Flag to ensure content is attached only once, especially important for hydration.
@@ -58,7 +58,7 @@ export class DatastarComponent extends HTMLElement {
    * Essential for cleaning up event listeners, timers, or third-party libraries.
    * @param fn The cleanup function to execute.
    */
-  registerCleanup(fn: () => void) {
+  registerCleanup(fn: CleanupUpdateCallback) {
     if (typeof fn === 'function') {
       this._dsCleanupFunctions.push(fn)
     }
