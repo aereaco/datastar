@@ -41,7 +41,7 @@ type EventType =
 
 module Consts =
     let [<Literal>] DatastarKey               = "datastar"
-    let [<Literal>] Version                   = "1.0.0-beta.11"
+    let [<Literal>] Version                   = "0.0.1-alpha"
 
     /// Default: TimeSpan.FromMilliseconds 1000
     let DefaultSseRetryDuration = TimeSpan.FromMilliseconds 1000
