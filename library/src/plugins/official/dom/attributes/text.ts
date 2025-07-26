@@ -3,8 +3,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 export const Text: AttributePlugin = {
@@ -24,12 +24,12 @@ export const Text: AttributePlugin = {
       el.textContent = `${res}`
     }
 
-    const cleanup: OnRemovalFn = effect(applyText)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyText)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyText()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { supportsViewTransitions } from '../../../../utils/view-transtions'
 
@@ -29,12 +29,12 @@ export const ViewTransition: AttributePlugin = {
       }
     }
 
-    const cleanup: OnRemovalFn = effect(applyViewTransitionName)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyViewTransitionName)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyViewTransitionName()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

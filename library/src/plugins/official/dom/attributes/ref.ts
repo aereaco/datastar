@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { modifyCasing, trimDollarSignPrefix } from '../../../../utils/text'
 
@@ -30,12 +30,12 @@ export const Ref: AttributePlugin = {
       : trimDollarSignPrefix(value);
     setupRef(initialSignalName);
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       // When the plugin is removed, clear the signal's value
       signals.setValue(currentSignalName, null);
     };
 
-    const updateCallback: AttributeUpdateCallback = (newAttributeValue) => {
+    const mutationCallback: MutationUpdateCallback = (newAttributeValue) => {
       const newSignalName = key
         ? modifyCasing(key, mods)
         : trimDollarSignPrefix(newAttributeValue || '');
@@ -45,6 +45,6 @@ export const Ref: AttributePlugin = {
       }
     };
 
-    return [cleanup, updateCallback];
+    return { cleanupCallback, mutationCallback };
   },
 };

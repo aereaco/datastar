@@ -3,8 +3,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { getMatchingSignalPaths } from '../../../../utils/paths'
 
@@ -36,13 +36,13 @@ export const Persist: AttributePlugin = {
       })
     }
 
-    let currentCleanup: OnRemovalFn = setupPersist(currentStorage, currentPaths)
+    let currentCleanup: CleanupUpdateCallback = setupPersist(currentStorage, currentPaths)
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       currentCleanup()
     }
 
-    const updateCallback: AttributeUpdateCallback = (newValue) => {
+    const mutationCallback: MutationUpdateCallback = (newValue) => {
       const newPaths = newValue !== '' ? newValue || '**' : '**'
       const newStorage = mods.has('session') ? sessionStorage : localStorage
 
@@ -54,6 +54,6 @@ export const Persist: AttributePlugin = {
       }
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

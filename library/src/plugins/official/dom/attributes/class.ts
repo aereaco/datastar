@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { kebab, modifyCasing } from '../../../../utils/text'
 
@@ -40,13 +40,13 @@ export const Class: AttributePlugin = {
       }
     }
 
-    const cleanup: OnRemovalFn = effect(applyClasses)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyClasses)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       // Re-run the effect to apply the latest class values
       applyClasses()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

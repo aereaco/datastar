@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { modifyTiming } from '../../../../utils/timing'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -35,16 +35,16 @@ export const OnRaf: AttributePlugin = {
     // Initial setup
     setupRaf()
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       if (rafId) {
         cancelAnimationFrame(rafId)
       }
     }
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       setupRaf()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

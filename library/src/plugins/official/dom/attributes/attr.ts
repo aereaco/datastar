@@ -3,8 +3,8 @@ import {
   type NestedValues,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { kebab } from '../../../../utils/text'
 
@@ -36,13 +36,13 @@ export const Attr: AttributePlugin = {
       }
     }
 
-    const cleanup: OnRemovalFn = effect(applyAttributes)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyAttributes)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       // Re-run the effect to apply the latest attribute values
       applyAttributes()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

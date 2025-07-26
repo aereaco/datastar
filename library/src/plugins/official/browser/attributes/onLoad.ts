@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { tagToMs } from '../../../../utils/tags'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -36,16 +36,16 @@ export const OnLoad: AttributePlugin = {
     // Initial setup
     setupOnLoad()
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
     }
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       setupOnLoad()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

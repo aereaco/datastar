@@ -3,8 +3,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 const SMOOTH = 'smooth'
@@ -70,13 +70,13 @@ export const ScrollIntoView: AttributePlugin = {
     performScroll()
 
     // Cleanup function (no-op for this plugin as it's a one-time action)
-    const cleanup: OnRemovalFn = () => {}
+    const cleanupCallback: CleanupUpdateCallback = () => {}
 
     // Update callback: if the attribute is somehow re-added or changed, re-perform the scroll
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       performScroll()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

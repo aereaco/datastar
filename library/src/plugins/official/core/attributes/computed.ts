@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { modifyCasing } from '../../../../utils/text'
 
@@ -36,12 +36,12 @@ export const Computed: AttributePlugin = {
     const initialKey = modifyCasing(ctx.key, ctx.mods);
     setupComputedSignal(initialKey, initialComputedFn);
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       // Remove the computed signal when the plugin is unloaded
       ctx.signals.remove(activeSignalKey); 
     };
 
-    const updateCallback: AttributeUpdateCallback = (newAttributeValue) => {
+    const mutationCallback: MutationUpdateCallback = (newAttributeValue) => {
       const newKey = modifyCasing(ctx.key, ctx.mods); // Re-evaluate key in case mods changed
       const newRx = ctx.genRX(); // Re-generate reactive expression based on new attribute value
       // Create a new zero-argument wrapper function for the updated expression
@@ -54,6 +54,6 @@ export const Computed: AttributePlugin = {
       }
     };
 
-    return [cleanup, updateCallback];
+    return { cleanupCallback, mutationCallback };
   },
 };

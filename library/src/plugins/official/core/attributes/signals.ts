@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   type NestedValues,
   PluginType,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { modifyCasing } from '../../../../utils/text'
 
@@ -63,12 +63,12 @@ export const Signals: AttributePlugin = {
     setupSignals(value);
 
     // Cleanup function for when the plugin is removed from the DOM or its attribute changes
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       signals.remove(...managedSignalPaths);
     };
 
     // Update callback for when the data-signals attribute value changes
-    const updateCallback: AttributeUpdateCallback = (newAttributeValue) => {
+    const mutationCallback: MutationUpdateCallback = (newAttributeValue) => {
       // Only re-setup if the attribute value (expression) has changed
       // We compare against the original 'value' from the onLoad context to detect changes
       // If the attribute is removed (newValue is null), we treat it as an empty string for re-setup
@@ -77,6 +77,6 @@ export const Signals: AttributePlugin = {
       }
     };
 
-    return [cleanup, updateCallback];
+    return { cleanupCallback, mutationCallback };
   },
 };

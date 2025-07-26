@@ -4,8 +4,8 @@ import {
   type DatastarSignalEvent,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { pathMatchesPattern } from '../../../../utils/paths'
 import { modifyCasing } from '../../../../utils/text'
@@ -18,7 +18,7 @@ export const OnSignalChange: AttributePlugin = {
   name: 'onSignalChange',
   valReq: Requirement.Must,
   onLoad: ({ key, mods, signals, genRX }) => {
-    let currentCleanup: OnRemovalFn = () => {}
+    let currentCleanup: CleanupUpdateCallback = () => {}
 
     const setupSignalChangeWatcher = () => {
       currentCleanup() // Clean up any previous watcher
@@ -57,14 +57,14 @@ export const OnSignalChange: AttributePlugin = {
     // Initial setup
     setupSignalChangeWatcher()
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       currentCleanup()
     }
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       setupSignalChangeWatcher()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

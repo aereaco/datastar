@@ -2,8 +2,8 @@ import type { EffectFn, Signal } from '../vendored/preact-core'
 import { DATASTAR } from './consts'
 import type { SignalsRoot } from './signals'
 
-export type OnRemovalFn = () => void
-export type AttributeUpdateCallback = (newValue: string | null) => void
+export type CleanupUpdateCallback = () => void
+export type MutationUpdateCallback = (newValue: string | null) => void
 export type ResizeUpdateCallback = (entry: ResizeObserverEntry) => void
 export type IntersectionUpdateCallback = (entry: IntersectionObserverEntry) => void
 export type PerformanceUpdateCallback = (element: HTMLorSVGElement, entry: PerformanceObserverEntryList) => void
@@ -57,7 +57,13 @@ declare global {
 export interface AttributePlugin extends DatastarPlugin {
   type: PluginType.Attribute
   onGlobalInit?: (ctx: InitContext) => void // Called once on registration of the plugin
-  onLoad: (ctx: RuntimeContext) => [OnRemovalFn, AttributeUpdateCallback, ResizeUpdateCallback?, IntersectionUpdateCallback?, PerformanceUpdateCallback?] | OnRemovalFn | void // Return a function to be called on removal
+  onLoad: (ctx: RuntimeContext) => {
+    cleanupCallback?: CleanupUpdateCallback;
+    mutationCallback?: MutationUpdateCallback;
+    resizeCallback?: ResizeUpdateCallback;
+    intersectionCallback?: IntersectionUpdateCallback;
+    performanceCallback?: PerformanceUpdateCallback;
+  } | CleanupUpdateCallback | void // Return a function to be called on removal
   keyReq?: Requirement // The rules for the key requirements
   valReq?: Requirement // The rules for the value requirements
   argNames?: string[] // argument names for the reactive expression
@@ -86,9 +92,9 @@ export type GlobalInitializer = (ctx: InitContext) => void
 export type InitContext = {
   plugin: DatastarPlugin
   signals: SignalsRoot
-  effect: (fn: EffectFn) => OnRemovalFn
+  effect: (fn: EffectFn) => CleanupUpdateCallback
   actions: Readonly<ActionPlugins>
-  removals: Map<string, Map<number, OnRemovalFn>>
+  removals: Map<string, Map<number, CleanupUpdateCallback>>
   applyToElement: (el: HTMLorSVGElement) => void
 }
 

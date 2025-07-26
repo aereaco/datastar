@@ -525,7 +525,7 @@ export const Component: AttributePlugin = {
           await componentDefinitionCache.get(definitionCacheKey)
         });
 
-        const cleanup: OnRemovalFn = () => {
+        const cleanupCallback: CleanupUpdateCallback = () => {
           // Disconnect the initial load effect
           initialLoadEffect();
           // Additional cleanup logic for the component instance can be added here
@@ -535,17 +535,17 @@ export const Component: AttributePlugin = {
           }
         };
 
-        const updateCallback: AttributeUpdateCallback = (newSrc) => {
+        const mutationCallback: MutationUpdateCallback = (newSrc) => {
           if (newSrc && newSrc !== (el as DatastarComponent)._componentSrc) {
             // Cleanup the old component instance
-            cleanup();
+            cleanupCallback();
             
             // Re-run the onLoad logic with the new source
             Component.onLoad({ ...ctx, value: newSrc });
           }
         };
 
-        return [cleanup, updateCallback];
+        return { cleanupCallback, mutationCallback };
       },
     }
 // #endregion

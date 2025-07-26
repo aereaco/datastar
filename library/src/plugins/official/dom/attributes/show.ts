@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 const NONE = 'none'
@@ -29,12 +29,12 @@ export const Show: AttributePlugin = {
       }
     }
 
-    const cleanup: OnRemovalFn = effect(applyShow)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyShow)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyShow()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

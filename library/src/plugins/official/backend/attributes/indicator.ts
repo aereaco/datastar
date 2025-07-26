@@ -9,8 +9,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 import { modifyCasing, trimDollarSignPrefix } from '../../../../utils/text'
@@ -64,7 +64,7 @@ export const Indicator: AttributePlugin = {
       : trimDollarSignPrefix(value);
     setupIndicator(initialSignalName);
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       if (currentWatcher) {
         document.removeEventListener(DATASTAR_FETCH_EVENT, currentWatcher);
       }
@@ -72,7 +72,7 @@ export const Indicator: AttributePlugin = {
       signals.setValue(currentSignalName, false);
     };
 
-    const updateCallback: AttributeUpdateCallback = (newAttributeValue) => {
+    const mutationCallback: MutationUpdateCallback = (newAttributeValue) => {
       const newSignalName = key
         ? modifyCasing(key, mods)
         : trimDollarSignPrefix(newAttributeValue || '');
@@ -82,6 +82,6 @@ export const Indicator: AttributePlugin = {
       }
     };
 
-    return [cleanup, updateCallback];
+    return { cleanupCallback, mutationCallback };
   },
 };

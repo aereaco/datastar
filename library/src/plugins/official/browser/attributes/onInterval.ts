@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { tagHas, tagToMs } from '../../../../utils/tags'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -40,16 +40,16 @@ export const OnInterval: AttributePlugin = {
     // Initial setup
     setupInterval()
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       if (intervalId) {
         clearInterval(intervalId)
       }
     }
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       setupInterval()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

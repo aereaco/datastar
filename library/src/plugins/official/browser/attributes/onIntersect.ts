@@ -2,8 +2,9 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
+  type IntersectionUpdateCallback,
 } from '../../../../engine/types'
 import { modifyTiming } from '../../../../utils/timing'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
@@ -12,57 +13,34 @@ export const OnIntersect: AttributePlugin = {
   type: PluginType.Attribute,
   name: 'onIntersect',
   keyReq: Requirement.Denied,
+  observesIntersection: true,
   onLoad: ({ el, rawKey, mods, genRX }) => {
-    let observer: IntersectionObserver | null = null
-    let currentCleanup: OnRemovalFn = () => {}
+    let callback = modifyTiming(genRX(), mods)
+    callback = modifyViewTransition(callback, mods)
 
-    const setupObserver = () => {
-      // Disconnect any existing observer before setting up a new one
-      if (observer) {
-        observer.disconnect()
-        observer = null
-      }
-      currentCleanup() // Clean up any previous effect
+    const intersectionCallback: IntersectionUpdateCallback = (entry) => {
+      if (entry.isIntersecting) {
+        callback()
 
-      let callback = modifyTiming(genRX(), mods)
-      callback = modifyViewTransition(callback, mods)
-
-      const options = { threshold: 0 }
-      if (mods.has('full')) {
-        options.threshold = 1
-      } else if (mods.has('half')) {
-        options.threshold = 0.5
-      }
-
-      observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            callback()
-
-            if (mods.has('once')) {
-              observer?.disconnect()
-              delete el.dataset[rawKey]
-            }
-          }
+        if (mods.has('once')) {
+          // The engine will unobserve this element when the plugin is removed
+          // We just need to remove the attribute to prevent re-application
+          delete el.dataset[rawKey]
         }
-      }, options)
-      
-      observer.observe(el)
-
-      currentCleanup = () => observer?.disconnect()
+      }
     }
 
-    // Initial setup
-    setupObserver()
-
-    const cleanup: OnRemovalFn = () => {
-      currentCleanup()
+    const cleanupCallback: CleanupUpdateCallback = () => {
+      // Cleanup is handled by the engine's handleMutation when the element is removed
+      // No specific unobserve call needed here as it's managed by the engine
     }
 
-    const updateCallback: AttributeUpdateCallback = () => {
-      setupObserver()
+    const mutationCallback: MutationUpdateCallback = () => {
+      // Re-evaluate the callback if the attribute changes
+      callback = modifyTiming(genRX(), mods)
+      callback = modifyViewTransition(callback, mods)
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback, intersectionCallback }
   },
 }

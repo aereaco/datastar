@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 export const ReplaceUrl: AttributePlugin = {
@@ -21,12 +21,12 @@ export const ReplaceUrl: AttributePlugin = {
       window.history.replaceState({}, '', fullUrl)
     }
 
-    const cleanup: OnRemovalFn = effect(applyReplaceUrl)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyReplaceUrl)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyReplaceUrl()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

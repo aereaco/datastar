@@ -12,8 +12,8 @@ import {
   type GlobalInitializer,
   type HTMLorSVGElement,
   type InitContext,
-  type OnRemovalFn,
-  type AttributeUpdateCallback,
+  type CleanupUpdateCallback,
+  type MutationUpdateCallback,
   type ResizeUpdateCallback,
   type IntersectionUpdateCallback,
   type PerformanceUpdateCallback,
@@ -30,7 +30,7 @@ const actions: ActionPlugins = {}
 const plugins: AttributePlugin[] = []
 
 // Map of attribute update callbacks by element and attribute name
-const attributeOwnership = new Map<Element, Map<string, AttributeUpdateCallback>>()
+const attributeOwnership = new Map<Element, Map<string, MutationUpdateCallback>>()
 
 // Map of resize update callbacks by element and plugin name
 const resizeOwnership = new Map<Element, Map<string, ResizeUpdateCallback>>()
@@ -42,7 +42,7 @@ const intersectionOwnership = new Map<Element, Map<string, IntersectionUpdateCal
 const performanceOwnership = new Map<Element, Map<string, PerformanceUpdateCallback>>()
 
 // Map of cleanup functions by element ID, keyed by a dataset key-value hash
-const removals = new Map<string, Map<number, OnRemovalFn>>()
+const removals = new Map<string, Map<number, CleanupUpdateCallback>>()
 
 import { MutationObserverService } from './mutationObserverService';
 import { ResizeObserverService } from './resizeObserverService';
@@ -64,7 +64,7 @@ export function load(...pluginsToLoad: DatastarPlugin[]) {
     const ctx: InitContext = {
       plugin,
       signals,
-      effect: (cb: () => void): OnRemovalFn => effect(cb),
+      effect: (cb: () => void): CleanupUpdateCallback => effect(cb),
       actions,
       removals,
       applyToElement,
@@ -122,7 +122,7 @@ function applyToElement(rootElement: HTMLorSVGElement) {
     // Check if the element has any data attributes already
     const toApply = new Array<string>()
     const elCleanups = removals.get(el.id) || new Map()
-    const toCleanup = new Map<number, OnRemovalFn>([...elCleanups])
+    const toCleanup = new Map<number, CleanupUpdateCallback>([...elCleanups])
     const hashes = new Map<string, number>()
 
     // Apply the plugins to the element in order of application
@@ -189,9 +189,9 @@ function handleMutation(
   } else {
     const elAttributeOwnership = attributeOwnership.get(element)
     if (elAttributeOwnership) {
-      const updateCallback = elAttributeOwnership.get(attributeName)
-      if (updateCallback) {
-        updateCallback(newValue)
+      const mutationCallback = elAttributeOwnership.get(attributeName)
+      if (mutationCallback) {
+        mutationCallback(newValue)
       }
     }
   }
@@ -268,7 +268,7 @@ function applyAttributePlugin(
   const ctx: RuntimeContext = {
     signals,
     applyToElement,
-    effect: (cb: () => void): OnRemovalFn => effect(cb),
+    effect: (cb: () => void): CleanupUpdateCallback => effect(cb),
     actions,
     removals,
     genRX: () => genRX(ctx, ...(plugin.argNames || [])),
@@ -321,20 +321,20 @@ function applyAttributePlugin(
 
   // Load the plugin
   const result = plugin.onLoad(ctx)
-  let cleanup: OnRemovalFn = () => {}
-  let updateCallback: AttributeUpdateCallback | undefined
+  let cleanupCallback: CleanupUpdateCallback = () => {}
+  let mutationCallback: MutationUpdateCallback | undefined
   let resizeCallback: ResizeUpdateCallback | undefined
   let intersectionCallback: IntersectionUpdateCallback | undefined
   let performanceCallback: PerformanceUpdateCallback | undefined
 
-  if (Array.isArray(result)) {
-    cleanup = result[0]
-    updateCallback = result[1]
-    resizeCallback = result[2]
-    intersectionCallback = result[3]
-    performanceCallback = result[4]
-  } else if (typeof result === 'function') {
-    cleanup = result
+  if (typeof result === 'function') {
+    cleanupCallback = result
+  } else if (typeof result === 'object' && result !== null) {
+    cleanupCallback = result.cleanupCallback || cleanupCallback
+    mutationCallback = result.mutationCallback
+    resizeCallback = result.resizeCallback
+    intersectionCallback = result.intersectionCallback
+    performanceCallback = result.performanceCallback
   }
 
   // Store the cleanup function
@@ -343,7 +343,7 @@ function applyAttributePlugin(
     elTracking = new Map()
     removals.set(el.id, elTracking)
   }
-  elTracking.set(hash, cleanup)
+  elTracking.set(hash, cleanupCallback)
 
   // Register the attribute with the ownership map
   let elAttributeOwnership = attributeOwnership.get(el)
@@ -351,10 +351,10 @@ function applyAttributePlugin(
     elAttributeOwnership = new Map()
     attributeOwnership.set(el, elAttributeOwnership)
   }
-  if (updateCallback) {
-    elAttributeOwnership.set(plugin.name, updateCallback)
+  if (mutationCallback) {
+    elAttributeOwnership.set(plugin.name, mutationCallback)
   } else {
-    // If no specific updateCallback is provided, default to re-applying the plugin
+    // If no specific mutationCallback is provided, default to re-applying the plugin
     elAttributeOwnership.set(plugin.name, (_newValue: string | null) => {
       // This is the fallback callback for plugins that don't provide their own.
       // It re-applies the plugin to re-synchronize with the signal's value.

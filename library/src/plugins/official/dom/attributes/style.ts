@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { kebab } from '../../../../utils/text'
 
@@ -59,12 +59,12 @@ export const Style: AttributePlugin = {
       }
     }
 
-    const cleanup: OnRemovalFn = effect(applyStyles)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyStyles)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyStyles()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

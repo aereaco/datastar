@@ -3,8 +3,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 
 export const CustomValidity: AttributePlugin = {
@@ -27,12 +27,12 @@ export const CustomValidity: AttributePlugin = {
       el.setCustomValidity(result)
     }
 
-    const cleanup: OnRemovalFn = effect(applyCustomValidity)
+    const cleanupCallback: CleanupUpdateCallback = effect(applyCustomValidity)
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       applyCustomValidity()
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

@@ -3,8 +3,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { modifyCasing, trimDollarSignPrefix } from '../../../../utils/text'
 
@@ -20,12 +20,12 @@ export const Bind: AttributePlugin = {
     const { el, key, mods, signals, value, effect } = ctx
     const input = el as HTMLInputElement
 
-    let currentCleanup: OnRemovalFn | undefined
+    let currentCleanupCallback: CleanupUpdateCallback | undefined
 
     const setupBinding = (currentSignalName: string) => {
       // Clean up any existing binding before setting up a new one
-      if (currentCleanup) {
-        currentCleanup()
+      if (currentCleanupCallback) {
+        currentCleanupCallback()
       }
 
       const tnl = el.tagName.toLowerCase()
@@ -224,21 +224,21 @@ export const Bind: AttributePlugin = {
     const initialSignalName = key
       ? modifyCasing(key, mods)
       : trimDollarSignPrefix(value)
-    currentCleanup = setupBinding(initialSignalName)
+    currentCleanupCallback = setupBinding(initialSignalName)
 
-    const cleanup: OnRemovalFn = () => {
-      if (currentCleanup) {
-        currentCleanup()
+    const cleanupCallback: CleanupUpdateCallback = () => {
+      if (currentCleanupCallback) {
+        currentCleanupCallback()
       }
     }
 
-    const updateCallback: AttributeUpdateCallback = (newAttrValue) => {
+    const mutationCallback: MutationUpdateCallback = (newAttrValue) => {
       const newSignalName = key
         ? modifyCasing(key, mods)
         : trimDollarSignPrefix(newAttrValue || '')
 
       if (newSignalName !== initialSignalName) {
-        currentCleanup = setupBinding(newSignalName)
+        currentCleanupCallback = setupBinding(newSignalName)
       } else {
         // If the signal name hasn't changed, just re-sync the element from the signal
         // This handles cases where the signal's value might have changed externally
@@ -261,6 +261,6 @@ export const Bind: AttributePlugin = {
       }
     }
 
-    return [cleanup, updateCallback]
+    return { cleanupCallback, mutationCallback }
   },
 }

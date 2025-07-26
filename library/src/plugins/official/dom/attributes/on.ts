@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type AttributeUpdateCallback,
-  type OnRemovalFn,
+  type MutationUpdateCallback,
+  type CleanupUpdateCallback,
 } from '../../../../engine/types'
 import { kebab, modifyCasing } from '../../../../utils/text'
 import { modifyTiming } from '../../../../utils/timing'
@@ -87,16 +87,16 @@ export const On: AttributePlugin = {
     // Initial setup
     setupEventListener();
 
-    const cleanup: OnRemovalFn = () => {
+    const cleanupCallback: CleanupUpdateCallback = () => {
       if (currentTarget && currentEventName && currentCallback) {
         currentTarget.removeEventListener(currentEventName, currentCallback, currentEvtListOpts);
       }
     };
 
-    const updateCallback: AttributeUpdateCallback = () => {
+    const mutationCallback: MutationUpdateCallback = () => {
       setupEventListener();
     };
 
-    return [cleanup, updateCallback];
+    return { cleanupCallback, mutationCallback };
   },
 };
