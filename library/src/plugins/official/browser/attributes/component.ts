@@ -2,8 +2,8 @@ import {
   type AttributePlugin,
   PluginType,
   Requirement,
-  type MutationUpdateCallback,
-  type CleanupUpdateCallback,
+  type AttributeUpdateCallback,
+  type OnRemovalFn,
 } from '../../../../engine/types'
 import { Signal } from '../../../../vendored/preact-core'
 
