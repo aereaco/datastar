@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+
+    <!-- OverlayScrollbars -->
+    <link href="assets/styles/overlayscrollbars@2.10.1.css" rel="stylesheet" type="text/css">   
+    <script src="assets/scripts/overlayscrollbars@2.10.1.js"></script>
+    <script src="assets/scripts/globalscrollbars-osb-plugin.min.js" async></script>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@latest/dist/typography.min.css">
+
+    <!-- DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Datastar & Plugins -->
+    <script type="module" src="assets/scripts/datastar.js"></script>
+    <!-- 
+    <script type="module" src="assets/scripts/datastar-1-0-0-beta-11.js"></script>
+    <script type="module" defer>  
+        // Import the initialization function from your plugin  
+        import { initDatastarComponents } from './assets/scripts/datastar-components.min.js';
+
+        // Initialize the plugin once the DOM is ready  
+        document.addEventListener('DOMContentLoaded', () => {  
+            initDatastarComponents(window.Datastar);  
+            console.log("Datastar Components Plugin is ready! 🎉");  
+        });
+
+        // Example of listening for component errors for centralized reporting  
+        window.addEventListener('component-load-error', (event) => {  
+            console.error('Caught component load error:', event.detail);  
+            // Example: send to an analytics service or display a user-friendly message  
+            alert(`Component Load Error: ${event.detail.tagName} from ${event.detail.src} - ${event.detail.message}`);  
+        });
+
+        window.addEventListener('component-script-error', (event) => {  
+            console.error('Caught component script error:', event.detail);  
+            // Example: log the error and component context  
+            alert(`Component Script Error in ${event.detail.tagName}: ${event.detail.error.message}`);  
+        });  
+
+        // Example of listening for fallback rendering
+        window.addEventListener('component-fallback-rendered', (event) => {
+            console.warn('Caught component fallback rendered:', event.detail);
+            // You might log this to a monitoring system or visually indicate a degraded state.
+        });
+    </script>
+    -->
+
+    <link href="assets/styles/admin.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="prose w-full">
+    <admin-header data-component="_components/admin-header.tmpl" class="admin-header"></admin-header>
+
+    <admin-tabs
+        data-component="_components/admin-tabs.tmpl"
+        class="admin-tabs bg-base-300/80 -mb-14 z-10 transition-all"
+        :class="{ '-mt-16 h-0 overflow-hidden': !appData.bookmarks.visible, }"
+     ></admin-tabs>
+    
+    <admin-sidebar
+        id="sidebar"
+        data-component="_components/admin-sidebar.tmpl"
+        class="admin-sidebar bg-neutral"
+        :class="{ 'open': sidebarOpen, 'hovered': sidebarHovered && !sidebarOpen }"
+        @mouseenter="if (!sidebarOpen) sidebarHovered = true"
+        @mouseleave="sidebarHovered = false; if (!event.target.closest('#sidebar .close')) sidebarOpen = false;"
+    ></admin-sidebar>
+
+    <admin-main
+        data-component="_components/admin-main.tmpl"
+        class="admin-main"
+    ></admin-main>
+       
+</body>
+</html>

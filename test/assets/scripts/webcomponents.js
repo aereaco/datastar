@@ -1,0 +1,10 @@
+AlpineWebComponent('dashboard-sidebar', '_components/dashboard-sidebar.tmpl');
+AlpineWebComponent('dashboard-header', '_components/dashboard-header.tmpl');
+AlpineWebComponent('dashboard-tabs', '_components/dashboard-tabs.tmpl');
+AlpineWebComponent('dashboard-main', '_components/dashboard-main.tmpl');
+AlpineWebComponent('theme-chooser', '_components/theme-chooser.tmpl');
+AlpineWebComponent('theme-options', '_components/theme-options.tmpl');
+AlpineWebComponent('theme-switcher', '_components/theme-switcher.tmpl');
+AlpineWebComponent('theme-textflow', '_components/theme-textflow.tmpl');
+AlpineWebComponent('theme-zoom', '_components/theme-zoom.tmpl');
+AlpineWebComponent('dashboard-sidebar-preferences', '_components/dashboard-sidebar-preferences.tmpl');

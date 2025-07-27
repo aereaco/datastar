@@ -1,0 +1,31 @@
+<div @click="switchTheme()" class="relative size-5/6">
+    <div class="inset-0 flex items-center justify-center">
+        <template x-for="(themeType, index) in appData.theme.types" :key="index">
+            <div x-show="appData.theme.state === index"
+                x-transition:enter="transition ease-in-out duration-300"
+                x-transition:enter-start="opacity-0 scale-80 rotate-90"
+                x-transition:enter-end="opacity-100 scale-100 rotate-0"
+                x-transition:leave.persist="transition ease-in-out duration-300 absolute inset-0"
+                x-transition:leave-start="opacity-100 scale-100 rotate-0"
+                x-transition:leave-end="opacity-0 scale-80 rotate-90 color 0.3s ease-in-out">
+                <div class="transform origin-center">
+                    <template x-if="themeType.template === 'sun-svg'">                        
+                        <svg class="stroke-current size-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-sun" />
+                        </svg>
+                    </template>
+                    <template x-if="themeType.template === 'moon-svg'">
+                        <svg class="stroke-current size-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-moon" />
+                        </svg>                        
+                    </template>
+                    <template x-if="themeType.template === 'brightness-svg'">
+                        <svg class="size-full" viewBox="0 0 24 24"  fill="currentColor" stroke="currentColor" stroke-width="0">
+                            <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-filled-brightness" />
+                        </svg>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
