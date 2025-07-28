@@ -26,13 +26,11 @@ export class DatastarComponent extends HTMLElement {
   // Flag to ensure content is attached only once, especially important for hydration.
   _dsContentAttached = false
   // The source URL or inline HTML of the component.
-  _componentSrc: string | null = null
+  _componentSrc = ''
   // Indicates if the component uses Shadow DOM.
   _isShadowDOM = false
   // Stores the Datastar context for use in lifecycle methods like disconnectedCallback.
   _dsCtx?: Parameters<AttributePlugin['onLoad']>[0]
-  // Flag to prevent double rendering
-  _isRendered = false
 
   // --- Public properties ---
   // The root where the component's content is rendered (ShadowRoot or the element itself).
@@ -46,17 +44,11 @@ export class DatastarComponent extends HTMLElement {
   _styles?: (HTMLStyleElement | HTMLLinkElement)[]
   _scripts?: HTMLScriptElement[]
 
-  constructor(dsCtx: Parameters<AttributePlugin['onLoad']>[0], templateContent?: DocumentFragment, styles?: (HTMLStyleElement | HTMLLinkElement)[], scripts?: HTMLScriptElement[], isShadowDOM?: boolean) {
+  constructor(dsCtx: Parameters<AttributePlugin['onLoad']>[0]) {
     super()
     this.internals = this.attachInternals()
+    this.root = this // Initialize root to 'this' to satisfy strictPropertyInitialization
     this._dsCtx = dsCtx // Assign the passed context
-
-    this._templateContent = templateContent
-    this._styles = styles
-    this._scripts = scripts
-    this._isShadowDOM = !!isShadowDOM
-
-    this.root = this._isShadowDOM ? this.attachShadow({ mode: 'open' }) : this
   }
 
   // --- Public Methods for Component Authors ---
@@ -125,69 +117,6 @@ export class DatastarComponent extends HTMLElement {
     // To be implemented by the component author.
   }
 
-  /**
-   * Loads, parses, and renders the component's content from the given source.
-   * This method handles clearing existing content and attaching new content, styles, and scripts.
-   * It's designed to be called both on initial connection and when the component's source changes dynamically.
-   * @param source The URL or inline HTML string for the component.
-   */
-  async _loadAndRenderSource(source: string) {
-    if (!this._dsCtx) {
-      console.error(`[Datastar] Datastar context not available for <${this.tagName}>. Cannot load component source.`)
-      return
-    }
-
-    try {
-      // Clear existing content before rendering new content
-      // This is important for dynamic updates to prevent old content from lingering
-      if (this.root) {
-        while (this.root.firstChild) {
-          this.root.removeChild(this.root.firstChild)
-        }
-      }
-
-      // Update internal properties based on the new source
-      this._componentSrc = source
-
-      // Attach the pre-parsed template content to the component's root.
-      if (this._templateContent) {
-        this.root.appendChild(this._templateContent.cloneNode(true))
-      }
-
-      // Apply styles to the component's root.
-      if (this._styles) {
-        applyStyles(this.root, this._styles, this.tagName.toLowerCase(), this._isShadowDOM)
-      }
-
-      // IMPORTANT: Recursively walk the newly attached DOM within the component's root.
-      // This initializes all Datastar attributes (data-*, data-on-*, etc.) inside the component.
-      if (this._isShadowDOM) {
-        Array.from(this.root.children).forEach(child => {
-          this._dsCtx!.applyToElement(child as HTMLElement);
-        });
-      } else {
-        this._dsCtx.applyToElement(this.root as HTMLElement);
-      }
-
-      // Execute component-specific scripts.
-      if (this._scripts) {
-        executeScripts(this._dsCtx, this._scripts, this)
-      }
-
-      // Finally, call the author's custom contentReadyCallback if it exists.
-      try {
-        this.contentReadyCallback()
-      } catch (e) {
-        console.error(`[Datastar] Error in contentReadyCallback for <${this.tagName}>:`, e)
-      }
-      this._isRendered = true
-    } catch (error) {
-      console.error(`[Datastar] Error loading and rendering component <${this.tagName}> from source "${source}":`, error)
-      // Optionally render a fallback message or content here
-      this.root.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Failed to load component from "${source}".</p>`
-    }
-  }
-
   // --- Lifecycle Callbacks ---
 
   /**
@@ -207,12 +136,44 @@ export class DatastarComponent extends HTMLElement {
     }
 
     // Prevent re-attaching content if the component is re-connected (e.g., moved in DOM).
-    if (this._dsContentAttached || this._isRendered) return
+    if (this._dsContentAttached || !this._dsCtx) return
     this._dsContentAttached = true
 
-    // On initial connection, load and render the component using its _componentSrc
-    if (this._componentSrc) {
-      this._loadAndRenderSource(this._componentSrc)
+    // Attach the pre-parsed template content to the component's root.
+    if (this._templateContent) {
+      this.root.appendChild(this._templateContent.cloneNode(true))
+    }
+
+    // Apply styles to the component's root.
+    if (this._styles) {
+      applyStyles(this.root, this._styles, this.tagName.toLowerCase(), this._isShadowDOM)
+    }
+
+    // IMPORTANT: Recursively walk the newly attached DOM within the component's root.
+    // This initializes all Datastar attributes (data-*, data-on-*, etc.) inside the component.
+    if (this._isShadowDOM) {
+      // When using Shadow DOM, the content is appended to this.root (the ShadowRoot).
+      // We need to apply Datastar to the elements *inside* the ShadowRoot.
+      // The applyToElement function expects an Element, not a ShadowRoot.
+      // So, we iterate over the children of the ShadowRoot.
+      Array.from(this.root.children).forEach(child => {
+        this._dsCtx!.applyToElement(child as HTMLElement); // Cast to HTMLElement
+      });
+    } else {
+      // For Light DOM, this.root is the custom element itself, which is an HTMLElement.
+      this._dsCtx.applyToElement(this.root as HTMLElement); // Cast to HTMLElement
+    }
+
+    // Execute component-specific scripts.
+    if (this._scripts) {
+      executeScripts(this._dsCtx, this._scripts, this)
+    }
+
+    // Finally, call the author's custom contentReadyCallback if it exists.
+    try {
+      this.contentReadyCallback()
+    } catch (e) {
+      console.error(`[Datastar] Error in contentReadyCallback for <${this.tagName}>:`, e)
     }
   }
 
@@ -254,18 +215,9 @@ export class DatastarComponent extends HTMLElement {
  * @param source The value of the data-component attribute (URL or inline HTML).
  * @returns A promise that resolves with the component's HTML string.
  */
-async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], source: string): Promise<string> {
+async function getTemplateHtml(source: string): Promise<string> {
   // The source itself might be a signal, so we evaluate it reactively.
-  let evaluatedSource = source
-  if (evaluatedSource.startsWith('$')) {
-    try {
-      evaluatedSource = ctx.genRX()(evaluatedSource)
-    } catch (e) {
-      console.error(`[Datastar] Error evaluating dynamic component source "${source}":`, e)
-      throw new Error(`Failed to evaluate dynamic component source: ${source}`)
-    }
-  }
-
+  const evaluatedSource = source
   if (typeof evaluatedSource !== 'string' || !evaluatedSource) {
     throw new Error('data-component attribute must resolve to a non-empty string (URL or inline template).')
   }
@@ -456,27 +408,20 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
  * @param ctx The Datastar plugin context.
  * @param el The original HTML element with the data-component attribute.
  * @param componentSrc The source URL or inline HTML of the component.
- * @param formAssociated True if the component is form-associated.
  * @returns A promise that resolves when the custom element class has been defined.
  */
 async function defineComponent(
   ctx: Parameters<AttributePlugin['onLoad']>[0],
   el: HTMLElement,
-  componentSrc: string | null,
+  componentSrc: string,
   formAssociated: boolean,
 ) {
   const tagName = el.tagName.toLowerCase()
   // If the custom element is already defined, return immediately.
   if (customElements.get(tagName)) return
 
-  // If componentSrc is null or empty, there's nothing to define.
-  if (!componentSrc) {
-    console.warn(`[Datastar] Attempted to define component <${tagName}> with null or empty source. Skipping.`);
-    return;
-  }
-
   // Fetch and parse the component's HTML.
-  const htmlContent = await getTemplateHtml(ctx, componentSrc)
+  const htmlContent = await getTemplateHtml(componentSrc)
   const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName)
 
   // Define the custom element class dynamically.
@@ -486,8 +431,14 @@ async function defineComponent(
       static formAssociated = formAssociated // Set form association based on template metadata.
 
       constructor() {
-        super(ctx, templateContent, styles, scripts, !!shadowMode) // Pass parsed content to base constructor
+        super(ctx) // Pass ctx to the base constructor
         this._componentSrc = componentSrc
+        this._isShadowDOM = !!shadowMode
+        this.root = this._isShadowDOM ? this.attachShadow({ mode: shadowMode as ShadowRootMode }) : this
+        
+        this._templateContent = templateContent
+        this._styles = styles
+        this._scripts = scripts
       }
     }
   )
@@ -508,7 +459,7 @@ export const Component: AttributePlugin = {
   keyReq: Requirement.Allowed, // data-component does not use a key (e.g., data-component:key)
   valReq: Requirement.Must,   // data-component requires a value (the source URL or inline HTML)
   onLoad: (ctx) => {
-    const { el, value: initialComponentSrc, signals, effect } = ctx
+    const { el, value: componentSrc, signals, effect } = ctx
     const tagName = el.tagName.toLowerCase()
 
     // If a key is present (e.g., data-component:connected), do nothing.
@@ -541,97 +492,60 @@ export const Component: AttributePlugin = {
 
     // 2. Handle component definition and rendering.
     const isFormAssociated = el.hasAttribute('data-component:formAssociated');
-
-    // Create a signal to hold the resolved component source (static path, inline template, or resolved dynamic signal)
-    const { signal: resolvedComponentSourceSignal } = signals.upsertIfMissing<string | null>(`${tagName}._resolvedComponentSource`, initialComponentSrc);
-
-    // Effect to resolve dynamic component sources
-    effect(() => {
-      const currentComponentSrc = ctx.value;
-      if (currentComponentSrc && currentComponentSrc.startsWith('$')) {
-        try {
-          const resolvedValue = ctx.genRX()(currentComponentSrc);
-          if (typeof resolvedValue === 'string') {
-            resolvedComponentSourceSignal.value = resolvedValue;
-          } else {
-            console.warn(`[Datastar] Dynamic component source "${currentComponentSrc}" resolved to a non-string value:`, resolvedValue);
-            resolvedComponentSourceSignal.value = null; // Set to null to prevent further errors
+    const definitionCacheKey = `${tagName}-${componentSrc}`
+    if (!componentDefinitionCache.has(definitionCacheKey)) {
+      const definitionPromise = defineComponent(ctx, el as HTMLElement, componentSrc, isFormAssociated)
+        .catch(error => {
+          console.error(`[Datastar] Error defining component <${tagName}> from source "${componentSrc}":`, error)
+          // If definition fails, check for a fallback attribute and try to render its content.
+          const fallbackAttr = el.getAttribute('data-component:fallback')
+          if (fallbackAttr) {
+            getTemplateHtml(fallbackAttr).then(fallbackHtml => {
+              try {
+                const { templateContent } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`)
+                el.innerHTML = '' // Clear any existing content
+                el.appendChild(templateContent)
+              } catch (e) {
+                console.error(`[Datastar] Error parsing fallback for <${tagName}>:`, e)
+                el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
+              }
+            }).catch(fallbackError => {
+              console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError)
+              el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`
+            })
           }
-        } catch (e) {
-          console.error(`[Datastar] Error resolving dynamic component source "${currentComponentSrc}":`, e);
-          resolvedComponentSourceSignal.value = null; // Set to null to prevent further errors
+          throw error // Re-throw the error to propagate it further if needed.
+        })
+          componentDefinitionCache.set(definitionCacheKey, definitionPromise)
         }
-      } else if (typeof currentComponentSrc === 'string') {
-        resolvedComponentSourceSignal.value = currentComponentSrc;
-      } else {
-        resolvedComponentSourceSignal.value = null; // Handle null or non-string initial values
-      }
-    });
 
-    // Effect to define and render the component when the resolved source changes
-    const componentRenderEffect = effect(async () => {
-      const currentResolvedSource = resolvedComponentSourceSignal.value;
-      if (!currentResolvedSource) return; // Do nothing if source is empty or null
+        // Wait for the custom element class to be fully defined before proceeding.
+        // This ensures that when the element is connected, its custom element definition is ready.
+        const initialLoadEffect = effect(async () => {
+          await componentDefinitionCache.get(definitionCacheKey)
+        });
 
-      const definitionCacheKey = `${tagName}-${currentResolvedSource}`;
-      if (!componentDefinitionCache.has(definitionCacheKey)) {
-        const definitionPromise = defineComponent(ctx, el as HTMLElement, currentResolvedSource, isFormAssociated)
-          .catch(error => {
-            console.error(`[Datastar] Error defining component <${tagName}> from source "${currentResolvedSource}":`, error);
-            // If definition fails, check for a fallback attribute and try to render its content.
-            const fallbackAttr = el.getAttribute('data-component:fallback');
-            if (fallbackAttr) {
-              getTemplateHtml(ctx, fallbackAttr).then(fallbackHtml => {
-                try {
-                  const { templateContent } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`);
-                  el.innerHTML = ''; // Clear any existing content
-                  el.appendChild(templateContent);
-                } catch (e) {
-                  console.error(`[Datastar] Error parsing fallback for <${tagName}>:`, e);
-                  el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`;
-                }
-              }).catch(fallbackError => {
-                console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError);
-                el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`;
-              });
-            }
-            throw error; // Re-throw the error to propagate it further if needed.
-          });
-        componentDefinitionCache.set(definitionCacheKey, definitionPromise);
-      }
+        const cleanupCallback: CleanupUpdateCallback = () => {
+          // Disconnect the initial load effect
+          initialLoadEffect();
+          // Additional cleanup logic for the component instance can be added here
+          // For example, if we need to manually call disconnectedCallback on the instance
+          if (el instanceof DatastarComponent) {
+            el.disconnectedCallback();
+          }
+        };
 
-      // Wait for the custom element class to be fully defined before proceeding.
-      await componentDefinitionCache.get(definitionCacheKey);
+        const mutationCallback: MutationUpdateCallback = (newSrc) => {
+          if (newSrc && newSrc !== (el as DatastarComponent)._componentSrc) {
+            // Cleanup the old component instance
+            cleanupCallback();
+            
+            // Re-run the onLoad logic with the new source
+            Component.onLoad({ ...ctx, value: newSrc });
+          }
+        };
 
-      // If the element is already an instance of DatastarComponent, trigger re-render
-      if (el instanceof DatastarComponent) {
-        // Re-parse the new source and update the instance's properties
-        const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
-        const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
-
-        el._templateContent = templateContent;
-        el._styles = styles;
-        el._scripts = scripts;
-        el._isShadowDOM = !!shadowMode;
-
-        el._loadAndRenderSource(currentResolvedSource);
-      }
-    });
-
-    const cleanupCallback: CleanupUpdateCallback = () => {
-      componentRenderEffect(); // Disconnect the render effect
-      // Additional cleanup logic for the component instance can be added here
-      if (el instanceof DatastarComponent) {
-        el.disconnectedCallback();
-      }
-    };
-
-    const mutationCallback: MutationUpdateCallback = (newSrc) => {
-      // When the data-component attribute itself changes, update the resolved source signal
-      resolvedComponentSourceSignal.value = newSrc || null;
-    };
-
-    return { cleanupCallback, mutationCallback };
-  },
-}
+        return { cleanupCallback, mutationCallback };
+      },
+    }
 // #endregion

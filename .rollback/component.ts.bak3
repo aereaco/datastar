@@ -605,16 +605,10 @@ export const Component: AttributePlugin = {
 
       // If the element is already an instance of DatastarComponent, trigger re-render
       if (el instanceof DatastarComponent) {
-        // Re-parse the new source and update the instance's properties
-        const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
-        const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
-
-        el._templateContent = templateContent;
-        el._styles = styles;
-        el._scripts = scripts;
-        el._isShadowDOM = !!shadowMode;
-
-        el._loadAndRenderSource(currentResolvedSource);
+        // Only re-render if the source has actually changed
+        if (el._componentSrc !== currentResolvedSource) {
+          el._loadAndRenderSource(currentResolvedSource);
+        }
       }
     });
 

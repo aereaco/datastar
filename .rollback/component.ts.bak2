@@ -31,8 +31,6 @@ export class DatastarComponent extends HTMLElement {
   _isShadowDOM = false
   // Stores the Datastar context for use in lifecycle methods like disconnectedCallback.
   _dsCtx?: Parameters<AttributePlugin['onLoad']>[0]
-  // Flag to prevent double rendering
-  _isRendered = false
 
   // --- Public properties ---
   // The root where the component's content is rendered (ShadowRoot or the element itself).
@@ -146,17 +144,28 @@ export class DatastarComponent extends HTMLElement {
         }
       }
 
+      const htmlContent = await getTemplateHtml(this._dsCtx, source)
+      const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, this.tagName.toLowerCase())
+
       // Update internal properties based on the new source
       this._componentSrc = source
+      this._isShadowDOM = !!shadowMode
+      // Re-attach shadow root if mode changes, or ensure root is 'this' for light DOM
+      if (this._isShadowDOM && !(this.root instanceof ShadowRoot)) {
+        this.root = this.attachShadow({ mode: shadowMode as ShadowRootMode })
+      } else if (!this._isShadowDOM && (this.root instanceof ShadowRoot)) {
+        // If it was shadow DOM and now it's light DOM, we need to re-initialize root
+        this.root = this
+      }
 
       // Attach the pre-parsed template content to the component's root.
-      if (this._templateContent) {
-        this.root.appendChild(this._templateContent.cloneNode(true))
+      if (templateContent) {
+        this.root.appendChild(templateContent.cloneNode(true))
       }
 
       // Apply styles to the component's root.
-      if (this._styles) {
-        applyStyles(this.root, this._styles, this.tagName.toLowerCase(), this._isShadowDOM)
+      if (styles) {
+        applyStyles(this.root, styles, this.tagName.toLowerCase(), this._isShadowDOM)
       }
 
       // IMPORTANT: Recursively walk the newly attached DOM within the component's root.
@@ -170,8 +179,8 @@ export class DatastarComponent extends HTMLElement {
       }
 
       // Execute component-specific scripts.
-      if (this._scripts) {
-        executeScripts(this._dsCtx, this._scripts, this)
+      if (scripts) {
+        executeScripts(this._dsCtx, scripts, this)
       }
 
       // Finally, call the author's custom contentReadyCallback if it exists.
@@ -180,7 +189,6 @@ export class DatastarComponent extends HTMLElement {
       } catch (e) {
         console.error(`[Datastar] Error in contentReadyCallback for <${this.tagName}>:`, e)
       }
-      this._isRendered = true
     } catch (error) {
       console.error(`[Datastar] Error loading and rendering component <${this.tagName}> from source "${source}":`, error)
       // Optionally render a fallback message or content here
@@ -207,7 +215,7 @@ export class DatastarComponent extends HTMLElement {
     }
 
     // Prevent re-attaching content if the component is re-connected (e.g., moved in DOM).
-    if (this._dsContentAttached || this._isRendered) return
+    if (this._dsContentAttached) return
     this._dsContentAttached = true
 
     // On initial connection, load and render the component using its _componentSrc
@@ -605,15 +613,6 @@ export const Component: AttributePlugin = {
 
       // If the element is already an instance of DatastarComponent, trigger re-render
       if (el instanceof DatastarComponent) {
-        // Re-parse the new source and update the instance's properties
-        const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
-        const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
-
-        el._templateContent = templateContent;
-        el._styles = styles;
-        el._scripts = scripts;
-        el._isShadowDOM = !!shadowMode;
-
         el._loadAndRenderSource(currentResolvedSource);
       }
     });

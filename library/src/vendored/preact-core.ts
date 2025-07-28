@@ -1,5 +1,5 @@
 import { internalErr } from '../engine/errors'
-import type { OnRemovalFn } from '../engine/types'
+import type { CleanupUpdateCallback } from '../engine/types'
 
 const from = 'preact-signals'
 
@@ -745,7 +745,7 @@ function endEffect(this: Effect, prevContext?: Computed | Effect) {
   endBatch()
 }
 
-export type EffectFn = () => OnRemovalFn | void | Promise<OnRemovalFn | void>
+export type EffectFn = () => CleanupUpdateCallback | void | Promise<CleanupUpdateCallback | void>
 
 declare class Effect {
   _fn?: EffectFn

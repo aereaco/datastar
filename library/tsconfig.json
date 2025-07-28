@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
+    "target": "ES2024",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -19,5 +23,8 @@
     "declaration": true,
     "outDir": "dist",
   },
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js"
+  ]
 }

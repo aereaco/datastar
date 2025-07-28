@@ -15,8 +15,6 @@ export const Computed: AttributePlugin = {
   onLoad: (ctx) => {
     let activeSignalKey: string;
     // This will be the zero-argument function that `signals.setComputed` expects.
-    let activeComputedFn: () => unknown; 
-
     const setupComputedSignal = (signalKey: string, computedFn: () => unknown) => {
       // Ensure any previously set computed signal by this plugin is removed
       // This handles cases where the key itself changes
@@ -26,7 +24,6 @@ export const Computed: AttributePlugin = {
 
       ctx.signals.setComputed(signalKey, computedFn);
       activeSignalKey = signalKey; // Update the active key
-      activeComputedFn = computedFn; // Store the new computed function
     };
 
     // Initial setup on load

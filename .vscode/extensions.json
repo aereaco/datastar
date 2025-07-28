@@ -1,7 +1,7 @@
 {
     "recommendations": [
-        "jdinabox.quicktemplate-vscode",
-        "golang.go",
-        "a-h.templ"
+        //"jdinabox.quicktemplate-vscode",
+        "golang.go" // Go language support,
+        //"a-h.templ"
     ]
 }
