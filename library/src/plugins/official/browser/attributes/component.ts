@@ -1,3 +1,4 @@
+
 import {
   type AttributePlugin,
   PluginType,
@@ -253,33 +254,67 @@ export class DatastarComponent extends HTMLElement {
  * @returns A promise that resolves with the component's HTML string.
  */
 async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], source: string): Promise<string> {
-  // The source itself might be a signal, so we evaluate it reactively.
-  let evaluatedSource = source
-  if (evaluatedSource.startsWith('$')) {
-    try {
-      evaluatedSource = ctx.genRX()(evaluatedSource)
-    } catch (e) {
-      console.error(`[Datastar] Error evaluating dynamic component source "${source}":`, e)
-      throw new Error(`Failed to evaluate dynamic component source: ${source}`)
-    }
-  }
-
-  if (typeof evaluatedSource !== 'string' || !evaluatedSource) {
-    throw new Error('data-component attribute must resolve to a non-empty string (URL or inline template).')
-  }
-
-  // Check if the source is an inline template (starts with <template> tag).
-  if (evaluatedSource.trim().startsWith('<template>')) {
-    return Promise.resolve(evaluatedSource)
-  }
-
-  // Otherwise, fetch the content from the provided URL.
-  const response = await fetch(evaluatedSource)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch component from ${evaluatedSource}: ${response.statusText}`)
-  }
-  return response.text()
-}
+     // The source itself might be a signal, so we evaluate it reactively.
+     let evaluatedSource = source
+     if (evaluatedSource.startsWith('$')) {
+       try {
+         evaluatedSource = ctx.genRX()(evaluatedSource)
+       } catch (e) {
+         console.error(`[Nexus UX] Error evaluating dynamic component source "${source}":`, e)
+         throw new Error(`Failed to evaluate dynamic component source: ${source}`)
+       }
+     }
+   
+     if (typeof evaluatedSource !== 'string' || !evaluatedSource) {
+       throw new Error('data-component attribute must resolve to a non-empty string (URL or inline template, or ID reference).')
+     }
+   
+     // Check for fragment identifier
+     const hashIndex = evaluatedSource.indexOf('#');
+     let urlPart = evaluatedSource;
+     let fragmentId: string | null = null;
+   
+     if (hashIndex !== -1) {
+       urlPart = evaluatedSource.substring(0, hashIndex);
+       fragmentId = evaluatedSource.substring(hashIndex + 1);
+     }
+   
+     let htmlContent: string;
+   
+     if (urlPart.trim() === '') {
+       // Case: #my-template-id (template on the same page)
+       if (!fragmentId) {
+         throw new Error('Fragment identifier required for same-page template reference (e.g., "#my-template-id").');
+       }
+       const templateElement = document.getElementById(fragmentId);
+       if (!templateElement || !(templateElement instanceof HTMLTemplateElement)) {
+          throw new Error(`[Nexus UX] Template element with ID "${fragmentId}" not found or is not a <template> element on the current page.`);
+       }
+       htmlContent = templateElement.outerHTML; // Get the <template> tag itself
+     } else if (urlPart.trim().startsWith('<template>')) {
+       // Case: Inline template string
+       htmlContent = urlPart;
+     } else {
+       // Case: URL (with or without fragment)
+       const response = await fetch(urlPart);
+       if (!response.ok) {
+         throw new Error(`[Nexus UX] Failed to fetch component from ${urlPart}: ${response.statusText}`);
+       }
+       htmlContent = await response.text();
+     }
+   
+     // If a fragment ID was specified and content was fetched from a URL, extract the specific template
+     if (fragmentId && urlPart.trim() !== '') {
+       const tempDoc = new DOMParser().parseFromString(htmlContent, 'text/html');
+       const specificTemplate = tempDoc.querySelector(`#${fragmentId}`);
+       if (!specificTemplate || !(specificTemplate instanceof HTMLTemplateElement)) {
+         throw new Error(`[Nexus UX] Template with ID "${fragmentId}" not found or is not a <template> element in fetched content from ${urlPart}.`);
+       }
+       return specificTemplate.outerHTML; // Return the specific <template> element's outerHTML
+     }
+   
+     return htmlContent; // Return the full HTML content if no fragment or if it was an inline template
+   }
 
 /**
  * Parses the component's HTML string to extract the template content, styles,
