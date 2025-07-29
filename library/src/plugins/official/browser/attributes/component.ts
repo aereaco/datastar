@@ -294,6 +294,24 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
      } else if (urlPart.trim().startsWith('<template>')) {
        // Case: Inline template string
        htmlContent = urlPart;
+     } else if (urlPart.trim().startsWith('data:')) {
+       // Case: Data URL
+       const parts = urlPart.split(',');
+       if (parts.length < 2) {
+         throw new Error(`[Nexus UX] Invalid Data URL format: ${urlPart}`);
+       }
+       const metadata = parts[0].substring(5); // Remove "data:" prefix
+       const data = parts.slice(1).join(','); // Re-join in case data itself contains commas
+
+       if (metadata.includes('base64')) {
+         try {
+           htmlContent = atob(data); // Decode base64
+         } catch (e) {
+           throw new Error(`[Nexus UX] Failed to decode base64 data from Data URL: ${urlPart}. Error: ${e}`);
+         }
+       } else {
+         htmlContent = decodeURIComponent(data); // Decode URI components for plain text
+       }
      } else {
        // Case: URL (with or without fragment)
        const response = await fetch(urlPart);
