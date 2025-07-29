@@ -183,8 +183,6 @@ export class DatastarComponent extends HTMLElement {
       this._isRendered = true
     } catch (error) {
       console.error(`[Datastar] Error loading and rendering component <${this.tagName}> from source "${source}":`, error)
-      // Optionally render a fallback message or content here
-      this.root.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Failed to load component from "${source}".</p>`
     }
   }
 
@@ -578,23 +576,6 @@ export const Component: AttributePlugin = {
         const definitionPromise = defineComponent(ctx, el as HTMLElement, currentResolvedSource, isFormAssociated)
           .catch(error => {
             console.error(`[Datastar] Error defining component <${tagName}> from source "${currentResolvedSource}":`, error);
-            // If definition fails, check for a fallback attribute and try to render its content.
-            const fallbackAttr = el.getAttribute('data-component:fallback');
-            if (fallbackAttr) {
-              getTemplateHtml(ctx, fallbackAttr).then(fallbackHtml => {
-                try {
-                  const { templateContent } = parseComponentHTML(fallbackHtml, `${tagName}-fallback`);
-                  el.innerHTML = ''; // Clear any existing content
-                  el.appendChild(templateContent);
-                } catch (e) {
-                  console.error(`[Datastar] Error parsing fallback for <${tagName}>:`, e);
-                  el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`;
-                }
-              }).catch(fallbackError => {
-                console.error(`[Datastar] Failed to load fallback for <${tagName}>:`, fallbackError);
-                el.innerHTML = `<p style="color:red; border:1px solid red; padding: .5em;">Component and fallback failed to load.</p>`;
-              });
-            }
             throw error; // Re-throw the error to propagate it further if needed.
           });
         componentDefinitionCache.set(definitionCacheKey, definitionPromise);

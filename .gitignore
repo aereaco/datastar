@@ -1,9 +1,9 @@
 tailwindcli
 datastar-*
-revert*
 pinecone
 datastar_site
 data
+.rollback
 .task
 .idea
 .DS_Store
