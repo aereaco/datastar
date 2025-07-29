@@ -324,9 +324,16 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
      // If a fragment ID was specified and content was fetched from a URL, extract the specific template
      if (fragmentId && urlPart.trim() !== '') {
        const tempDoc = new DOMParser().parseFromString(htmlContent, 'text/html');
-       const specificTemplate = tempDoc.querySelector(`#${fragmentId}`);
+       // Find the main template element in the fetched document
+       const mainTemplate = tempDoc.querySelector('template');
+       if (!mainTemplate) {
+         throw new Error(`[Nexus UX] No <template> element found in fetched content from ${urlPart}.`);
+       }
+
+       // Now, query within the content of that main template for the specific fragment ID
+       const specificTemplate = mainTemplate.content.querySelector(`#${fragmentId}`);
        if (!specificTemplate || !(specificTemplate instanceof HTMLTemplateElement)) {
-         throw new Error(`[Nexus UX] Template with ID "${fragmentId}" not found or is not a <template> element in fetched content from ${urlPart}.`);
+         throw new Error(`[Nexus UX] Template with ID "${fragmentId}" not found or is not a <template> element within the main template in fetched content from ${urlPart}.`);
        }
        return specificTemplate.outerHTML; // Return the specific <template> element's outerHTML
      }
