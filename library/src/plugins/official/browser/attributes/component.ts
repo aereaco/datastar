@@ -20,17 +20,17 @@ const componentDefinitionCache = new Map<string, Promise<void>>()
 export class DatastarComponent extends HTMLElement {
   // --- Internal properties for Datastar management ---
   // Functions to execute when the component is disconnected from the DOM.
-  _dsCleanupFunctions: (() => void)[] = []
+  _cleanupFunctions: (() => void)[] = []
   // A unique ID for each component instance, used for scoped IDs.
-  _dsInstanceId: number = Date.now() + Math.random()
+  _instanceId: number = Date.now() + Math.random()
   // Flag to ensure content is attached only once, especially important for hydration.
-  _dsContentAttached = false
+  _contentAttached = false
   // The source URL or inline HTML of the component.
   _componentSrc: string | null = null
   // Indicates if the component uses Shadow DOM.
   _isShadowDOM = false
   // Stores the Datastar context for use in lifecycle methods like disconnectedCallback.
-  _dsCtx?: Parameters<AttributePlugin['onLoad']>[0]
+  _ctx?: Parameters<AttributePlugin['onLoad']>[0]
   // Flag to prevent double rendering
   _isRendered = false
 
@@ -46,10 +46,10 @@ export class DatastarComponent extends HTMLElement {
   _styles?: (HTMLStyleElement | HTMLLinkElement)[]
   _scripts?: HTMLScriptElement[]
 
-  constructor(dsCtx: Parameters<AttributePlugin['onLoad']>[0], templateContent?: DocumentFragment, styles?: (HTMLStyleElement | HTMLLinkElement)[], scripts?: HTMLScriptElement[], isShadowDOM?: boolean) {
+  constructor(ctx: Parameters<AttributePlugin['onLoad']>[0], templateContent?: DocumentFragment, styles?: (HTMLStyleElement | HTMLLinkElement)[], scripts?: HTMLScriptElement[], isShadowDOM?: boolean) {
     super()
     this.internals = this.attachInternals()
-    this._dsCtx = dsCtx // Assign the passed context
+    this._ctx = ctx // Assign the passed context
 
     this._templateContent = templateContent
     this._styles = styles
@@ -68,7 +68,7 @@ export class DatastarComponent extends HTMLElement {
    */
   registerCleanup(fn: () => void) {
     if (typeof fn === 'function') {
-      this._dsCleanupFunctions.push(fn)
+      this._cleanupFunctions.push(fn)
     }
   }
 
@@ -79,7 +79,7 @@ export class DatastarComponent extends HTMLElement {
    * @returns A globally unique ID string (e.g., 'my-component-1678886400000-my-input').
    */
   generateScopedId(baseId: string) {
-    return `${this.tagName.toLowerCase()}-${this._dsInstanceId}-${baseId}`
+    return `${this.tagName.toLowerCase()}-${this._instanceId}-${baseId}`
   }
 
   /**
@@ -131,8 +131,8 @@ export class DatastarComponent extends HTMLElement {
    * It's designed to be called both on initial connection and when the component's source changes dynamically.
    * @param source The URL or inline HTML string for the component.
    */
-  async _loadAndRenderSource(source: string) {
-    if (!this._dsCtx) {
+  async _loadAndRender(source: string) {
+    if (!this._ctx) {
       console.error(`[Datastar] Datastar context not available for <${this.tagName}>. Cannot load component source.`)
       return
     }
@@ -163,15 +163,15 @@ export class DatastarComponent extends HTMLElement {
       // This initializes all Datastar attributes (data-*, data-on-*, etc.) inside the component.
       if (this._isShadowDOM) {
         Array.from(this.root.children).forEach(child => {
-          this._dsCtx!.applyToElement(child as HTMLElement);
+          this._ctx!.applyToElement(child as HTMLElement);
         });
       } else {
-        this._dsCtx.applyToElement(this.root as HTMLElement);
+        this._ctx.applyToElement(this.root as HTMLElement);
       }
 
       // Execute component-specific scripts.
       if (this._scripts) {
-        executeScripts(this._dsCtx, this._scripts, this)
+        executeScripts(this._ctx, this._scripts, this)
       }
 
       // Finally, call the author's custom contentReadyCallback if it exists.
@@ -196,21 +196,21 @@ export class DatastarComponent extends HTMLElement {
   connectedCallback() {
     // Handle declarative `data-component-connected` attribute.
     const connectedExpr = this.getAttribute('data-component:connected')
-    if (connectedExpr && this._dsCtx) {
+    if (connectedExpr && this._ctx) {
       try {
-        this._dsCtx.genRX()(connectedExpr)
+        this._ctx.genRX()(connectedExpr)
       } catch (e) {
         console.error(`[Datastar] Error in data-component-connected for <${this.tagName}>:`, e)
       }
     }
 
     // Prevent re-attaching content if the component is re-connected (e.g., moved in DOM).
-    if (this._dsContentAttached || this._isRendered) return
-    this._dsContentAttached = true
+    if (this._contentAttached || this._isRendered) return
+    this._contentAttached = true
 
     // On initial connection, load and render the component using its _componentSrc
     if (this._componentSrc) {
-      this._loadAndRenderSource(this._componentSrc)
+      this._loadAndRender(this._componentSrc)
     }
   }
 
@@ -221,24 +221,24 @@ export class DatastarComponent extends HTMLElement {
   disconnectedCallback() {
     // Handle declarative cleanup via `data-component:disconnected` attribute.
     const disconnectExpr = this.getAttribute('data-component:disconnected')
-    if (disconnectExpr && this._dsCtx) {
+    if (disconnectExpr && this._ctx) {
       try {
         // Evaluate the expression in the context of the component instance.
-        this._dsCtx.genRX()(disconnectExpr)
+        this._ctx.genRX()(disconnectExpr)
       } catch (e) {
         console.error(`[Datastar] Error in data-on-disconnect for <${this.tagName}>:`, e)
       }
     }
 
     // Handle imperative cleanup via functions registered with `registerCleanup`.
-    this._dsCleanupFunctions.forEach((fn) => {
+    this._cleanupFunctions.forEach((fn) => {
       try {
         fn()
       } catch (e) {
         console.error(`[Datastar] Error during imperative cleanup for <${this.tagName}>:`, e)
       }
     })
-    this._dsCleanupFunctions = [] // Clear the array after execution.
+    this._cleanupFunctions = [] // Clear the array after execution.
   }
 }
 // #endregion
@@ -416,8 +416,8 @@ function applyStyles(root: ShadowRoot | HTMLElement, styles: (HTMLStyleElement |
  * @param componentInstance The custom element instance.
  */
 function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: HTMLScriptElement[], componentInstance: DatastarComponent) {
-  const componentIdPrefix = `${componentInstance.tagName.toLowerCase()}-${componentInstance._dsInstanceId}`;
-  const globalContextKey = `__datastarComponentContext_${componentInstance._dsInstanceId}`;
+  const componentIdPrefix = `${componentInstance.tagName.toLowerCase()}-${componentInstance._instanceId}`;
+  const globalContextKey = `__datastarComponentContext_${componentInstance._instanceId}`;
 
   // Create a unique global context object for this component instance
   (window as any)[globalContextKey] = {
@@ -640,7 +640,7 @@ export const Component: AttributePlugin = {
         el._scripts = scripts;
         el._isShadowDOM = !!shadowMode;
 
-        el._loadAndRenderSource(currentResolvedSource);
+        el._loadAndRender(currentResolvedSource);
       }
     });
 
