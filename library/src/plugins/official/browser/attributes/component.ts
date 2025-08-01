@@ -1,4 +1,3 @@
-
 import {
   type AttributePlugin,
   PluginType,
@@ -417,95 +416,81 @@ function applyStyles(root: ShadowRoot | HTMLElement, styles: (HTMLStyleElement |
  * @param componentInstance The custom element instance.
  */
 function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: HTMLScriptElement[], componentInstance: DatastarComponent) {
-  // Get the Datastar signal scope associated with this component instance.
-  // The `scope` method is not directly on SignalsRoot. We'll use the element's ID for namespacing.
   const componentIdPrefix = `${componentInstance.tagName.toLowerCase()}-${componentInstance._dsInstanceId}`;
-  
-  scripts.forEach((scriptNode) => {
+  const globalContextKey = `__datastarComponentContext_${componentInstance._dsInstanceId}`;
+
+  // Create a unique global context object for this component instance
+  (window as any)[globalContextKey] = {
+    componentInstance,
+    ds: ctx,
+    $signals: new Proxy(ctx.signals, {
+      get(target, prop, receiver) {
+        if (typeof prop === 'string' && prop.startsWith('$')) {
+          const signalPath = `${componentIdPrefix}.${prop.substring(1)}`;
+          return target.signal(signalPath)?.value;
+        }
+        return Reflect.get(target, prop, receiver);
+      }
+    }),
+    $props: ctx.signals.signal(`${componentIdPrefix}.$props`)?.value,
+    emit: componentInstance.emit.bind(componentInstance),
+    registerCleanup: componentInstance.registerCleanup.bind(componentInstance),
+    generateScopedId: componentInstance.generateScopedId.bind(componentInstance),
+    $actions: {} // This will be populated by exported functions
+  };
+
+  scripts.forEach(async (scriptNode) => {
     if (scriptNode.hasAttribute('src')) {
       // For external scripts, we just append them. The browser will fetch and execute.
-      // Note: These scripts won't have access to the special context variables
-      // unless they explicitly access them via the global window object.
-      componentInstance.root.appendChild(scriptNode.cloneNode(true))
-      return
+      componentInstance.root.appendChild(scriptNode.cloneNode(true));
+      return;
     }
+
+    const scriptContent = scriptNode.textContent || '';
+    // Wrap the script content to access the global context and export functions
+    const wrappedScriptContent = `
+      import { ${globalContextKey} } from 'data:application/javascript;base64,${btoa(`export const ${globalContextKey} = window.${globalContextKey};`)}';
+
+      const componentInstance = ${globalContextKey}.componentInstance;
+      const ds = ${globalContextKey}.ds;
+      const $signals = ${globalContextKey}.$signals;
+      const $props = ${globalContextKey}.$props;
+      const emit = ${globalContextKey}.emit;
+      const registerCleanup = ${globalContextKey}.registerCleanup;
+      const generateScopedId = ${globalContextKey}.generateScopedId;
+      const $actions = ${globalContextKey}.$actions; // Reference to the actions object
+
+      // Original script content
+      ${scriptContent}
+    `;
 
     try {
-      // Create a new Function from the script's content. This allows us to
-      // inject specific variables into the script's scope.
-      const scriptFunction = new Function(
-        'componentInstance', // The custom element instance itself.
-        'ds',                // The Datastar core context (ctx).
-        '$signals',          // The signal scope for this component.
-        '$props',            // Reactive properties passed to the component.
-        'emit',              // Component's emit method.
-        'registerCleanup',   // Component's registerCleanup method.
-        'generateScopedId',  // Component's generateScopedId method.
-        '$actions',          // New: Injected actions object
-        scriptNode.textContent || '' // The actual JavaScript code.
-      )
+      // Create a Blob and then a data URL for the module
+      const blob = new Blob([wrappedScriptContent], { type: 'application/javascript' });
+      const moduleUrl = URL.createObjectURL(blob);
 
-      // Object to hold dynamically registered actions from this script
-      const componentActions: { [key: string]: Function } = {};
-      const exportFunctionRegex = /export\s+function\s+(\w+)\s*\(([^)]*)\)\s*\{([\s\S]*?)\}/g;
-      let match;
+      // Dynamically import the module
+      const module = await import(moduleUrl);
 
-      // Extract and register exported functions as actions
-      while ((match = exportFunctionRegex.exec(scriptNode.textContent || '')) !== null) {
-        const actionName = match[1];
-        const args = match[2];
-        const body = match[3];
-
-        // Create a function that has access to the component's context
-        const actionFn = new Function(
-          'componentInstance', 'ds', '$signals', '$props', 'emit', 'registerCleanup', 'generateScopedId', 'args', 'body',
-          `return function(${args}) { ${body} }`
-        ).call(null, componentInstance, ctx, 
-          new Proxy(ctx.signals, { // Re-create proxy for action's scope
-            get(target, prop, receiver) {
-              if (typeof prop === 'string' && prop.startsWith('$')) {
-                const signalPath = `${componentIdPrefix}.${prop.substring(1)}`;
-                return target.signal(signalPath)?.value;
-              }
-              return Reflect.get(target, prop, receiver);
-            }
-          }),
-          ctx.signals.signal(`${componentIdPrefix}.$props`)?.value,
-          componentInstance.emit.bind(componentInstance),
-          componentInstance.registerCleanup.bind(componentInstance),
-          componentInstance.generateScopedId.bind(componentInstance),
-          args, body
-        );
-        componentActions[actionName] = actionFn;
+      // Populate $actions with exported functions
+      for (const exportName in module) {
+        if (typeof module[exportName] === 'function') {
+          (window as any)[globalContextKey].$actions[exportName] = module[exportName];
+        }
       }
 
-      // Call the main script function, binding 'this' to the component's root and passing the context variables.
-      scriptFunction.call(
-        componentInstance.root,
-        componentInstance,
-        ctx,
-        // Pass a proxy or a subset of signals relevant to this component's scope
-        new Proxy(ctx.signals, {
-          get(target, prop, receiver) {
-            if (typeof prop === 'string' && prop.startsWith('$')) {
-              // Handle $signals.mySignal -> ctx.signals.signal(componentIdPrefix + '.mySignal').value
-              const signalPath = `${componentIdPrefix}.${prop.substring(1)}`;
-              return target.signal(signalPath)?.value;
-            }
-            return Reflect.get(target, prop, receiver);
-          }
-        }),
-        // $props will be a signal containing other signals, so access its value
-        ctx.signals.signal(`${componentIdPrefix}.$props`)?.value,
-        componentInstance.emit.bind(componentInstance),
-        componentInstance.registerCleanup.bind(componentInstance),
-        componentInstance.generateScopedId.bind(componentInstance),
-        componentActions // Pass the new $actions object
-      )
+      // Clean up the Blob URL after import
+      URL.revokeObjectURL(moduleUrl);
+
     } catch (e) {
-      console.error(`[Datastar] Error executing inline script for <${componentInstance.tagName}>:`, e)
+      console.error(`[Datastar] Error executing inline script for <${componentInstance.tagName}>:`, e);
     }
-  })
+  });
+
+  // Register cleanup for the global context object
+  componentInstance.registerCleanup(() => {
+    delete (window as any)[globalContextKey];
+  });
 }
 
 /**
