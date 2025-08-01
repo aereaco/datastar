@@ -15,11 +15,15 @@ import { OnIntersect } from './official/browser/attributes/onIntersect'
 import { OnInterval } from './official/browser/attributes/onInterval'
 import { OnLoad } from './official/browser/attributes/onLoad'
 import { OnSignalChange } from './official/browser/attributes/onSignalChange'
+import { OnSignalPatch } from './official/browser/attributes/onSignalPatch'
+import { OnResize } from './official/browser/attributes/onResize'
 import { Persist } from './official/browser/attributes/persist'
 import { ReplaceUrl } from './official/browser/attributes/replaceUrl'
+import { QueryString } from './official/browser/attributes/queryString'
 import { ScrollIntoView } from './official/browser/attributes/scrollIntoView'
 import { ViewTransition } from './official/browser/attributes/viewTransition'
 import { Component } from './official/browser/attributes/component'
+import { Effect } from './official/browser/attributes/effect'
 import { Attr } from './official/dom/attributes/attr'
 import { Bind } from './official/dom/attributes/bind'
 import { Class } from './official/dom/attributes/class'
@@ -27,9 +31,17 @@ import { On } from './official/dom/attributes/on'
 import { Ref } from './official/dom/attributes/ref'
 import { Show } from './official/dom/attributes/show'
 import { Text } from './official/dom/attributes/text'
+import { JsonSignals } from './official/dom/attributes/jsonSignals'
+import { Ignore } from './official/dom/attributes/ignore'
+import { IgnoreMorph } from './official/dom/attributes/ignoreMorph'
+import { Animate } from './official/dom/attributes/animate'
+import { PreserveAttr } from './official/dom/attributes/preserveAttr'
+import { PatchElements } from './official/backend/watchers/patchElements'
+import { PatchSignals } from './official/backend/watchers/patchSignals'
 import { Fit } from './official/logic/actions/fit'
 import { SetAll } from './official/logic/actions/setAll'
 import { ToggleAll } from './official/logic/actions/toggleAll'
+import { Peek } from './official/logic/actions/peek'
 
 export {
   // DOM
@@ -40,6 +52,11 @@ export {
   Ref,
   Show,
   Text,
+  JsonSignals,
+  Ignore,
+  IgnoreMorph,
+  Animate,
+  PreserveAttr,
   // Backend
   Indicator,
   GET,
@@ -52,6 +69,8 @@ export {
   RemoveFragments,
   RemoveSignals,
   ExecuteScript,
+  PatchElements,
+  PatchSignals,
   // Browser
   Clipboard,
   CustomValidity,
@@ -59,13 +78,18 @@ export {
   OnInterval,
   OnLoad,
   OnSignalChange,
+  OnSignalPatch,
+  OnResize,
   Persist,
   ReplaceUrl,
+  QueryString,
   ScrollIntoView,
   ViewTransition,
   Component,
+  Effect,
   // Logic
   Fit,
   SetAll,
   ToggleAll,
+  Peek,
 }

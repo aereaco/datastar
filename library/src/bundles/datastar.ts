@@ -17,11 +17,14 @@ import { OnInterval } from '../plugins/official/browser/attributes/onInterval'
 import { OnLoad } from '../plugins/official/browser/attributes/onLoad'
 import { OnRaf } from '../plugins/official/browser/attributes/onRaf'
 import { OnSignalChange } from '../plugins/official/browser/attributes/onSignalChange'
+import { OnSignalPatch } from '../plugins/official/browser/attributes/onSignalPatch'
+import { OnResize } from '../plugins/official/browser/attributes/onResize'
 import { Persist } from '../plugins/official/browser/attributes/persist'
 import { ReplaceUrl } from '../plugins/official/browser/attributes/replaceUrl'
 import { ScrollIntoView } from '../plugins/official/browser/attributes/scrollIntoView'
 import { ViewTransition } from '../plugins/official/browser/attributes/viewTransition'
 import { Component } from '../plugins/official/browser/attributes/component'
+import { Effect } from '../plugins/official/browser/attributes/effect'
 import { Attr } from '../plugins/official/dom/attributes/attr'
 import { Bind } from '../plugins/official/dom/attributes/bind'
 import { Class } from '../plugins/official/dom/attributes/class'
@@ -30,6 +33,10 @@ import { Ref } from '../plugins/official/dom/attributes/ref'
 import { Show } from '../plugins/official/dom/attributes/show'
 import { Style } from '../plugins/official/dom/attributes/style'
 import { Text } from '../plugins/official/dom/attributes/text'
+import { JsonSignals } from '../plugins/official/dom/attributes/jsonSignals'
+import { PatchElements } from '../plugins/official/backend/watchers/patchElements'
+import { PatchSignals } from '../plugins/official/backend/watchers/patchSignals'
+import { Peek } from '../plugins/official/logic/actions/peek'
 import { Fit } from '../plugins/official/logic/actions/fit'
 import { SetAll } from '../plugins/official/logic/actions/setAll'
 import { ToggleAll } from '../plugins/official/logic/actions/toggleAll'
@@ -44,6 +51,7 @@ load(
   Show,
   Style,
   Text,
+  JsonSignals,
   // Backend
   Indicator,
   GET,
@@ -56,6 +64,9 @@ load(
   RemoveFragments,
   RemoveSignals,
   ExecuteScript,
+  PatchElements,
+  PatchSignals,
+  PatchSignals,
   // Browser
   Clipboard,
   CustomValidity,
@@ -64,15 +75,19 @@ load(
   OnLoad,
   OnRaf,
   OnSignalChange,
+  OnSignalPatch,
+  OnResize,
   Persist,
   ReplaceUrl,
   ScrollIntoView,
   ViewTransition,
   Component,
+  Effect,
   // Logic
   Fit,
   SetAll,
   ToggleAll,
+  Peek,
 )
 
 apply()

@@ -14,6 +14,15 @@ export function pathMatchesPattern(path: string, pattern: string) {
   return regex.test(path)
 }
 
+export function isEmpty(obj: Record<string, any>): boolean {
+  for (const prop in obj) {
+    if (Object.hasOwn(obj, prop)) {
+      return false
+    }
+  }
+  return true
+}
+
 export function getMatchingSignalPaths(signals: SignalsRoot, paths: string) {
   const matches: string[] = []
   let patterns = paths.split(/\s+/).filter((p) => p !== '')

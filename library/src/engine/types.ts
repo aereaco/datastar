@@ -109,11 +109,12 @@ export type RuntimeContext = InitContext & {
   value: Readonly<string> // value of data-* attribute
   mods: Modifiers // the tags and their arguments
   genRX: () => <T>(...args: any[]) => T // a reactive expression
-  rx: <T = any>() => T // a reactive expression
+  rx: <T = any>(...args: any[]) => T // a reactive expression
   fnContent?: string // the content of the function
   evt?: Event // The event that triggered the action
   runtimeErr: (reason: string, metadata?: object) => Error // runtimeErr is a method
   filtered: (opts?: SignalFilterOptions | undefined, obj?: NestedValues | undefined) => NestedValues // filtered is a method
+  untracked: <T>(fn: () => T) => T // untracked is a method
 }
 
 export type SignalFilterOptions = {

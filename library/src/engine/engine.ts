@@ -1,6 +1,6 @@
 import { Hash, attrHash, elUniqId, walkDOM } from '../utils/dom'
 import { camel } from '../utils/text'
-import { effect } from '../vendored/preact-core'
+import { effect, untracked } from '../vendored/preact-core'
 import { DSP, DSS } from './consts'
 import { initErr, runtimeErr } from './errors'
 import { SignalsRoot, type SignalFilterOptions } from './signals'
@@ -281,6 +281,7 @@ function applyAttributePlugin(
     mods: new Map(),
     runtimeErr: (reason: string, metadata?: object) => runtimeErr(reason, ctx, metadata),
     filtered: (opts?: SignalFilterOptions, obj?: NestedValues) => signals.filtered(opts, obj),
+    untracked: <T>(fn: () => T) => untracked(fn),
     fnContent: undefined,
     evt: undefined,
   }

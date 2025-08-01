@@ -21,13 +21,19 @@ import { Persist } from '../plugins/official/browser/attributes/persist'
 import { ReplaceUrl } from '../plugins/official/browser/attributes/replaceUrl'
 import { ScrollIntoView } from '../plugins/official/browser/attributes/scrollIntoView'
 import { ViewTransition } from '../plugins/official/browser/attributes/viewTransition'
+import { Component } from '../plugins/official/browser/attributes/component'
 import { Attr } from '../plugins/official/dom/attributes/attr'
 import { Bind } from '../plugins/official/dom/attributes/bind'
 import { Class } from '../plugins/official/dom/attributes/class'
 import { On } from '../plugins/official/dom/attributes/on'
 import { Ref } from '../plugins/official/dom/attributes/ref'
 import { Show } from '../plugins/official/dom/attributes/show'
+import { Style } from '../plugins/official/dom/attributes/style'
 import { Text } from '../plugins/official/dom/attributes/text'
+import { JsonSignals } from '../plugins/official/dom/attributes/jsonSignals'
+import { PatchElements } from '../plugins/official/backend/watchers/patchElements'
+import { PatchSignals } from '../plugins/official/backend/watchers/patchSignals'
+import { Peek } from '../plugins/official/logic/actions/peek'
 import { Fit } from '../plugins/official/logic/actions/fit'
 import { SetAll } from '../plugins/official/logic/actions/setAll'
 import { ToggleAll } from '../plugins/official/logic/actions/toggleAll'
@@ -42,7 +48,9 @@ load(
   On,
   Ref,
   Show,
+  Style,
   Text,
+  JsonSignals,
   // Backend
   Indicator,
   GET,
@@ -55,6 +63,9 @@ load(
   RemoveFragments,
   RemoveSignals,
   ExecuteScript,
+  PatchElements,
+  PatchSignals,
+  PatchSignals,
   // Browser
   Clipboard,
   CustomValidity,
@@ -67,10 +78,12 @@ load(
   ReplaceUrl,
   ScrollIntoView,
   ViewTransition,
+  Component,
   // Logic
   Fit,
   SetAll,
   ToggleAll,
+  Peek,
 )
 
 apply()
