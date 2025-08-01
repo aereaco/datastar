@@ -1,4 +1,4 @@
-### Detailed Design Plan: Nexus UX Multiparadigm Router -- Revision 2025.07.30-21.22
+### Detailed Design Plan: Nexus UX Multiparadigm Router -- Revision 2025.07.30-22.15
 
 The Nexus UX Multiparadigm Router is designed as a flexible, client-side JavaScript module deeply integrated with the Nexus UX framework. Its core capability lies in orchestrating content delivery and managing navigation across various paradigms: **Traditional Client-Side Routing (CSR)**, **Traditional Server-Side Routing (SSR)**, **Traditional Islands Routing**, and our preferred **Content Fragment Routing**. This router adheres to Nexus UX's declarative, component-based, and minimal-JavaScript principles, offering an HTML-first approach with imperative control when needed.
 
