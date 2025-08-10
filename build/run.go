@@ -53,9 +53,9 @@ func createBundles(version string) error {
 
 	result := api.Build(api.BuildOptions{
 		EntryPoints: []string{
-			"library/src/bundles/datastar-core.ts",
-			"library/src/bundles/datastar.ts",
-			"library/src/bundles/datastar-aliased.ts",
+			"library/src/bundles/nexus-ux-core.ts",
+			"library/src/bundles/nexus-ux.ts",
+			"library/src/bundles/nexus-ux-aliased.ts",
 		},
 		Banner: map[string]string{
 			"js": "// Nexus UX v" + version,
@@ -88,9 +88,9 @@ func writeOutConsts(version string) error {
 
 	Consts.Version = version
 
-	build, err := os.ReadFile("bundles/datastar.js")
+	build, err := os.ReadFile("bundles/nexus-ux.js")
 	if err != nil {
-		return fmt.Errorf("error reading datastar.js: %w", err)
+		return fmt.Errorf("error reading nexus-ux.js: %w", err)
 	}
 	Consts.VersionClientByteSize = len(build)
 
@@ -125,36 +125,36 @@ func writeOutConsts(version string) error {
 	})
 
 	templates := map[string]func(data *ConstTemplateData) string{
-		"README.md":                    datastarREADME,
-		"library/README.md":            datastarREADME,
-		"library/src/engine/consts.ts": datastarClientConsts,
-		"library/package.json":         datastarClientPackageJSON,
-		"sdk/clojure/sdk/src/main/starfederation/datastar/clojure/consts.clj": clojureConsts,
-		"sdk/go/datastar/consts.go":                                                        goConsts,
-		"sdk/dotnet/fsharp/src/Consts.fs":                                                  fsharpConsts,
-		"sdk/dotnet/csharp/src/Consts.cs":                                                  csharpConsts,
-		"sdk/php/src/Consts.php":                                                           phpConsts,
-		"sdk/php/src/enums/EventType.php":                                                  phpEventType,
-		"sdk/php/src/enums/FragmentMergeMode.php":                                          phpFragmentMergeMode,
-		"sdk/java/core/src/main/java/starfederation/datastar/Consts.java":                  javaConsts,
-		"sdk/java/core/src/main/java/starfederation/datastar/enums/EventType.java":         javaEventType,
-		"sdk/java/core/src/main/java/starfederation/datastar/enums/FragmentMergeMode.java": javaFragmentMergeMode,
-		"sdk/python/src/datastar_py/consts.py":                                             pythonConsts,
-		"sdk/typescript/src/consts.ts":                                                     typescriptConsts,
-		"sdk/ruby/lib/datastar/consts.rb":                                                  rubyConsts,
-		"sdk/rust/src/consts.rs":                                                           rustConsts,
-		"sdk/zig/src/consts.zig":                                                           zigConsts,
-		"examples/clojure/hello-world/resources/public/hello-world.html":                   helloWorldExample,
-		"examples/dotnet/csharp/HelloWorld/wwwroot/hello-world.html":                       helloWorldExample,
-		"examples/dotnet/fsharp/HelloWorld/wwwroot/hello-world.html":                       helloWorldExample,
-		"examples/go/hello-world/hello-world.html":                                         helloWorldExample,
-		"examples/php/hello-world/public/hello-world.html":                                 helloWorldExamplePHP,
-		"examples/zig/httpz/hello-world/src/hello-world.html":                              helloWorldExample,
-		"examples/zig/tokamak/hello-world/hello-world.html":                                helloWorldExample,
-		"examples/ruby/hello-world/hello-world.html":                                       helloWorldExample,
-		"examples/rust/axum/hello-world/hello-world.html":                                  helloWorldExample,
-		"examples/rust/rocket/hello-world/hello-world.html":                                helloWorldExample,
-		"examples/rust/rama/hello-world/hello-world.html":                                  helloWorldExample,
+		"README.md":                    nexusuxREADME,
+		"library/README.md":            nexusuxREADME,
+		"library/src/engine/consts.ts": nexusuxClientConsts,
+		"library/package.json":         nexusuxClientPackageJSON,
+		"sdk/clojure/sdk/src/main/aereaco/nexus-ux/clojure/consts.clj": clojureConsts,
+		"sdk/go/state/consts.go":                                                   goConsts,
+		"sdk/dotnet/fsharp/src/Consts.fs":                                          fsharpConsts,
+		"sdk/dotnet/csharp/src/Consts.cs":                                          csharpConsts,
+		"sdk/php/src/Consts.php":                                                   phpConsts,
+		"sdk/php/src/enums/EventType.php":                                          phpEventType,
+		"sdk/php/src/enums/FragmentMergeMode.php":                                  phpFragmentMergeMode,
+		"sdk/java/core/src/main/java/aereaco/nexusux/Consts.java":                  javaConsts,
+		"sdk/java/core/src/main/java/aereaco/nexusux/enums/EventType.java":         javaEventType,
+		"sdk/java/core/src/main/java/aereaco/nexusux/enums/FragmentMergeMode.java": javaFragmentMergeMode,
+		"sdk/python/src/nexusux_py/consts.py":                                      pythonConsts,
+		"sdk/typescript/src/consts.ts":                                             typescriptConsts,
+		"sdk/ruby/lib/nexus-ux/consts.rb":                                          rubyConsts,
+		"sdk/rust/src/consts.rs":                                                   rustConsts,
+		"sdk/zig/src/consts.zig":                                                   zigConsts,
+		"examples/clojure/hello-world/resources/public/hello-world.html":           helloWorldExample,
+		"examples/dotnet/csharp/HelloWorld/wwwroot/hello-world.html":               helloWorldExample,
+		"examples/dotnet/fsharp/HelloWorld/wwwroot/hello-world.html":               helloWorldExample,
+		"examples/go/hello-world/hello-world.html":                                 helloWorldExample,
+		"examples/php/hello-world/public/hello-world.html":                         helloWorldExamplePHP,
+		"examples/zig/httpz/hello-world/src/hello-world.html":                      helloWorldExample,
+		"examples/zig/tokamak/hello-world/hello-world.html":                        helloWorldExample,
+		"examples/ruby/hello-world/hello-world.html":                               helloWorldExample,
+		"examples/rust/axum/hello-world/hello-world.html":                          helloWorldExample,
+		"examples/rust/rocket/hello-world/hello-world.html":                        helloWorldExample,
+		"examples/rust/rama/hello-world/hello-world.html":                          helloWorldExample,
 	}
 
 	for path, tmplFn := range templates {

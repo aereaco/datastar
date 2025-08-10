@@ -1,6 +1,6 @@
 <?php
 
-use starfederation\datastar\events\MergeSignals;
+use aereaco\nexus-ux\events\MergeSignals;
 
 test('Options are correctly output', function() {
     $content = '{x: 1}';

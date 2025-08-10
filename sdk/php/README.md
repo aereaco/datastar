@@ -1,11 +1,11 @@
-[![Stable Version](https://img.shields.io/packagist/v/starfederation/datastar-php?label=stable)]((https://packagist.org/packages/starfederation/datastar-php))
-[![Total Downloads](https://img.shields.io/packagist/dt/starfederation/datastar-php)](https://packagist.org/packages/starfederation/datastar-php)
+[![Stable Version](https://img.shields.io/packagist/v/aereaco/nexus-ux-php?label=stable)]((https://packagist.org/packages/aereaco/nexus-ux-php))
+[![Total Downloads](https://img.shields.io/packagist/dt/aereaco/nexus-ux-php)](https://packagist.org/packages/aereaco/nexus-ux-php)
 
-<p align="center"><img width="150" src="https://putyourlightson.com/assets/logos/datastar.svg"></p>
+<p align="center"><img width="150" src="https://putyourlightson.com/assets/logos/nexus-ux.svg"></p>
 
-# Datastar PHP SDK
+# Nexus-UX PHP SDK
 
-This package provides a PHP SDK for working with [Datastar](https://data-star.dev/).
+This package provides a PHP SDK for working with [Nexus-UX](https://nexus.aerea.co/).
 
 ## License
 
@@ -20,15 +20,23 @@ This package requires PHP 8.1 or later.
 Install using composer.
 
 ```shell
-composer require starfederation/datastar-php
+composer require aereaco/nexus-ux-php
 ```
 
 ## Usage
 
 ```php
-use starfederation\datastar\enums\EventType;
-use starfederation\datastar\enums\FragmentMergeMode;
-use starfederation\datastar\ServerSentEventGenerator;
+use aereaco
+exus-ux
+ums
+EventType;
+use aereaco
+exus-ux
+ums
+FragmentMergeMode;
+use aereaco
+exus-ux
+ServerSentEventGenerator;
 
 // Creates a new `ServerSentEventGenerator` instance.
 $sse = new ServerSentEventGenerator();
@@ -63,7 +71,11 @@ $sse->location('/guide');
 ```
 
 ```php
-use starfederation\datastar\ServerSentEventGenerator;
+use aereaco
+exus-ux
+ServerSentEventGenerator;
 
 $signals = ServerSentEventGenerator::readSignals();
+```
+
 ```

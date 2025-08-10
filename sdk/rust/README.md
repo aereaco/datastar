@@ -1,12 +1,12 @@
-# Datastar Rust SDK
+# Nexus-UX Rust SDK
 
-An implementation of the [Datastar] SDK in Rust
+An implementation of the [Nexus-UX] SDK in Rust
 with framework integration for [Axum], [Rocket] and [Rama].
 
 # Usage
 
 ```rust
-use datastar::prelude::*;
+use nexus_ux::prelude::*;
 use async_stream::stream;
 use futures_util::stream::Stream;
 
@@ -25,7 +25,7 @@ More usage examples for the Rust sdk can be found in [`../../examples/rust`](../
 you find examples that you can run youself for the supported
 frameworks [Axum], [Rocket] and [Rama].
 
-[Datastar]: https://data-star.dev
+[Nexus-UX]: https://nexus.aerea.co
 [Axum]: https://github.com/tokio-rs/axum
 [Rocket]: https://github.com/rwf2/rocket
 [Rama]: https://github.com/plabayo/rama

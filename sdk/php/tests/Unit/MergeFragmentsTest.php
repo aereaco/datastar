@@ -1,8 +1,8 @@
 <?php
 
-use starfederation\datastar\Consts;
-use starfederation\datastar\enums\FragmentMergeMode;
-use starfederation\datastar\events\MergeFragments;
+use aereaco\nexus-ux\Consts;
+use aereaco\nexus-ux\enums\FragmentMergeMode;
+use aereaco\nexus-ux\events\MergeFragments;
 
 test('Merge mode can be passed in', function($value) {
     $content = '<div>content</div>';

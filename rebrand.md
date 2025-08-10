@@ -1,11 +1,11 @@
-# Rebranding: Datastar to Nexus UX
+# Rebranding: Datastar to Nexus-UX
 
-This document outlines the steps to rebrand the forked "Datastar" project to "Nexus UX".
+This document outlines the steps to rebrand the forked "Datastar" project to "Nexus-UX".
 
 ## Overview
-Rebranding Report: Datastar to Nexus UX
+Rebranding Specs: Datastar to Nexus-UX
 
-This report details occurrences of "Datastar" and "datastar" within the repository and suggests replacement strategies based on the refined criteria.
+This spec sheet details occurrences of "Datastar" and "datastar" within the repository and suggests replacement strategies based on the refined criteria. Be very decerning between functional and branding. Simple rule is if it performs a function/operation it falls under functional, if it only describe the framework as a whole it more than likely branding
 
 ## Branding Rules
 
@@ -13,7 +13,6 @@ This report details occurrences of "Datastar" and "datastar" within the reposito
 -   **Hyphen-Forbidden Contexts:** Only when hyphens are explicitly disallowed by the technical context (e.g., certain programming language identifiers, URLs, package names) will the hyphen-less variations be used. In such cases, the casing will be adapted to the specific context:
     *   **PascalCase:** "NexusUX" (e.g., for class names, type names).
     *   **lowercase:** "nexusux" (e.g., for variable names, function names, file paths where hyphens are not standard).
-    *   **uppercase:** "NEXUSUX" (e.g., for constants).
 
 ## Replacement Rules for "Datastar"
 
@@ -21,9 +20,9 @@ This report details occurrences of "Datastar" and "datastar" within the reposito
 
 These occurrences refer to the product name, project name, URLs, package names, or general branding and should be updated according to the branding rules above.
 
--   **PascalCase "Datastar"**: Replace with "NexusUX" (or "Nexus UX" in prose)
+-   **PascalCase "Datastar"**: Replace with "Nexus-UX".
     *   Description: Product name in documentation, titles, comments, display names.
-    *   Suggested Replacement: NexusUX (or Nexus-UX in human-readable text).
+    *   Suggested Replacement: Nexus-UX.
     *   Representative Examples:
         *   `usage-guide.md`: `### **Nexus UX (Datastar) Core and Plugin Functionalities**` -> `### **Nexus-UX Core and Plugin Functionalities**`
         *   `README.md`: `# Datastar` -> `# Nexus-UX`
@@ -40,7 +39,7 @@ These occurrences refer to the product name, project name, URLs, package names, 
     *   **Alternative Replacement (where hyphens are forbidden):** "nexusux" (e.g., certain programming language identifiers, package names that do not support hyphens)
     *   Representative Examples:
         *   `router-spec.md`: `<script type="module" src="/path/to/datastar.js"></script>` -> `<script type="module" src="/path/to/nexus-ux.js"></script>`
-        *   `go.mod`: `module github.com/starfederation/datastar` -> `module github.com/aereaco/nexus-ux`
+        *   `go.mod`: `module github.com/starfederation/datastar` -> `https://github.com/aereaco/nexus-ux`
         *   `fly.toml`: `app = "datastar"` -> `app = "nexus-ux"`
         *   `library/package.json`: `"name": "@starfederation/datastar"` -> `"name": "@aereaco/nexus-ux"`
         *   `sdk/zig/build.zig.zon`: `.name = .datastar,` -> `.name = .nexusux,`
@@ -50,12 +49,6 @@ These occurrences refer to the product name, project name, URLs, package names, 
         *   `site/static/favicon/site.webmanifest`: `"name": "Datastar",` -> `"name": "Nexus-UX",`
         *   `tools/vscode-extension/package.json`: `"name": "datastar-vscode"` -> `"name": "nexus-ux-vscode"`
         *   `tools/intellij-plugin/settings.gradle.kts`: `rootProject.name = "datastar-jetbrains-plugin"` -> `rootProject.name = "nexus-ux-jetbrains-plugin"`
-
--   **Uppercase "DATASTAR"**: Replace with "NEXUSUX"
-    *   Description: Uppercase constant referring to the product name (e.g., in SVG text).
-    *   Suggested Replacement: NEXUSUX
-    *   Representative Examples:
-        *   `site/static/images/datastar.svg`: `y="190.22688">DATASTAR</tspan></text>` -> `y="190.22688">NEXUSUX</tspan></text>`
 
 ### Functional/API-Related Replacements
 
@@ -117,41 +110,51 @@ These occurrences refer to internal framework identifiers, API elements, or spec
         *   `site/shared_partials.go`: `"github.com/starfederation/datastar/sdk/go/datastar"` -> `"github.com/aereaco/nexusux/sdk/go/state"` (import path and package name change)
         *   `site/routes_videos.go`: `sse := datastar.NewSSE(w, r)` -> `sse := state.NewSSE(w, r)`
 
--   **`datastar-` prefixed event/attribute names (kebab-case)**: Replace with `state-` (functional) or `nexus-ux-` (branding)
-    *   Description: HTML attributes, SSE event names.
+-   **`datastar-` prefixed event/attribute names (kebab-case)**: Replace with `state-` (functional) or `attribute-` (functional, for modifiers)
+    *   Description: HTML attributes, SSE event names, and attribute modifiers.
     *   Suggested Replacement:
         *   Functional: `datastar-merge-fragments` -> `state-merge-fragments`
-        *   Branding (e.g., web-types definitions): `datastar-bind-modifiers` -> `nexus-ux-bind-modifiers`
+        *   Functional (for modifiers, e.g., web-types definitions): `datastar-bind-modifiers` -> `attribute-bind-modifiers`
     *   Representative Examples:
         *   `SSE_Events_Reference.html`: `datastar-patch-elements` -> `state-patch-elements`
         *   `site/static/md/reference/sse_events.md`: `datastar-merge-fragments` -> `state-merge-fragments`
         *   `site/static/md/reference/action_plugins.md`: `datastar-sse` -> `state-sse`
         *   `site/static/md/reference/security.md`: `data-star-ignore` -> `data-state-ignore`
-        *   `tools/intellij-plugin/src/main/resources/datastar-attributes.web-types.json`: `"datastar-bind-modifiers"` -> `"nexus-ux-bind-modifiers"`
+        *   `tools/intellij-plugin/src/main/resources/datastar-attributes.web-types.json`: `"datastar-bind-modifiers"` -> `"attribute-bind-modifiers"`
 
-## File and Directory Renaming
-
-These are explicit renames listed in `rebrand.md`.
-
--   `bundles/datastar.js` -> `bundles/nexus-ux.js`
--   `bundles/datastar.js.map` -> `bundles/nexus-ux.js.map`
--   `bundles/datastar-core.js` -> `bundles/nexus-ux-core.js`
--   `bundles/datastar-core.js.map` -> `bundles/nexus-ux-core.js.map`
--   `bundles/datastar-aliased.js` -> `bundles/nexus-ux-aliased.js`
--   `bundles/datastar-aliased.js.map` -> `bundles/nexus-ux-aliased.js.map`
--   `datastar-website` -> `nexus-ux-website`
--   `tools/vscode-extension/datastar-vscode` -> `tools/vscode-extension/nexus-ux-vscode`
--   `tools/intellij-plugin/datastar-jetbrains-plugin` -> `tools/intellij-plugin/nexus-ux-jetbrains-plugin`
--   `site/static/images/datastar_icon.svg` -> `site/static/images/nexus-ux_icon.svg`
--   `site/static/images/datastar.svg` -> `site/static/images/nexus-ux.svg`
+   Along with these specific replacements, ensure that any references to "Datastar" in the context of events, signals & other programic or functional identifiers are replaced with "State", "STATE" or "state" as appropriate.  
 
 ## Other Considerations
 
 -   **Comments**: Many comments contain "Datastar" and should be updated to "Nexus-UX" as appropriate.
--   **URLs in comments/docs**: URLs like `https://github.com/starfederation/datastar` should be updated to `https://github.com/aereaco/nexus-ux`.
+-   **`DatastarPlugin`**: This term should be replaced with "StatePlugin" in the context of plugins.
+-   **`datastar-script-attributes`**: This term should be replaced with "state-script-attributes" in the context of script attributes.
+-   **`IDatastarSignalsReaderService`**: This interface should be replaced with `IStateSignalsReaderService` in the context of TypeScript interfaces.
+-   **`DatastarResponse`**: This class should be replaced with `StateResponse` in the context of TypeScript classes.
+-   **`Star Federation`**: This term should be replaced with "Aerea Co." in branding contexts.
+-   **`StarFederation`**: This term should be replaced with "AereaCo".
+-   **`starfederation`**: This term should be replaced with "aereaco" in package names, URLs, and other identifiers.
+-   **URLs**: URLs like `https://github.com/starfederation/datastar` should be updated to `https://github.com/aereaco/nexus-ux`.
 -   **`data-star.dev`**: This domain should be replaced with `nexus.aerea.co`.
--   **`datastar_py` (Python package name)**: This should become `nexusux_py`.
--   **`StarFederation.Datastar` (C# namespace)**: This should become `AereaCo.NexusUX`.
--   **`starfederation/datastar` (Clojure namespace)**: This should become `aereaco/nexusux`.
+-   **`datastar_py` (Python package name)**: This has been updated to `nexusux_py`.
+-   **`StarFederation.Datastar` (C# namespace)**: This has been updated to `AereaCo.NexusUX`.
+-   **`starfederation/datastar` (Clojure namespace)**: This has been updated to `aereaco/nexusux`.
+-   **`[Datastar]` console logs**: Update to `[Nexus-UX]` for consistency in console output.
+-   **`Nexus-UX vs Datastar Comparison`**: When comparing features or functionalities, ensure that the context is clear and that "Nexus-UX" is used for the new branding while "Datastar" is used for historical references.
 
-This report provides a comprehensive overview of the rebranding changes. The key is to differentiate between branding and functional terms to apply the correct replacement.
+    Example: 
+    
+    "Deep Dive Comparative Analysis: Nexus UX vs. Datastar (Beta 11 & RC 2)"
+
+    In this context, "Nexus UX" refers to the new branding, while "Datastar" refers to the previous version or historical context and should not be rebranded.
+
+## Replacement Technique
+
+In order to ensure consistent, accurate and performant updates in the rebranding process, instead of doing string-by-string replacements and singular diff operations, you will process one entire file at a time, read and store the entire contents of the file in memory, display all changes needed for each file as it is processed, apply all changes in memory then write the entire updated file to disk in one operation. Absolutely DO NOT perform micro edits per file, perform all updates in one operation, DO NOT use the replace or edit tools instead only use the write_file tool. Once all files are process run "tsc" in the library folder to check for typescript errors, if any are found they should be fixed accordingly and once all are remidiated run "tsc" again to ensure no more errors, repeat this process until no errors are found. This will ensure that all changes are applied in a single operation, reducing the risk of partial updates and improving performance.
+
+Note: Our rebranding process is only concerned with what was stated above, so outside of the scope of this document, no other type of changes should be made to the codebase. This includes but is not limited to: functional changes, performance improvements, bug fixes, or any other type of change that is not directly related to the rebranding process.
+
+## Conclusion
+
+This spec sheet provides a comprehensive overview of the rebranding changes. The key is to differentiate between branding and functional terms to apply the correct replacements. The focus is on maintaining clarity in the codebase while ensuring that the new branding or functional identification is consistently applied across all documentation, code, and user interfaces.
+This rebranding effort will help unify the project under the new "Nexus-UX" identity while preserving the functional integrity of the codebase. By following these guidelines, we can ensure a smooth transition and clear communication of the project's purpose and capabilities.

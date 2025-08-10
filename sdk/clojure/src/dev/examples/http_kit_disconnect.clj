@@ -2,8 +2,8 @@
   (:require
     [examples.utils :as u]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open on-close]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open on-close]]))
 
 
 ;; This is a small experiment to determine the behaviour of
@@ -33,7 +33,7 @@
   (rr/router routes))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (def handler
@@ -52,7 +52,3 @@
 
   (u/clear-terminal!)
   (u/reboot-hk-server! #'handler))
-
-
-
-

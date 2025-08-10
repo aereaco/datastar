@@ -6,10 +6,10 @@
     [reitit.ring :as rr]
     [reitit.ring.middleware.parameters :as reitit-params]
     [ring.util.response :as ruresp]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.common :as ac]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]
-    [starfederation.datastar.clojure.adapter.ring :as ring-gen]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :as ac]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]
+    [aereaco.nexus-ux.clojure.adapter.ring :as ring-gen]))
 
 
 ;; Testing the sending of multiple fragments at once
@@ -55,7 +55,7 @@
      ["/endpoint" {:handler (->endpoint ->sse-response)}]]))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (defn ->handler [->sse-response]
@@ -75,4 +75,3 @@
   (u/clear-terminal!)
   (u/reboot-hk-server! handler-hk)
   (u/reboot-rj9a-server! #'handler-ring))
-

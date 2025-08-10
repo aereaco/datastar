@@ -1,6 +1,6 @@
 <?php
 
-use starfederation\datastar\events\ExecuteScript;
+use aereaco\nexus-ux\events\ExecuteScript;
 
 test('Event is correctly output', function() {
     $content = 'console.log("Hello, world!")';

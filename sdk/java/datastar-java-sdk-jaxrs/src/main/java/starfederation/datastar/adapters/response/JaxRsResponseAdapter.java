@@ -1,4 +1,4 @@
-package starfederation.datastar.adapters.response;
+package aereaco.nexus-ux.adapters.response;
 
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;

@@ -18,8 +18,8 @@ import ServerSentEventGenerator.Class (StringLike)
 -- a function call in front of each data constructor, so I
 -- decided to just use the prefix "c"
 
-cDatastarKey                             :: StringLike a => a
-cDatastarKey                             = "{%s data.DatastarKey %}"
+cStateKey                             :: StringLike a => a
+cStateKey                             = "{%s data.StateKey %}"
 cVersion                                 :: StringLike a => a
 cVersion                                 = "{%s data.Version %}"
 cVersionClientByteSize                   :: Int

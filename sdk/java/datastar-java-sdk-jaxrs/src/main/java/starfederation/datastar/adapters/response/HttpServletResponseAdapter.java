@@ -1,4 +1,4 @@
-package starfederation.datastar.adapters.response;
+package aereaco.nexus-ux.adapters.response;
 
 import jakarta.servlet.http.HttpServletResponse;
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-router="{default: '/#Home'}">
   
   <head>
     <meta charset="UTF-8" />
@@ -17,7 +17,7 @@
     <script src="assets/scripts/tailwindcss@4.1.11.js"></script>
 
     <!-- Datastar & Plugins -->
-    <script type="module" src="../bundles/datastar.js"></script>
+    <script type="module" src="../../bundles/nexus-ux.js"></script>
 
     <style>
             
@@ -293,7 +293,7 @@
 
     <admin-main
       class="admin-main"
-      data-component="_components/admin-main.html"
+      data-component="$router.route"
     >
   
   </admin-main>

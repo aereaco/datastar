@@ -3,10 +3,10 @@
  * @copyright Copyright (c) PutYourLightsOn
  */
 
-namespace starfederation\datastar\events;
+namespace aereaco\nexus-ux\events;
 
-use starfederation\datastar\Consts;
-use starfederation\datastar\ServerSentEventData;
+use aereaco\nexus-ux\Consts;
+use aereaco\nexus-ux\ServerSentEventData;
 
 trait EventTrait
 {

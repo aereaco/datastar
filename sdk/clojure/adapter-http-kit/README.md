@@ -1,15 +1,15 @@
-# Datastar http-kit adapter
+# Nexus-UX http-kit adapter
 
 ## Installation
 
 For now the SDK and adapters are distributed as git dependencies using a `deps.edn` file.
 
 ```clojure
-{datastar/sdk {:git/url "https://github.com/starfederation/datastar/"
+{nexus-ux/sdk {:git/url "https://github.com/aereaco/nexus-ux/"
                :git/sha "LATEST SHA"
                :deps/root "sdk/clojure/sdk"}
 
- datastar/http-kit {:git/url "https://github.com/starfederation/datastar/"
+ nexus-ux/http-kit {:git/url "https://github.com/aereaco/nexus-ux/"
                     :git/sha "LATEST SHA"
                     :deps/root "sdk/clojure/adapter-http-kit"}}
 ```

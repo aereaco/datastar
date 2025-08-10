@@ -1,11 +1,11 @@
 {%- func clojureConsts(data *ConstTemplateData) -%}
 ;; {%s data.DoNotEdit %}
-(ns starfederation.datastar.clojure.consts
+(ns aereaco.nexusux.clojure.consts
   (:require
     [clojure.string :as string]))
 
 
-(def datastar-key                  "{%s data.DatastarKey %}")
+(def state-key                  "{%s data.StateKey %}")
 (def version                       "{%s data.Version %}")
 
 

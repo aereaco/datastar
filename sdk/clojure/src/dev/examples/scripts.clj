@@ -6,8 +6,8 @@
     [reitit.ring :as rr]
     [reitit.ring.middleware.parameters :as reitit-params]
     [ring.util.response :as ruresp]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]))
 
 ;; Sending scripts and playing with auto-remove
 
@@ -38,7 +38,7 @@
                ["/endpoint" {:handler endpoint}]]))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (def handler

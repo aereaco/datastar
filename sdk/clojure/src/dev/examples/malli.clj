@@ -3,11 +3,11 @@
     [malli.core :as m]
     [malli.instrument :as mi]
     [malli.dev :as mdev]
-    [starfederation.datastar.clojure.adapter.test :as at]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.api.fragments :as f]
-    [starfederation.datastar.clojure.api.fragments-schemas]
-    [starfederation.datastar.clojure.api.common :as c]))
+    [aereaco.nexus-ux.clojure.adapter.test :as at]
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.api.fragments :as f]
+    [aereaco.nexus-ux.clojure.api.fragments-schemas]
+    [aereaco.nexus-ux.clojure.api.common :as c]))
 
 ;; Testing how instrumentation works and how it's activated
 (comment

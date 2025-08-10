@@ -4,14 +4,14 @@ import (
 	"log"
 	"time"
 
-	build "github.com/starfederation/datastar/build"
+	build "github.com/aereaco/nexus-ux/build"
 )
 
 func main() {
 	start := time.Now()
-	log.Print("Datastar built in TS compiler!")
+	log.Print("Nexus-UX built in TS compiler!")
 	defer func() {
-		log.Printf("Datastar built in %s", time.Since(start))
+		log.Printf("Nexus-UX built in %s", time.Since(start))
 	}()
 
 	if err := build.Build(); err != nil {

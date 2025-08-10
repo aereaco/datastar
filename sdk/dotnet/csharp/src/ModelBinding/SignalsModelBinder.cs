@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using StarFederation.Datastar.DependencyInjection;
+using AereaCo.NexusUX.DependencyInjection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-namespace StarFederation.Datastar.ModelBinding;
+namespace AereaCo.NexusUX.ModelBinding;
 
-public class SignalsModelBinder(ILogger<SignalsModelBinder> logger, IDatastarSignalsReaderService signalsReader) : IModelBinder
+public class SignalsModelBinder(ILogger<SignalsModelBinder> logger, IStateSignalsReaderService signalsReader) : IModelBinder
 {
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        DatastarSignalsBindingSource signalBindingSource = (bindingContext.BindingSource as DatastarSignalsBindingSource)!;
+        StateSignalsBindingSource signalBindingSource = (bindingContext.BindingSource as StateSignalsBindingSource)!;
 
         // Get signals into a JsonDocument
         JsonDocument doc;
@@ -73,7 +73,7 @@ public class SignalsModelBinder(ILogger<SignalsModelBinder> logger, IDatastarSig
 public class SignalsModelBinderProvider : IModelBinderProvider
 {
     public IModelBinder? GetBinder(ModelBinderProviderContext context)
-        => context?.BindingInfo?.BindingSource?.DisplayName == DatastarSignalsBindingSource.BindingSourceName
+        => context?.BindingInfo?.BindingSource?.DisplayName == StateSignalsBindingSource.BindingSourceName
             ? new BinderTypeModelBinder(typeof(SignalsModelBinder))
             : null;
 

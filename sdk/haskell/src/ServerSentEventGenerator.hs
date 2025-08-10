@@ -71,7 +71,7 @@ do
       sendPure MergeFragments sampleDataLines (O "id1" 100) ]
   test them
 :}
-event: datastar-merge-fragments
+event: state-merge-fragments
 id: id1
 retry: 100
 data: line 1
@@ -97,28 +97,28 @@ do
       , mergeFragments sampleDataLines (SEL "#id") Inner (FO 1 True) (O "abc123" 10) ]
   test them
 :}
-event: datastar-merge-fragments
+event: state-merge-fragments
 data: fragments line 1
 data: fragments line 2
 <BLANKLINE>
-event: datastar-merge-fragments
+event: state-merge-fragments
 data: selector #id
 data: fragments line 1
 data: fragments line 2
 <BLANKLINE>
-event: datastar-merge-fragments
-data: selector #id
-data: mergeMode inner
-data: fragments line 1
-data: fragments line 2
-<BLANKLINE>
-event: datastar-merge-fragments
+event: state-merge-fragments
 data: selector #id
 data: mergeMode inner
 data: fragments line 1
 data: fragments line 2
 <BLANKLINE>
-event: datastar-merge-fragments
+event: state-merge-fragments
+data: selector #id
+data: mergeMode inner
+data: fragments line 1
+data: fragments line 2
+<BLANKLINE>
+event: state-merge-fragments
 id: abc123
 retry: 10
 data: selector #id
@@ -142,7 +142,7 @@ do
     rt1 :: IO ()
     rt2,rt3,rt4,rt5 :: Text
     rt1 = test [removeFragments def def def] `catch`
-             (\(e :: ServerSentEventGeneratorExceptions) -> print e)
+             (\e :: ServerSentEventGeneratorExceptions -> print e)
     rt2 = removeFragments (SEL "#id") def def
     rt3 = removeFragments (SEL "#id") (FO 1 False) def
     rt4 = removeFragments (SEL "#id") (FO 1 True) def
@@ -150,17 +150,17 @@ do
   rt1 >> test [rt2,rt3,rt4,rt5]
 :}
 The selector field is required in RemoveFragment
-event: datastar-remove-fragments
+event: state-remove-fragments
 data: selector #id
 <BLANKLINE>
-event: datastar-remove-fragments
+event: state-remove-fragments
 data: selector #id
 <BLANKLINE>
-event: datastar-remove-fragments
+event: state-remove-fragments
 data: selector #id
 data: useViewTransition true
 <BLANKLINE>
-event: datastar-remove-fragments
+event: state-remove-fragments
 id: abc123
 retry: 10
 data: selector #id
@@ -179,17 +179,17 @@ do
     testMergeSignal :: Text
     testMergeSignal = "{\"a\":\"b\",\"c\":true,\"d\":1}"
     mst1 = test [mergeSignals def def def] `catch`
-            (\(e :: ServerSentEventGeneratorExceptions) -> print e)
+            (\e :: ServerSentEventGeneratorExceptions -> print e)
     them = [
         mergeSignals  testMergeSignal False def
      ,  mergeSignals  testMergeSignal True (O "abc123" 10) ]
   mst1 >> test them
 :}
 The selector field is required in MergeSignals
-event: datastar-merge-signals
+event: state-merge-signals
 data: signals {"a":"b","c":true,"d":1}
 <BLANKLINE>
-event: datastar-merge-signals
+event: state-merge-signals
 id: abc123
 retry: 10
 data: signals {"a":"b","c":true,"d":1}
@@ -214,14 +214,14 @@ do
       , removeSignals  testRemoveSignal (O "abc123" 10) ]
   test them
 :}
-event: datastar-remove-signals
+event: state-remove-signals
 <BLANKLINE>
-event: datastar-remove-signals
+event: state-remove-signals
 data: paths velocity.x
 data: paths velocity.y
 data: paths position
 <BLANKLINE>
-event: datastar-remove-signals
+event: state-remove-signals
 id: abc123
 retry: 10
 data: paths velocity.x
@@ -237,7 +237,7 @@ removeSignals paths = sendPure RemoveSignals (buildLines c)
 {- | >>> :{
 do
   let
-    testScript     = "window.location = \"https://data-star.dev\"" :: Text
+    testScript     = "window.location = \"https://nexus.aerea.co\"" :: Text
     testAttributes = "type text/javascript" :: Text
     them = [
         executeScript "" "" (Auto True) def
@@ -246,22 +246,22 @@ do
       , executeScript  testScript testAttributes def (O "abc123" 10)  ]
   test them
 :}
-event: datastar-execute-script
+event: state-execute-script
 <BLANKLINE>
-event: datastar-execute-script
+event: state-execute-script
 data: autoRemove false
-data: script window.location = "https://data-star.dev"
+data: script window.location = "https://nexus.aerea.co"
 <BLANKLINE>
-event: datastar-execute-script
+event: state-execute-script
 data: attributes type text/javascript
 data: autoRemove false
-data: script window.location = "https://data-star.dev"
+data: script window.location = "https://nexus.aerea.co"
 <BLANKLINE>
-event: datastar-execute-script
+event: state-execute-script
 id: abc123
 retry: 10
 data: attributes type text/javascript
-data: script window.location = "https://data-star.dev"
+data: script window.location = "https://nexus.aerea.co"
 <BLANKLINE>
 -}
 
@@ -289,19 +289,19 @@ do
       , withDefaults ExecuteScript   "abc123" ]
   test them
 :}
-event: datastar-merge-fragments
+event: state-merge-fragments
 data: fragments abc123
 <BLANKLINE>
-event: datastar-remove-fragments
+event: state-remove-fragments
 data: selector abc123
 <BLANKLINE>
-event: datastar-merge-signals
+event: state-merge-signals
 data: signals abc123
 <BLANKLINE>
-event: datastar-remove-signals
+event: state-remove-signals
 data: paths abc123
 <BLANKLINE>
-event: datastar-execute-script
+event: state-execute-script
 data: script abc123
 <BLANKLINE>
 -}

@@ -4,15 +4,15 @@ authors = [
     "Glen Henri J. De Cauwsemaecker <glen@plabayo.tech>",
 ]
 categories = ["web-programming"]
-description = "Datastar SDK for Rust"
-documentation = "https://docs.rs/datastar"
+description = "Nexus-UX SDK for Rust"
+documentation = "https://docs.rs/nexus-ux"
 edition = "2024"
-homepage = "https://data-star.dev"
-keywords = ["datastar", "backend", "axum", "rama", "rocket"]
+homepage = "https://nexus.aerea.co"
+keywords = ["nexus-ux", "backend", "axum", "rama", "rocket"]
 license = "MIT OR Apache-2.0"
-name = "datastar"
+name = "nexus-ux"
 readme = "README.md"
-repository = "https://github.com/starfederation/datastar"
+repository = "https://github.com/aereaco/nexus-ux"
 version = "0.2.1"
 rust-version = "1.85.0"
 

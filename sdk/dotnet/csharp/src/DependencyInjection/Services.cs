@@ -1,13 +1,12 @@
-
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
-using Core = StarFederation.Datastar.FSharp;
+using Core = AereaCo.NexusUX.FSharp;
 
-namespace StarFederation.Datastar.DependencyInjection;
+namespace AereaCo.NexusUX.DependencyInjection;
 
-public interface IDatastarServerSentEventService
+public interface IStateServerSentEventService
 {
     void AddHeaders(params KeyValuePair<string, string>[] httpHeaders);
     Task StartServerEventStream();
@@ -18,7 +17,7 @@ public interface IDatastarServerSentEventService
     Task ExecuteScriptAsync(string script, ExecuteScriptOptions? options = null);
 }
 
-public interface IDatastarSignalsReaderService
+public interface IStateSignalsReaderService
 {
     /// <summary>
     /// Get the serialized signals as a stream
@@ -38,7 +37,7 @@ public interface IDatastarSignalsReaderService
     Task<TType?> ReadSignalsAsync<TType>(JsonSerializerOptions? options = null);
 }
 
-internal class ServerSentEventService(Core.ISendServerEvent handler) : IDatastarServerSentEventService
+internal class ServerSentEventService(Core.ISendServerEvent handler) : IStateServerSentEventService
 {
     public void AddHeaders(params KeyValuePair<string, string>[] httpHeaders) => _additionalHeaders.AddRange(httpHeaders ?? []);
 
@@ -57,7 +56,7 @@ internal class ServerSentEventService(Core.ISendServerEvent handler) : IDatastar
     private List<KeyValuePair<string, string>> _additionalHeaders = new();
 }
 
-internal class SignalsReaderService(Core.IReadSignals handler) : IDatastarSignalsReaderService
+internal class SignalsReaderService(Core.IReadSignals handler) : IStateSignalsReaderService
 {
     public Stream GetSignalsStream() => handler.GetSignalsStream();
 

@@ -2,9 +2,9 @@
 # frozen_string_literal: true
 
 # {%s data.DoNotEdit %}
-module Datastar
+module State
   module Consts
-    DATASTAR_KEY = '{%s data.DatastarKey %}'
+    STATE_KEY = '{%s data.StateKey %}'
     VERSION = '{%s data.Version %}'
     {%- for _, d := range data.DefaultDurations %}
     # {%s= d.Description %}

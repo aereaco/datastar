@@ -1,10 +1,10 @@
-//! Rama integration for Datastar.
+//! Rama integration for Nexus-UX.
 //!
 //! Learn more about rama at
 //! <https://github.com/plabayo/rama>.
 
 use {
-    crate::{Sse, TrySse, consts::DATASTAR_REQ_HEADER_STR, prelude::DatastarEvent},
+    crate::{Sse, TrySse, consts::STATE_REQ_HEADER_STR, prelude::StateEvent},
     bytes::Bytes,
     futures_util::{Stream, StreamExt},
     pin_project_lite::pin_project,
@@ -37,7 +37,7 @@ pin_project! {
 impl<S, I> IntoResponse for Sse<S>
 where
     S: Stream<Item = I> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
 {
     #[inline]
     fn into_response(self) -> Response {
@@ -48,7 +48,7 @@ where
 impl<S, I, E> IntoResponse for TrySse<S>
 where
     S: Stream<Item = Result<I, E>> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
     E: Into<BoxError>,
 {
     fn into_response(self) -> Response {
@@ -68,7 +68,7 @@ where
 
 impl<S, E> HttpBody for SseBody<S>
 where
-    S: Stream<Item = Result<DatastarEvent, E>>,
+    S: Stream<Item = Result<StateEvent, E>>,
 {
     type Data = Bytes;
     type Error = E;
@@ -91,16 +91,16 @@ where
 }
 
 #[derive(Deserialize)]
-struct DatastarParam {
-    datastar: serde_json::Value,
+struct StateParam {
+    state: serde_json::Value,
 }
 
-/// [`ReadSignals`] is a request extractor that reads datastar signals from the request.
+/// [`ReadSignals`] is a request extractor that reads state signals from the request.
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::rama::ReadSignals;
+/// use nexus_ux::rama::ReadSignals;
 /// use serde::Deserialize;
 ///
 /// #[derive(Deserialize)]
@@ -128,22 +128,22 @@ where
         let json = match *req.method() {
             Method::GET => {
                 let query =
-                    Query::<DatastarParam>::parse_query_str(req.uri().query().unwrap_or(""))
+                    Query::<StateParam>::parse_query_str(req.uri().query().unwrap_or(""))
                         .map_err(IntoResponse::into_response)?;
 
-                let signals = query.0.datastar.as_str().ok_or_else(|| {
-                    tracing::debug!("failed to get datastar query value from GET request");
+                let signals = query.0.state.as_str().ok_or_else(|| {
+                    tracing::debug!("failed to get state query value from GET request");
                     (StatusCode::BAD_REQUEST, "Failed to parse JSON").into_response()
                 })?;
 
                 serde_json::from_str(signals)
                     .map_err(|err| {
-                        tracing::debug!(%err, "failed to parse datastar query json value from GET request");
+                        tracing::debug!(%err, "failed to parse state query json value from GET request");
                         (StatusCode::BAD_REQUEST, err.to_string()).into_response()}
                     )?
             }
             _ => req.into_body().try_into_json().await.map_err(|err| {
-                tracing::debug!(%err, "failed to parse datastar json payload from POST request");
+                tracing::debug!(%err, "failed to parse state json payload from POST request");
                 (StatusCode::BAD_REQUEST, err.to_string()).into_response()
             })?,
         };
@@ -159,9 +159,9 @@ where
     type Rejection = Response;
 
     async fn from_request(req: Request) -> Result<Option<Self>, Self::Rejection> {
-        if req.headers().get(DATASTAR_REQ_HEADER_STR).is_none() {
+        if req.headers().get(STATE_REQ_HEADER_STR).is_none() {
             tracing::trace!(
-                "no datastar request header present: returning no read signals as such"
+                "no state request header present: returning no read signals as such"
             );
             return Ok(None);
         }

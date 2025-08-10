@@ -1,7 +1,7 @@
 {%- func csharpConsts(data *ConstTemplateData) -%}
 // {%s data.DoNotEdit %}
 
-namespace StarFederation.Datastar;
+namespace AereaCo.NexusUX;
 
 using System;
 
@@ -15,7 +15,7 @@ public enum {%s enum.Name.Pascal %}
 {% endfor %}
 public static class Consts
 {
-    public const string DatastarKey = "{%s data.DatastarKey %}";
+    public const string StateKey = "{%s data.StateKey %}";
     public const string Version     = "{%s data.Version %}";
 
     {%- for _, d := range data.DefaultDurations -%}
@@ -36,7 +36,7 @@ public static class Consts
     {%- endfor -%}
 
     {%- for _, literal := range data.DatalineLiterals -%}
-    public const string DatastarDataline{%s literal.Pascal %} = "{%s literal.Camel %}";
+    public const string StateDataline{%s literal.Pascal %} = "{%s literal.Camel %}";
     {%- endfor -%}
 
     {%- for _, enum := range data.Enums -%}

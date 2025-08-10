@@ -1,18 +1,18 @@
 //! [`RemoveFragments`] sends a selector to the browser to remove HTML fragments from the DOM.
 
 use {
-    crate::{DatastarEvent, consts},
+    crate::{StateEvent, consts},
     core::time::Duration,
 };
 
 /// [`RemoveFragments`] sends a selector to the browser to remove HTML fragments from the DOM.
 ///
-/// See the [Datastar documentation](https://data-star.dev/reference/sse_events#datastar-remove-fragments) for more information.
+/// See the [Nexus-UX documentation](https://nexus.aerea.co/reference/sse_events#state-remove-fragments) for more information.
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::prelude::{Sse, RemoveFragments};
+/// use nexus_ux::prelude::{Sse, RemoveFragments};
 /// use async_stream::stream;
 /// use core::time::Duration;
 ///
@@ -32,9 +32,9 @@ pub struct RemoveFragments {
     pub retry: Duration,
     /// `selector` is a CSS selector that represents the fragments to be removed from the DOM.
     /// The selector must be a valid CSS selector.
-    /// The Datastar client side will use this selector to remove the fragment from the DOM.
+    /// The Nexus-UX client side will use this selector to remove the fragment from the DOM.
     pub selector: String,
-    /// Whether to use view transitions, if not provided the Datastar client side will default to `false`.
+    /// Whether to use view transitions, if not provided the Nexus-UX client side will default to `false`.
     pub use_view_transition: bool,
 }
 
@@ -67,14 +67,14 @@ impl RemoveFragments {
         self
     }
 
-    /// Converts this [`RemoveFragments`] into a [`DatastarEvent`].
+    /// Converts this [`RemoveFragments`] into a [`StateEvent`].
     #[inline]
-    pub fn into_event(self) -> DatastarEvent {
+    pub fn into_event(self) -> StateEvent {
         self.into()
     }
 }
 
-impl From<RemoveFragments> for DatastarEvent {
+impl From<RemoveFragments> for StateEvent {
     fn from(val: RemoveFragments) -> Self {
         let mut data: Vec<String> = Vec::new();
 

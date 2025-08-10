@@ -3,7 +3,7 @@
     [test.examples.common :as common]
     [test.examples.counter :as counter]
     [test.examples.form :as form]
-    [starfederation.datastar.clojure.adapter.ring :as jetty-gen]
+    [aereaco.nexus-ux.clojure.adapter.ring :as jetty-gen]
     [reitit.ring :as rr]))
 
 ;; -----------------------------------------------------------------------------
@@ -55,6 +55,3 @@
   (rr/ring-handler router
                    common/default-handler
                    {:middleware common/global-middleware}))
-
-
-

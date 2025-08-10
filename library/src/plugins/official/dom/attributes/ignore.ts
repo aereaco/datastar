@@ -1,6 +1,6 @@
 // Icon: material-symbols:visibility-off-outline
-// Slug: Ignores an element and its children from Datastar processing.
-// Description: Prevents Datastar from processing an element and its descendants.
+// Slug: Ignores an element and its children from Nexus-UX processing.
+// Description: Prevents Nexus-UX from processing an element and its descendants.
 
 import {
   type AttributePlugin,

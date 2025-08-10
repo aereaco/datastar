@@ -22,14 +22,14 @@ import {
   supportsViewTransitions,
 } from '../../../../utils/view-transtions'
 import { Idiomorph } from '../../../../vendored/idiomorph.esm'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const PatchElements: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.PatchElements,
   onGlobalInit: async (ctx) => {
     const fragmentContainer = document.createElement('template')
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.PatchElements,
       ({
         elements: fragmentsRaw = '<div></div>',

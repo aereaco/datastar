@@ -5,8 +5,8 @@
     [dev.onionpancakes.chassis.core :refer [html]]
     [reitit.ring :as rr]
     [ring.util.response :as ruresp]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]))
 
 ;; Redirection example
 
@@ -16,7 +16,7 @@
      [[:h1 "Test page"]
       [:div.#indicator
        [:button {:data-on-click (d*/sse-get "/redirect-me")}
-        "Start redirect"]]])))
+        "Start redirect"]]]))
 
 
 (defn home [_]
@@ -53,7 +53,7 @@
                ["/redirect-me" {:handler redirect-handler}]]))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (def handler
@@ -63,5 +63,3 @@
 
 (comment
   (u/reboot-hk-server! #'handler))
-
-

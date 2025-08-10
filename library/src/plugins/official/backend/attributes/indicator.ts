@@ -1,6 +1,6 @@
 import {
-  DATASTAR_FETCH_EVENT,
-  type DatastarFetchEvent,
+  STATE_FETCH_EVENT,
+  type StateFetchEvent,
   FINISHED,
   STARTED,
 } from '../shared'
@@ -27,19 +27,19 @@ export const Indicator: AttributePlugin = {
     const setupIndicator = (signalName: string) => {
       // Clean up previous watcher if it exists
       if (currentWatcher) {
-        document.removeEventListener(DATASTAR_FETCH_EVENT, currentWatcher);
+        document.removeEventListener(STATE_FETCH_EVENT, currentWatcher);
       }
 
       currentSignalName = signalName;
       const { signal } = signals.upsertIfMissing(currentSignalName, false);
 
-      currentWatcher = ((event: CustomEvent<DatastarFetchEvent>) => {
+      currentWatcher = ((event: CustomEvent<StateFetchEvent>) => {
         const { type } = event.detail;
         // Ensure we only react to events for the currently managed signal name
         // This is a safeguard, as the watcher should be removed/re-added correctly
         // if the signalName changes.
         if (signal.value === undefined) { // Check if signal was removed externally
-          document.removeEventListener(DATASTAR_FETCH_EVENT, currentWatcher);
+          document.removeEventListener(STATE_FETCH_EVENT, currentWatcher);
           return;
         }
 
@@ -55,7 +55,7 @@ export const Indicator: AttributePlugin = {
         }
       }) as EventListener;
 
-      document.addEventListener(DATASTAR_FETCH_EVENT, currentWatcher);
+      document.addEventListener(STATE_FETCH_EVENT, currentWatcher);
     };
 
     // Initial setup
@@ -66,7 +66,7 @@ export const Indicator: AttributePlugin = {
 
     const cleanupCallback: CleanupUpdateCallback = () => {
       if (currentWatcher) {
-        document.removeEventListener(DATASTAR_FETCH_EVENT, currentWatcher);
+        document.removeEventListener(STATE_FETCH_EVENT, currentWatcher);
       }
       // Optionally, set the signal back to false when the indicator is removed
       signals.setValue(currentSignalName, false);

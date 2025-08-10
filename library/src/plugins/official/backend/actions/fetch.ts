@@ -1,6 +1,6 @@
 import {
-  DATASTAR,
-  DATASTAR_REQUEST,
+  STATE,
+  STATE_REQUEST,
   DefaultSseRetryDurationMs,
   EventTypes,
 } from '../../../../engine/consts'
@@ -14,8 +14,8 @@ import {
 } from '../../../../engine/types'
 import { kebab } from '../../../../utils/text'
 import {
-  DATASTAR_FETCH_EVENT,
-  type DatastarFetchEvent,
+  STATE_FETCH_EVENT,
+  type StateFetchEvent,
   ERROR,
   FINISHED,
   RETRIES_FAILED,
@@ -64,7 +64,7 @@ const dispatchFetch = (
   argsRaw: Record<string, string>,
 ) =>
   document.dispatchEvent(
-    new CustomEvent<DatastarFetchEvent>(DATASTAR_FETCH_EVENT, {
+    new CustomEvent<StateFetchEvent>(STATE_FETCH_EVENT, {
       detail: { type, el, argsRaw },
     }),
   )
@@ -121,7 +121,7 @@ export const fetcher = async (
 
     const initialHeaders: Record<string, any> = {
       Accept: 'text/event-stream, text/html, application/json',
-      [DATASTAR_REQUEST]: true,
+      [STATE_REQUEST]: true,
     }
     if (contentType === 'json') {
       initialHeaders['Content-Type'] = 'application/json'
@@ -145,7 +145,7 @@ export const fetcher = async (
           dispatchFetch(ERROR, el, { status: response.status.toString() })
       },
       onmessage: (evt) => {
-        if (!evt.event.startsWith(DATASTAR)) return
+        if (!evt.event.startsWith(STATE)) return
         const type = evt.event
         const argsRawLines: Record<string, string[]> = {}
 
@@ -181,7 +181,7 @@ export const fetcher = async (
     if (contentType === 'json') {
       const res = JSON.stringify(filtered(filterSignals))
       if (method === 'GET') {
-        queryParams.set(DATASTAR, res)
+        queryParams.set(STATE, res)
       } else {
         req.body = res
       }
@@ -235,7 +235,8 @@ export const fetcher = async (
         for (const [key, value] of formParams) {
           queryParams.append(key, value)
         }
-      } else if (multipart) {
+      }
+       else if (multipart) {
         // Upload progress events are only available for: HTTPS connections (required for streaming uploads) with Multipart form data uploads
         if (__USE_UPLOAD_PROGRESS__ && urlInstance.protocol === 'https:') {
           const boundary = `----FormDataBoundary${Math.random().toString(36).substring(2, 11)}`
@@ -341,11 +342,10 @@ export const fetcher = async (
         } else {
           req.body = formData
         }
-      } else {
-        req.body = formParams
       }
-    } else {
-      throw runtimeErr('SseInvalidContentType', { action, contentType })
+       else {
+        throw runtimeErr('SseInvalidContentType', { action, contentType })
+      }
     }
 
     dispatchFetch(STARTED, el, {})
@@ -467,7 +467,7 @@ function getLines(onLine: (line: Uint8Array, fieldLength: number) => void) {
 function getMessages(
   onId: (id: string) => void,
   onRetry: (retry: number) => void,
-  onMessage?: (msg: EventSourceMessage) => void,
+  onmessage?: (msg: EventSourceMessage) => void,
 ) {
   let message = newMessage()
   const decoder = new TextDecoder()
@@ -476,7 +476,7 @@ function getMessages(
   return function onLine(line: Uint8Array, fieldLength: number) {
     if (!line.length) {
       // empty line denotes end of message. Trigger the callback and start a new message:
-      onMessage?.(message)
+      onmessage?.(message)
       message = newMessage()
     } else if (fieldLength > 0) {
       // exclude comments and lines with no values
@@ -592,7 +592,7 @@ function fetchEventSource(
     })
 
     const fetch = inputFetch || window.fetch
-    const onopen = inputOnOpen || (() => {})
+    const onopen = inputOnOpen || (() => {}) 
 
     let retries = 0
     let baseRetryInterval = retryInterval
@@ -622,7 +622,7 @@ function fetchEventSource(
             [name]: await response.text(),
           }
           for (const n of argNames) {
-            let v = response.headers.get(`datastar-${kebab(n)}`)
+            let v = response.headers.get(`state-${kebab(n)}`)
             if (overrides) {
               const o = (overrides as any)[n]
               if (o) v = typeof o === 'string' ? o : JSON.stringify(o)
@@ -661,7 +661,7 @@ function fetchEventSource(
         if (ct?.includes('text/javascript')) {
           const script = document.createElement('script')
           const scriptAttributesHeader = response.headers.get(
-            'datastar-script-attributes',
+            'state-script-attributes',
           )
 
           if (scriptAttributesHeader) {
@@ -720,7 +720,7 @@ function fetchEventSource(
               reject('Max retries reached.') // Max retries reached, check your server or network connection
             } else {
               console.error(
-                `Datastar failed to reach ${input.toString()} retrying in ${interval}ms.`,
+                `Nexus-UX failed to reach ${input.toString()} retrying in ${interval}ms.`,
               )
             }
           } catch (innerErr) {

@@ -1,27 +1,27 @@
-    <project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://www.apache.org/xsd/maven-4.0.0.xsd">
         <modelVersion>4.0.0</modelVersion>
-        <groupId>dev.data-star</groupId>
-        <artifactId>datastar-java-sdk-suite</artifactId>
+        <groupId>dev.nexus-ux</groupId>
+        <artifactId>nexus-ux-java-sdk-suite</artifactId>
         <version>1.0.0</version>
         <packaging>pom</packaging>
 
-        <name>Datastar Java SDK Suite</name>
-        <description>The suite of libraries for the Datastar Java SDK</description>
+        <name>Nexus-UX Java SDK Suite</name>
+        <description>The suite of libraries for the Nexus-UX Java SDK</description>
 
         <modules>
             <module>core</module>
-            <module>datastar-java-sdk-jaxrs</module>
+            <module>nexus-ux-java-sdk-jaxrs</module>
         </modules>
 
         <developers>
             <developer>
-                <id>starfederation</id>
-                <name>StarFederation Dev Team</name>
-                <email>no-reply@data-star.dev</email>
-                <organization>StarFederation</organization>
-                <organizationUrl>https://data-star.dev/</organizationUrl>
+                <id>aereaco</id>
+                <name>AereaCo Dev Team</name>
+                <email>no-reply@nexus.aerea.co</email>
+                <organization>AereaCo</organization>
+                <organizationUrl>https://nexus.aerea.co/</organizationUrl>
             </developer>
         </developers>
 
@@ -36,14 +36,14 @@
         <distributionManagement>
             <repository>
                 <id>github</id>
-                <url>https://maven.pkg.github.com/starfederation/datastar</url>
+                <url>https://maven.pkg.github.com/aereaco/nexus-ux</url>
             </repository>
         </distributionManagement>
 
         <scm>
-          <connection>scm:git:git@github.com:starfederation/datastar.git</connection>
-          <developerConnection>scm:git:git@github.com:starfederation/datastar.git</developerConnection>
-          <url>https://github.com/starfederation/datastar</url>
+          <connection>scm:git:git@github.com:aereaco/nexus-ux.git</connection>
+          <developerConnection>scm:git:git@github.com:aereaco/nexus-ux.git</developerConnection>
+          <url>https://github.com/aereaco/nexus-ux</url>
         </scm>
  
         <properties>

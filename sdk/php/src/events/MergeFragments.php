@@ -3,12 +3,12 @@
  * @copyright Copyright (c) PutYourLightsOn
  */
 
-namespace starfederation\datastar\events;
+namespace aereaco\nexus-ux\events;
 
 use Exception;
-use starfederation\datastar\Consts;
-use starfederation\datastar\enums\EventType;
-use starfederation\datastar\enums\FragmentMergeMode;
+use aereaco\nexus-ux\Consts;
+use aereaco\nexus-ux\enums\EventType;
+use aereaco\nexus-ux\enums\FragmentMergeMode;
 
 class MergeFragments implements EventInterface
 {

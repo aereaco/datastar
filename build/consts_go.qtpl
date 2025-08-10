@@ -1,12 +1,12 @@
 {%- func goConsts(data *ConstTemplateData) -%}
 // {%s data.DoNotEdit %}
 
-package datastar
+package nexusux
 
 import "time"
 
 const (
-    DatastarKey = "{%s data.DatastarKey %}"
+    StateKey = "{%s data.StateKey %}"
     Version                   = "{%s data.Version %}"
     VersionClientByteSize     = {%d data.VersionClientByteSize %}
     VersionClientByteSizeGzip = {%d data.VersionClientByteSizeGzip %}

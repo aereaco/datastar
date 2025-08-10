@@ -1,23 +1,23 @@
 //! [`MergeFragments`] merges one or more fragments into the DOM.
-//! By default, Datastar merges fragments using Idiomorph, which matches top level elements based on their ID.
+//! By default, Nexus-UX merges fragments using Idiomorph, which matches top level elements based on their ID.
 
 use {
     crate::{
-        DatastarEvent,
+        StateEvent,
         consts::{self, FragmentMergeMode},
     },
     core::time::Duration,
 };
 
 /// [`MergeFragments`] merges one or more fragments into the DOM. By default,
-/// Datastar merges fragments using Idiomorph, which matches top level elements based on their ID.
+/// Nexus-UX merges fragments using Idiomorph, which matches top level elements based on their ID.
 ///
-/// See the [Datastar documentation](https://data-star.dev/reference/sse_events#datastar-merge-fragments) for more information.
+/// See the [Nexus-UX documentation](https://nexus.aerea.co/reference/sse_events#state-merge-fragments) for more information.
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::prelude::{Sse, MergeFragments, FragmentMergeMode};
+/// use nexus_ux::prelude::{Sse, MergeFragments, FragmentMergeMode};
 /// use async_stream::stream;
 /// use core::time::Duration;
 ///
@@ -40,12 +40,12 @@ pub struct MergeFragments {
     /// The HTML fragments to merge into the DOM.
     pub fragments: String,
     /// The CSS selector to use to insert the fragments.
-    /// If not provided, Datastar will default to using the id attribute of the fragment.
+    /// If not provided, Nexus-UX will default to using the id attribute of the fragment.
     pub selector: Option<String>,
     /// The mode to use when merging the fragment into the DOM.
-    /// If not provided the Datastar client side will default to [`FragmentMergeMode::Morph`].
+    /// If not provided the Nexus-UX client side will default to [`FragmentMergeMode::Morph`].
     pub merge_mode: FragmentMergeMode,
-    /// Whether to use view transitions, if not provided the Datastar client side will default to `false`.
+    /// Whether to use view transitions, if not provided the Nexus-UX client side will default to `false`.
     pub use_view_transition: bool,
 }
 
@@ -92,14 +92,14 @@ impl MergeFragments {
         self
     }
 
-    /// Converts this [`MergeFragments`] into a [`DatastarEvent`].
+    /// Converts this [`MergeFragments`] into a [`StateEvent`].
     #[inline]
-    pub fn into_event(self) -> DatastarEvent {
+    pub fn into_event(self) -> StateEvent {
         self.into()
     }
 }
 
-impl From<MergeFragments> for DatastarEvent {
+impl From<MergeFragments> for StateEvent {
     fn from(val: MergeFragments) -> Self {
         let mut data: Vec<String> = Vec::new();
 
@@ -131,7 +131,7 @@ impl From<MergeFragments> for DatastarEvent {
             data.push(format!("{} {}", consts::FRAGMENTS_DATALINE_LITERAL, line));
         }
 
-        DatastarEvent {
+        Self {
             event: consts::EventType::MergeFragments,
             id: val.id.clone(),
             retry: val.retry,

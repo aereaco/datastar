@@ -1,16 +1,16 @@
 {%- func phpConsts(data *ConstTemplateData) -%}
 <?php
 
-namespace starfederation\datastar;
+namespace aereaco\nexusux;
 
-use starfederation\datastar\enums\FragmentMergeMode;
+use aereaco\nexusux\enums\FragmentMergeMode;
 
 /**
  * {%s data.DoNotEdit %}
  */
 class Consts
 {
-    public const DATASTAR_KEY = '{%s data.DatastarKey %}';
+    public const STATE_KEY = '{%s data.StateKey %}';
     public const VERSION = '{%s data.Version %}';
     {%- for _, d := range data.DefaultDurations %}
     // {%s= d.Description %}
@@ -41,7 +41,7 @@ class Consts
 {%- func phpEventType(data *ConstTemplateData) -%}
 <?php
 
-namespace starfederation\datastar\enums;
+namespace aereaco\nexusux\enums;
 
 /**
  * {%s data.DoNotEdit %}
@@ -62,7 +62,7 @@ enum EventType: string
 {%- func phpFragmentMergeMode(data *ConstTemplateData) -%}
 <?php
 
-namespace starfederation\datastar\enums;
+namespace aereaco\nexusux\enums;
 
 /**
  * {%s data.DoNotEdit %}

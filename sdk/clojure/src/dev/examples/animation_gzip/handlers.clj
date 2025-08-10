@@ -3,8 +3,8 @@
     [examples.animation-gzip.rendering :as rendering]
     [examples.animation-gzip.state :as state]
     [ring.util.response :as ruresp]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.common :as ac]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :as ac]))
 
 
 (defn home-handler

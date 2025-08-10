@@ -1,6 +1,6 @@
-# Datastar Java SDK
+# Nexus-UX Java SDK
 
-This package provides a Java SDK for working with [Datastar](https://data-star.dev/).
+This package provides a Java SDK for working with [Nexus-UX](https://nexus.aerea.co/).
 
 ## License
 
@@ -16,15 +16,15 @@ Install using Maven by adding the following to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.starfederation</groupId>
-    <artifactId>datastar</artifactId>
+    <groupId>com.aereaco</groupId>
+    <artifactId>nexus-ux</artifactId>
     <version>1.0.0</version>
 </dependency>
 
 <repositories>
     <repository>
         <id>github</id>
-        <url>https://maven.pkg.github.com/starfederation/datastar</url>
+        <url>https://maven.pkg.github.com/aereaco/nexus-ux</url>
     </repository>
 </repositories>
 ```
@@ -35,7 +35,7 @@ Install using Maven by adding the following to your `pom.xml`:
 
 ```java
 
-import starfederation.datastar.utils.ServerSentEventGenerator;
+import aereaco.nexusux.utils.ServerSentEventGenerator;
 ```
 
 ### Set up Server-Sent Events Generator
@@ -81,7 +81,7 @@ generator.send(event, "custom-id", 2000);
 
 ### Events, Event Options, Examples
 
-There are a few different event types in Datastar and each come with their own options. You can check out the [SDK Guide](https://github.com/rphumulock/datastar/blob/develop/sdk/README.md) for a review of all of them.
+There are a few different event types in Nexus-UX and each come with their own options. You can check out the [SDK Guide](https://github.com/aereaco/nexus-ux/blob/develop/sdk/README.md) for a review of all of them.
 
 #### Example: Merging Fragments into the DOM
 
@@ -89,16 +89,18 @@ This event is used to merge fragments into the DOM. The data is a string that re
 
 ##### Options
 
-- `selector` (string) The CSS selector to use to insert the fragments. If not provided or empty, Datastar **will** default to using the `id` attribute of the fragment.
-- `mergeMode` (FragmentMergeMode) The mode to use when merging the fragment into the DOM. If not provided the Datastar client side **_will_** default to `morph`.
-- `useViewTransition` Whether to use view transitions, if not provided the Datastar client side **_will_** default to `false`.
+- `selector` (string) The CSS selector to use to insert the fragments. If not provided or empty, Nexus-UX **will** default to using the `id` attribute of the fragment.
+- `mergeMode` (FragmentMergeMode) The mode to use when merging the fragment into the DOM. If not provided the Nexus-UX client side **_will_** default to `morph`.
+- `useViewTransition` Whether to use view transitions, if not provided the Nexus-UX client side **_will_** default to `false`.
 
 ```java
 MergeFragments event = MergeFragments.builder()
         .selector("#feed")
         .mergeMode(FragmentMergeMode.Append)
         .useViewTransition(true)
-        .data("<div id=\"feed\">\n<span>1</span>\n</div>")
+        .data("<div id=\"feed\">
+<span>1</span>
+</div>")
         .build();
 ```
 
@@ -108,8 +110,8 @@ This event is used to remove fragments from the DOM.
 
 ##### Options
 
-- `selector` (string) The CSS selector to use to insert the fragments. If not provided or empty, Datastar **will** default to using the `id` attribute of the fragment.
-- `useViewTransition` Whether to use view transitions, if not provided the Datastar client side **_will_** default to `false`.
+- `selector` (string) The CSS selector to use to insert the fragments. If not provided or empty, Nexus-UX **will** default to using the `id` attribute of the fragment.
+- `useViewTransition` Whether to use view transitions, if not provided the Nexus-UX client side **_will_** default to `false`.
 
 ```java
 RemoveFragments event = RemoveFragments.builder()
@@ -124,7 +126,7 @@ This event is used to merge data into the signals object on the client side. The
 
 ###### Options
 
-- `onlyIfMissing` (boolean) Whether to merge the signal only if it does not already exist. If not provided, the Datastar client side will default to false, which will cause the data to be merged into the signals.
+- `onlyIfMissing` (boolean) Whether to merge the signal only if it does not already exist. If not provided, the Nexus-UX client side will default to false, which will cause the data to be merged into the signals.
 
 ```java
 MergeSignals event = MergeSignals.builder()
@@ -150,8 +152,8 @@ This event is used to execute a script on the client side. The script is a strin
 
 ###### Options
 
-- `autoRemove` Whether to remove the script after execution, if not provided the Datastar client side will default to true.
-- `attributes` A line separated list of attributes to add to the script element, if not provided the Datastar client side will default to type module. Each item in the array should be a string in the format key value.
+- `autoRemove` Whether to remove the script after execution, if not provided the Nexus-UX client side will default to true.
+- `attributes` A line separated list of attributes to add to the script element, if not provided the Nexus-UX client side will default to type module. Each item in the array should be a string in the format key value.
 
 ```java
 ExecuteScript event = ExecuteScript.builder()
@@ -165,7 +167,7 @@ ExecuteScript event = ExecuteScript.builder()
 
 This will read signals from a request and merge them into the signals object on the backend. The request is an object that represents the request to read the signals from. The store is a DataStore object that represents the store to merge the signals into. 
 
-Often you would want to have a Datastore created on your backend to keep track of any signals in Datastar. Here is an example of how you would create a DataStore as well as read signals from a request.
+Often you would want to have a Nexus-UX Datastore created on your backend to keep track of any signals in Nexus-UX. Here is an example of how you would create a DataStore as well as read signals from a request.
 
 ```java
 DataStore store = new DataStore();

@@ -1,4 +1,4 @@
-BASE=~/datastar-haskell
+BASE=~/nexus-ux-haskell
 
 .PHONY: all
 all:
@@ -13,8 +13,8 @@ all:
 	@echo "hello    - run the ubiquitous hello world program, this time in color"
 .PHONY:	
 test:
-	cabal repl lib:datastar --with-compiler=doctest 2>&1 | tee /tmp/datastar.log
-#cabal repl lib:datastar --with-compiler=doctest --repl-options=--verbose 2>&1 | tee /tmp/e.log
+	cabal repl lib:nexus-ux --with-compiler=doctest 2>&1 | tee /tmp/nexus-ux.log
+#cabal repl lib:nexus-ux --with-compiler=doctest --repl-options=--verbose 2>&1 | tee /tmp/e.log
 .PHONY:
 watch:
 	ghciwatch --clear
@@ -32,7 +32,6 @@ tags:
 	pushd  $(BASE)/src ; find . -name "*.hs" | grep -v "dist-newstyle" | xargs ghc-tags --etags -f $(BASE)/TAGS ; popd
 .PHONY:
 demo:
-	cabal run exe:datastar-demo 2>&1 | tee /tmp/datastar.log
+	cabal run exe:nexus-ux-demo 2>&1 | tee /tmp/nexus-ux.log
 hello:
-	cabal run exe:hello-world   2>&1 | tee /tmp/datastar.log
-
+	cabal run exe:hello-world   2>&1 | tee /tmp/nexus-ux.log

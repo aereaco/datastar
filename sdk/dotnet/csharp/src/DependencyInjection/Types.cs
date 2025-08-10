@@ -1,7 +1,7 @@
 using Microsoft.FSharp.Core;
-using Core = StarFederation.Datastar.FSharp;
+using Core = AereaCo.NexusUX.FSharp;
 
-namespace StarFederation.Datastar.DependencyInjection;
+namespace AereaCo.NexusUX.DependencyInjection;
 
 public class MergeFragmentsOptions
 {

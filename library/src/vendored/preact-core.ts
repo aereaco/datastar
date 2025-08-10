@@ -836,7 +836,7 @@ function effect(fn: EffectFn): () => void {
     effect._callback()
   } catch (error) {
     effect._dispose()
-    // Throw the error, since it is already a Datastar error.
+    // Throw the error, since it is already a Nexus-UX error.
     throw error
   }
   // Return a bound function instead of a wrapper like `() => effect._dispose()`,

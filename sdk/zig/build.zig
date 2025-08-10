@@ -33,15 +33,15 @@ pub fn build(b: *std.Build) void {
         },
     };
 
-    const datastar = b.addModule(
-        "datastar",
+    const nexusux = b.addModule(
+        "nexusux",
         .{
             .root_source_file = b.path("src/root.zig"),
             .imports = imports,
         },
     );
 
-    datastar.addOptions("config", options);
+    nexusux.addOptions("config", options);
 
     const tests = b.addTest(.{
         .root_source_file = b.path("src/root.zig"),

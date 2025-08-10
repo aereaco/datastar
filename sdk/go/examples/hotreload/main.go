@@ -7,25 +7,25 @@ import (
 	"sync"
 	"time"
 
-	"github.com/starfederation/datastar/sdk/go/datastar"
+	"github.com/aereaco/nexus-ux/sdk/go/state"
 )
 
 const (
 	serverAddress = "localhost:9001"
-	cdn           = "https://cdn.jsdelivr.net/gh/starfederation/datastar@develop/bundles/datastar.js"
+	cdn           = "https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@develop/bundles/nexus-ux.js"
 )
 
 var hotReloadOnlyOnce sync.Once
 
 func HotReloadHandler(w http.ResponseWriter, r *http.Request) {
-	sse := datastar.NewSSE(w, r)
+	sse := state.NewSSE(w, r)
 	hotReloadOnlyOnce.Do(func() {
 		// Refresh the client page as soon as connection
 		// is established. This will occur only once
 		// after the server starts.
 		sse.ExecuteScript(
 			"window.location.reload()",
-			datastar.WithExecuteScriptRetryDuration(time.Second),
+			state.WithExecuteScriptRetryDuration(time.Second),
 		)
 	})
 
@@ -68,12 +68,12 @@ func main() {
 	// $ go install github.com/cespare/reflex@latest
 	// $ reflex --start-service -- sh -c 'go run .'
 	//
-	// The refresh script is a Datastar handler
+	// The refresh script is a Nexus-UX handler
 	// that emits a page refresh event only once
 	// for each server start.
 	//
 	// When the the file watcher forces the server to restart,
-	// Datastar client will lose the network connection to the
+	// Nexus-UX client will lose the network connection to the
 	// server and attempt to reconnect. Once the connection is
 	// established, the client will receive the refresh event.
 	http.HandleFunc("/hotreload", HotReloadHandler)

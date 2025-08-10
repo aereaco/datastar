@@ -1,6 +1,6 @@
-namespace StarFederation.Datastar.FSharp
+namespace AereaCo.NexusUX.FSharp
 
-open StarFederation.Datastar.FSharp.Utility
+open AereaCo.NexusUX.FSharp.Utility
 
 [<AbstractClass; Sealed>]
 type ServerSentEventGenerator =
@@ -9,10 +9,10 @@ type ServerSentEventGenerator =
           Id = options.EventId
           Retry = options.Retry
           DataLines = [|
-            if (options.Selector |> ValueOption.isSome) then $"{Consts.DatastarDatalineSelector} {options.Selector |> ValueOption.get |> Selector.value}"
-            if (options.MergeMode <> Consts.DefaultFragmentMergeMode) then $"{Consts.DatastarDatalineMergeMode} {options.MergeMode |> Consts.FragmentMergeMode.toString}"
-            if (options.UseViewTransition <> Consts.DefaultFragmentsUseViewTransitions) then $"{Consts.DatastarDatalineUseViewTransition} %A{options.UseViewTransition}"
-            yield! (fragments |> String.split String.newLines |> Seq.map (fun fragmentLine -> $"{Consts.DatastarDatalineFragments} %s{fragmentLine}"))
+            if (options.Selector |> ValueOption.isSome) then $"{Consts.StateDatalineSelector} {options.Selector |> ValueOption.get |> Selector.value}"
+            if (options.MergeMode <> Consts.DefaultFragmentMergeMode) then $"{Consts.StateDatalineMergeMode} {options.MergeMode |> Consts.FragmentMergeMode.toString}"
+            if (options.UseViewTransition <> Consts.DefaultFragmentsUseViewTransitions) then $"{Consts.StateDatalineUseViewTransition} %A{options.UseViewTransition}"
+            yield! (fragments |> String.split String.newLines |> Seq.map (fun fragmentLine -> $"{Consts.StateDatalineFragments} %s{fragmentLine}"))
             |] }
     static member MergeFragments fragments = ServerSentEventGenerator.MergeFragments (fragments, MergeFragmentsOptions.defaults)
 
@@ -21,8 +21,8 @@ type ServerSentEventGenerator =
           Id = options.EventId
           Retry = options.Retry
           DataLines = [|
-            $"{Consts.DatastarDatalineSelector} {selector |> Selector.value}"
-            if (options.UseViewTransition <> Consts.DefaultFragmentsUseViewTransitions) then $"{Consts.DatastarDatalineUseViewTransition} %A{options.UseViewTransition}"
+            $"{Consts.StateDatalineSelector} {selector |> Selector.value}"
+            if (options.UseViewTransition <> Consts.DefaultFragmentsUseViewTransitions) then $"{Consts.StateDatalineUseViewTransition} %A{options.UseViewTransition}"
             |] }
     static member RemoveFragments selector = ServerSentEventGenerator.RemoveFragments(selector, RemoveFragmentsOptions.defaults)
 
@@ -31,8 +31,8 @@ type ServerSentEventGenerator =
           Id = options.EventId
           Retry = options.Retry
           DataLines = [|
-            if (options.OnlyIfMissing <> Consts.DefaultMergeSignalsOnlyIfMissing) then $"{Consts.DatastarDatalineOnlyIfMissing} %A{options.OnlyIfMissing}"
-            yield! signals |> Signals.value |> String.split String.newLines |> Seq.map (fun dataLine -> $"{Consts.DatastarDatalineSignals} %s{dataLine}")
+            if (options.OnlyIfMissing <> Consts.DefaultMergeSignalsOnlyIfMissing) then $"{Consts.StateDatalineOnlyIfMissing} %A{options.OnlyIfMissing}"
+            yield! signals |> Signals.value |> String.split String.newLines |> Seq.map (fun dataLine -> $"{Consts.StateDatalineSignals} %s{dataLine}")
             |] }
     static member MergeSignals signals = ServerSentEventGenerator.MergeSignals(signals, MergeSignalsOptions.defaults)
 
@@ -41,7 +41,7 @@ type ServerSentEventGenerator =
         { EventType = RemoveSignals
           Id = options.EventId
           Retry = options.Retry
-          DataLines = [| $"{Consts.DatastarDatalinePaths} {paths'}" |] }
+          DataLines = [| $"{Consts.StateDatalinePaths} {paths'}" |] }
     static member RemoveSignals signalPaths = ServerSentEventGenerator.RemoveSignals(signalPaths, EventOptions.defaults)
 
     static member ExecuteScript(script, options:ExecuteScriptOptions) =
@@ -49,9 +49,9 @@ type ServerSentEventGenerator =
           Id = options.EventId
           Retry = options.Retry
           DataLines = [|
-            if (options.AutoRemove <> Consts.DefaultExecuteScriptAutoRemove) then $"{Consts.DatastarDatalineAutoRemove} %A{options.AutoRemove}"
+            if (options.AutoRemove <> Consts.DefaultExecuteScriptAutoRemove) then $"{Consts.StateDatalineAutoRemove} %A{options.AutoRemove}"
             if (not <| Seq.forall2 (=) options.Attributes [| Consts.DefaultExecuteScriptAttributes |] ) then
-                yield! options.Attributes |> Seq.map (fun attr -> $"{Consts.DefaultExecuteScriptAttributes} {attr}")
-            yield! script |> String.split String.newLines |> Seq.map (fun scriptLine -> $"{Consts.DatastarDatalineScript} %s{scriptLine}")
+                yield! options.Attributes |> Seq.map (fun attr -> $"{Consts.StateDatalineAttributes} {attr}")
+            yield! script |> String.split String.newLines |> Seq.map (fun scriptLine -> $"{Consts.StateDatalineScript} %s{scriptLine}")
             |] }
     static member ExecuteScript script = ServerSentEventGenerator.ExecuteScript(script, ExecuteScriptOptions.defaults)

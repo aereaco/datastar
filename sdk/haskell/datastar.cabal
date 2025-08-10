@@ -1,8 +1,8 @@
 cabal-version:      3.12
-name:               datastar
+name:               nexus-ux
 version:            1.0.0.0
-synopsis:           Interface for Server Sent Events using the Datastar framework.
-description:        See https://data-star.dev/ for full information.
+synopsis:           Interface for Server Sent Events using the Nexus-UX framework.
+description:        See https://nexus.aerea.co/ for full information.
 license-file:       LICENSE.md            
 author:             Henry Laxen
 maintainer:         nadine.and.henry@pobox.com
@@ -66,11 +66,11 @@ library
     default-language: Haskell2010
 
 
-Executable datastar-demo
+Executable nexus-ux-demo
   import:  deps,warnings,default-extensions
   default-language: Haskell2010
   build-depends:
-      datastar
+      nexus-ux
     , time
   other-modules:
         ServerSentEventGenerator
@@ -82,12 +82,12 @@ Executable datastar-demo
   hs-source-dirs: src,src/demo
   main-is: Main.hs
     
-Executable datastar-test
+Executable nexus-ux-test
   import:  deps,warnings,default-extensions
   default-language: Haskell2010
   build-depends:
       html-entities
-    , datastar
+    , nexus-ux
     , time
   other-modules:
         ServerSentEventGenerator
@@ -106,12 +106,13 @@ Executable hello-world
       aeson
     , relude
     , scientific
-    , datastar
+    , nexus-ux
   other-modules:
         ServerSentEventGenerator
       , ServerSentEventGenerator.Server.Snap
       , ServerSentEventGenerator.Class
       , ServerSentEventGenerator.Constants
+      
       , ServerSentEventGenerator.Types
       , ServerSentEventGenerator.Internal
   hs-source-dirs: src,../../examples/haskell/hello-world

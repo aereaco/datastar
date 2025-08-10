@@ -1,6 +1,6 @@
 <?php
 
-use starfederation\datastar\events\RemoveSignals;
+use aereaco\nexus-ux\events\RemoveSignals;
 
 test('Event is correctly output', function() {
     $content = ['x', 'y', 'z'];

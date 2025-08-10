@@ -11,7 +11,7 @@ Also, for the library as a whole we try to stay close to the
 ## Implementing the `SSEGenerator` protocol
 
 An SSE generator is made by implementing the
-`starfederation.datastar.clojure.protocols/SSEGenerator` protocol.
+`aereaco.nexus-ux.clojure.protocols/SSEGenerator` protocol.
 
 There are 4 functions to implement:
 
@@ -19,7 +19,7 @@ There are 4 functions to implement:
   This function must contain the logic to actually send a SSE event.
 - `(get-lock [this])`
   This function mus return the lock used by the sse-gen. It enables the
-  `starfederation.datastar.clojure/lock-sse!` macro.
+  `aereaco.nexus-ux.clojure/lock-sse!` macro.
 - `(close-sse! [this] "Close connection.")`
   This function must close the connection use by the `SSEGenerator`.
 - `(sse-gen? [this])`
@@ -35,12 +35,12 @@ This function should return the lock the SSE generator is using.
 ### Implementing `send-event!`
 
 To help implement this function you should use the
-`starfederation.datastar.clojure.api.sse/write-event!` function.
+`aereaco.nexus-ux.clojure.api.sse/write-event!` function.
 
 It take 4 arguments:
 
 - `buffer`: A `java.lang.Appendable`
-- `event-type`: a string representing a Datastar event type
+- `event-type`: a string representing a Nexus-UX event type
 - `data-lines`: a seq of data lines constituting the 'body' of the event
 - `opts`: a map of SSE Options.
 
@@ -66,11 +66,11 @@ of sending it looks like:
 
 ```
 
-As per the design doc that all Datastar SDKs follow, we use a lock in this
+As per the design doc that all Nexus-UX SDKs follow, we use a lock in this
 function to protect from several threads concurrently writing any underlying
 buffer before flushing.
 
-See `starfederation.datastar.clojure.utils/lock!`, it is a helper macro similar
+See `aereaco.nexus-ux.clojure.utils/lock!`, it is a helper macro similar
 to the clojure's `locking` but for Reentrant locks.
 
 > [!note]
@@ -116,7 +116,7 @@ It has 2 responsibilities:
 - This function creates the SSE generator, gives the callbacks to it.
 - It must create a valid ring response with the correct HTTP SSE headers and
   merge the headers provided with the `:headers` option.
-  See `starfederation.datastar.clojure.api.sse/headers`.
+  See `aereaco.nexus-ux.clojure.api.sse/headers`.
 
 ### `SSEGenerator` additional logic
 

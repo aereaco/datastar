@@ -1,6 +1,6 @@
-# Datastar + dotnet
+# Nexus-UX + dotnet
 
-[![NuGet Version](https://img.shields.io/nuget/v/Starfederation.Datastar.svg)](https://www.nuget.org/packages/Starfederation.Datastar)
+[![NuGet Version](https://img.shields.io/nuget/v/AereaCo.NexusUX.svg)](https://www.nuget.org/packages/AereaCo.NexusUX)
 
 Real-time Hypermedia first Library and Framework for dotnet
 
@@ -19,25 +19,25 @@ Real-time Hypermedia first Library and Framework for dotnet
 # C# Backend
 
 ```csharp
-using StarFederation.Datastar;
-using StarFederation.Datastar.DependencyInjection;
+using AereaCo.NexusUX;
+using AereaCo.NexusUX.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 // add as an ASP Service
-//  allows injection of IServerSentEventService, to respond to a request with a Datastar friendly ServerSentEvent
+//  allows injection of IServerSentEventService, to respond to a request with a Nexus-UX friendly ServerSentEvent
 //  and ISignals, to read the signals sent by the client
-builder.Services.AddDatastar();
+builder.Services.AddNexusUX();
 
 // displayDate - merging a fragment
-app.MapGet("/displayDate", async (IDatastarServerSentEventService sse) =>
+app.MapGet("/displayDate", async (IStateServerSentEventService sse) =>
 {
     string today = DateTime.Now.ToString("%y-%M-%d %h:%m:%s");
     await sse.MergeFragmentsAsync($"""<div id='target'><span id='date'><b>{today}</b><button data-on-click="@get('/removeDate')">Remove</button></span></div>""");
 });
 
 // removeDate - removing a fragment
-app.MapGet("/removeDate", async (IDatastarServerSentEventService sse) => { await sse.RemoveFragmentsAsync("#date"); });
+app.MapGet("/removeDate", async (IStateServerSentEventService sse) => { await sse.RemoveFragmentsAsync("#date"); });
 
 public record Signals {
     [JsonPropertyName("input")]
@@ -52,7 +52,7 @@ public record Signals {
 }
 
 // changeOutput - reads the signals, update the Output, and merge back
-app.MapPost("/changeOutput", async (IDatastarServerSentEventService sse, IDatastarSignalsReaderService dsSignals) => ...
+app.MapPost("/changeOutput", async (IStateServerSentEventService sse, IStateSignalsReaderService dsSignals) => ...
 {
     Signals signals = await dsSignals.ReadSignalsAsync<Signals>();
     Signals newSignals = new() { Output = $"Your Input: {signals.Input}" };

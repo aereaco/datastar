@@ -1,4 +1,4 @@
-# Datastar SDK testing suite
+# Nexus-UX SDK testing suite
 
 This test suite uses curl(1), cat(1), sh(1), and awk(1) to test that a server respects the SDK spec found in `../README.md`.
 
@@ -46,7 +46,7 @@ The `input.json` file must contain valid json of the following shape:
 The `output.txt` file must contain valid a `txt/eventstream` like such:
 
 ```
-event: datastar-execute-script
+event: state-execute-script
 id: 1
 retry: 2000
 data: attributes type text/javascript

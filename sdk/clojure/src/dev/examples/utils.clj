@@ -2,7 +2,7 @@
   (:require
     [charred.api :as charred]
     [fireworks.core :refer [?]]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 
 ;; -----------------------------------------------------------------------------
@@ -98,4 +98,3 @@
 
 (defn ?req [req]
   (? (dissoc req :reitit.core/match :reitit.core/router)))
-

@@ -15,16 +15,16 @@ await build({
   },
   package: {
     // package.json properties
-    name: "@starfederation/datastar-sdk",
+    name: "@aereaco/nexus-ux-sdk",
     version: Deno.args[0],
-    description: "Cross-runtime Javascript SDK for Datastar",
+    description: "Cross-runtime Javascript SDK for Nexus-UX",
     license: "MIT",
     repository: {
       type: "git",
-      url: "git+https://github.com/starfederation/datastar.git",
+      url: "git+https://github.com/aereaco/nexus-ux.git",
     },
     bugs: {
-      url: "https://github.com/starfederation/datastar/issues",
+      url: "https://github.com/aereaco/nexus-ux/issues",
     },
     exports: {
       "./abstractServerSentEventGenerator": {

@@ -14,13 +14,13 @@ import {
   docWithViewTransitionAPI,
   supportsViewTransitions,
 } from '../../../../utils/view-transtions'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const RemoveFragments: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.RemoveFragments,
   onGlobalInit: async (ctx) => {
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.RemoveFragments,
       ({
         selector,

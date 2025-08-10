@@ -1,17 +1,17 @@
 import { type Computed, Signal, computed } from '../vendored/preact-core'
 import { internalErr } from './errors'
 import {
-  DATASTAR_SIGNAL_EVENT,
-  type DatastarSignalEvent,
+  STATE_SIGNAL_EVENT,
+  type StateSignalEvent,
   type NestedSignal,
   type NestedValues,
 } from './types'
 
 const from = 'namespacedSignals'
 
-const dispatchSignalEvent = (evt: Partial<DatastarSignalEvent>) => {
+const dispatchSignalEvent = (evt: Partial<StateSignalEvent>) => {
   document.dispatchEvent(
-    new CustomEvent<DatastarSignalEvent>(DATASTAR_SIGNAL_EVENT, {
+    new CustomEvent<StateSignalEvent>(STATE_SIGNAL_EVENT, {
       detail: Object.assign({ added: [], removed: [], updated: [] }, evt),
     }),
   )
@@ -43,7 +43,7 @@ function mergeNested(
   values: NestedValues,
   onlyIfMissing = false,
 ) {
-  const evt: DatastarSignalEvent = {
+  const evt: StateSignalEvent = {
     added: [],
     removed: [],
     updated: [],

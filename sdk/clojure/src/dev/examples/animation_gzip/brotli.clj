@@ -1,6 +1,6 @@
 (ns examples.animation-gzip.brotli
   (:require
-    [starfederation.datastar.clojure.adapter.common :as ac])
+    [aereaco.nexus-ux.clojure.adapter.common :as ac])
   (:import
     com.aayushatharva.brotli4j.Brotli4jLoader
     [com.aayushatharva.brotli4j.encoder  Encoder$Parameters

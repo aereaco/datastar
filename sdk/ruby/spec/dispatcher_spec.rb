@@ -14,10 +14,10 @@ class TestSocket
   def close = @open = false
 end
 
-RSpec.describe Datastar::Dispatcher do
+RSpec.describe NexusUX::Dispatcher do
   include DispatcherExamples
 
-  subject(:dispatcher) { Datastar.new(request:, response:, view_context:) }
+  subject(:dispatcher) { NexusUX.new(request:, response:, view_context:) }
 
   let(:request) { build_request('/events') }
   let(:response) { Rack::Response.new(nil, 200) }
@@ -47,7 +47,7 @@ RSpec.describe Datastar::Dispatcher do
   end
 
   specify '.from_rack_env' do
-    dispatcher = Datastar.from_rack_env(request.env)
+    dispatcher = NexusUX.from_rack_env(request.env)
 
     expect(dispatcher.response['Content-Type']).to eq('text/event-stream')
     expect(dispatcher.response['Cache-Control']).to eq('no-cache')
@@ -58,46 +58,61 @@ RSpec.describe Datastar::Dispatcher do
     expect(dispatcher.sse?).to be(true)
     request = build_request('/events', headers: { 'HTTP_ACCEPT' => 'application/json' })
 
-    dispatcher = Datastar.new(request:, response:, view_context:)
+    dispatcher = NexusUX.new(request:, response:, view_context:)
     expect(dispatcher.sse?).to be(false)
   end
 
   describe '#merge_fragments' do
     it 'produces a streameable response body with D* fragments' do
-      dispatcher.merge_fragments %(<div id="foo">\n<span>hello</span>\n</div>\n)
+      dispatcher.merge_fragments %(<div id="foo">
+<span>hello</span>
+</div>
+)
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq(["event: datastar-merge-fragments\ndata: fragments <div id=\"foo\">\ndata: fragments <span>hello</span>\ndata: fragments </div>\n\n\n"])
+      expect(socket.lines).to eq(["event: state-merge-fragments\ndata: fragments <div id=\"foo\">
+data: fragments <span>hello</span>\ndata: fragments </div>\n\n\n"])
     end
 
     it 'takes D* options' do
       dispatcher.merge_fragments(
-        %(<div id="foo">\n<span>hello</span>\n</div>\n),
+        %(<div id="foo">
+<span>hello</span>
+</div>
+),
         id: 72,
         retry_duration: 2000
       )
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id="foo">\ndata: fragments <span>hello</span>\ndata: fragments </div>\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id=\"foo\">
+data: fragments <span>hello</span>\ndata: fragments </div>\n\n\n)])
     end
 
     it 'omits retry if using default value' do
       dispatcher.merge_fragments(
-        %(<div id="foo">\n<span>hello</span>\n</div>\n),
+        %(<div id="foo">
+<span>hello</span>
+</div>
+),
         id: 72,
         retry_duration: 1000
       )
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-merge-fragments\nid: 72\ndata: fragments <div id="foo">\ndata: fragments <span>hello</span>\ndata: fragments </div>\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-fragments\nid: 72\ndata: fragments <div id=\"foo\">
+data: fragments <span>hello</span>\ndata: fragments </div>\n\n\n)])
     end
 
     it 'works with #call(view_context:) interfaces' do
       template_class = Class.new do
-        def self.call(view_context:) = %(<div id="foo">\n<span>#{view_context}</span>\n</div>\n)
+        def self.call(view_context:) = %(<div id="foo">
+<span>#{view_context}</span>
+</div>
+)
       end
 
       dispatcher.merge_fragments(
@@ -107,12 +122,16 @@ RSpec.describe Datastar::Dispatcher do
       )
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
-      expect(socket.lines).to eq([%(event: datastar-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id="foo">\ndata: fragments <span>#{view_context}</span>\ndata: fragments </div>\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id=\"foo\">
+data: fragments #{view_context}\ndata: fragments </div>\n\n\n)])
     end
 
     it 'works with #render_in(view_context, &) interfaces' do
       template_class = Class.new do
-        def self.render_in(view_context) = %(<div id="foo">\n<span>#{view_context}</span>\n</div>\n)
+        def self.render_in(view_context) = %(<div id="foo">
+<span>#{view_context}</span>
+</div>
+)
       end
 
       dispatcher.merge_fragments(
@@ -122,7 +141,8 @@ RSpec.describe Datastar::Dispatcher do
       )
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
-      expect(socket.lines).to eq([%(event: datastar-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id="foo">\ndata: fragments <span>#{view_context}</span>\ndata: fragments </div>\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-fragments\nid: 72\nretry: 2000\ndata: fragments <div id=\"foo\">
+data: fragments #{view_context}\ndata: fragments </div>\n\n\n)])
     end
   end
 
@@ -132,7 +152,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-remove-fragments\ndata: selector #list-item-1\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-remove-fragments\ndata: selector #list-item-1\n\n\n)])
     end
 
     it 'takes D* options' do
@@ -140,7 +160,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-remove-fragments\nid: 72\ndata: selector #list-item-1\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-remove-fragments\nid: 72\ndata: selector #list-item-1\n\n\n)])
     end
   end
 
@@ -150,7 +170,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-merge-signals\ndata: signals { "foo": "bar" }\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-signals\ndata: signals { "foo": "bar" }\n\n\n)])
     end
 
     it 'takes a Hash of signals' do
@@ -158,7 +178,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-merge-signals\ndata: signals {"foo":"bar"}\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-signals\ndata: signals {"foo":"bar"}\n\n\n)])
     end
 
     it 'takes D* options' do
@@ -166,7 +186,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-merge-signals\nid: 72\nretry: 2000\ndata: onlyIfMissing true\ndata: signals {"foo":"bar"}\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-merge-signals\nid: 72\nretry: 2000\ndata: onlyIfMissing true\ndata: signals {"foo":"bar"}\n\n\n)])
     end
   end
 
@@ -176,7 +196,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-remove-signals\ndata: paths user.name\ndata: paths user.email\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-remove-signals\ndata: paths user.name\ndata: paths user.email\n\n\n)])
     end
 
     it 'takes D* options' do
@@ -184,7 +204,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-remove-signals\nid: 72\nretry: 2000\ndata: paths user.name\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-remove-signals\nid: 72\nretry: 2000\ndata: paths user.name\n\n\n)])
     end
   end
 
@@ -194,7 +214,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\ndata: script alert('hello')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\ndata: script alert('hello')\n\n\n)])
     end
 
     it 'splits multi-line script into multiple data lines' do
@@ -202,23 +222,23 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\ndata: script alert('hello');\ndata: script alert('world')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\ndata: script alert('hello');\ndata: script alert('world')\n\n\n)])
     end
 
     it 'takes D* options' do
-      dispatcher.execute_script %(alert('hello')), event_id: 72, auto_remove: !Datastar::Consts::DEFAULT_EXECUTE_SCRIPT_AUTO_REMOVE
+      dispatcher.execute_script %(alert('hello')), event_id: 72, auto_remove: !NexusUX::Consts::DEFAULT_EXECUTE_SCRIPT_AUTO_REMOVE
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\nid: 72\ndata: autoRemove false\ndata: script alert('hello')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\nid: 72\ndata: autoRemove false\ndata: script alert('hello')\n\n\n)])
     end
 
     it 'omits autoRemove true' do
-      dispatcher.execute_script %(alert('hello')), event_id: 72, auto_remove: Datastar::Consts::DEFAULT_EXECUTE_SCRIPT_AUTO_REMOVE
+      dispatcher.execute_script %(alert('hello')), event_id: 72, auto_remove: NexusUX::Consts::DEFAULT_EXECUTE_SCRIPT_AUTO_REMOVE
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\nid: 72\ndata: script alert('hello')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\nid: 72\ndata: script alert('hello')\n\n\n)])
     end
 
     it 'takes attributes Hash' do
@@ -226,7 +246,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\ndata: attributes type text/javascript\ndata: attributes title alert\ndata: script alert('hello')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\ndata: attributes type text/javascript\ndata: attributes title alert\ndata: script alert('hello')\n\n\n)])
     end
 
     it 'takes attributes Hash' do
@@ -234,7 +254,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\ndata: attributes title alert\ndata: script alert('hello')\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\ndata: attributes title alert\ndata: script alert('hello')\n\n\n)])
     end
   end
 
@@ -244,7 +264,7 @@ RSpec.describe Datastar::Dispatcher do
       socket = TestSocket.new
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
-      expect(socket.lines).to eq([%(event: datastar-execute-script\ndata: script setTimeout(() => { window.location = '/guide' })\n\n\n)])
+      expect(socket.lines).to eq([%(event: state-execute-script\ndata: script setTimeout(() => { window.location = '/guide' })\n\n\n)])
     end
   end
 
@@ -259,7 +279,7 @@ RSpec.describe Datastar::Dispatcher do
           }
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq({ 'foo' => 'bar' })
       end
 
@@ -272,7 +292,7 @@ RSpec.describe Datastar::Dispatcher do
           }
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq({})
       end
 
@@ -284,7 +304,7 @@ RSpec.describe Datastar::Dispatcher do
           body: %({ "foo": "bar" })
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq({ 'foo' => 'bar' })
       end
 
@@ -296,20 +316,20 @@ RSpec.describe Datastar::Dispatcher do
           body: 'user[name]=joe&user[email]=joe@email.com'
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq('user' => { 'name' => 'joe', 'email' => 'joe@email.com' })
       end
     end
 
     context 'with GET request' do
-      specify 'with signals in ?datastar=[JSON signals]' do
+      specify 'with signals in ?state=[JSON signals]' do
         query = %({"foo":"bar"})
         request = build_request(
-          %(/events?datastar=#{URI.encode_uri_component(query)}), 
+          %(/events?state=#{URI.encode_uri_component(query)}), 
           method: 'GET', 
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq('foo' => 'bar')
       end
 
@@ -319,7 +339,7 @@ RSpec.describe Datastar::Dispatcher do
           method: 'GET', 
         )
 
-        dispatcher = Datastar.new(request:, response:)
+        dispatcher = NexusUX.new(request:, response:)
         expect(dispatcher.signals).to eq({})
       end
     end
@@ -329,15 +349,19 @@ RSpec.describe Datastar::Dispatcher do
     it 'writes multiple events to socket' do
       socket = TestSocket.new
       dispatcher.stream do |sse|
-        sse.merge_fragments %(<div id="foo">\n<span>hello</span>\n</div>\n)
+        sse.merge_fragments %(<div id="foo">
+<span>hello</span>
+</div>
+)
         sse.merge_signals(foo: 'bar')
       end
 
       dispatcher.response.body.call(socket)
       expect(socket.open).to be(false)
       expect(socket.lines.size).to eq(2)
-      expect(socket.lines[0]).to eq("event: datastar-merge-fragments\ndata: fragments <div id=\"foo\">\ndata: fragments <span>hello</span>\ndata: fragments </div>\n\n\n")
-      expect(socket.lines[1]).to eq("event: datastar-merge-signals\ndata: signals {\"foo\":\"bar\"}\n\n\n")
+      expect(socket.lines[0]).to eq("event: state-merge-fragments\ndata: fragments <div id=\"foo\">
+data: fragments <span>hello</span>\ndata: fragments </div>\n\n\n")
+      expect(socket.lines[1]).to eq("event: state-merge-signals\ndata: signals {\"foo\":\"bar\"}\n\n\n")
     end
 
     it 'returns a Rack array response' do
@@ -351,7 +375,7 @@ RSpec.describe Datastar::Dispatcher do
     end
 
     context 'with multiple streams' do
-      let(:executor) { Datastar.config.executor }
+      let(:executor) { NexusUX.config.executor }
 
       describe 'default thread-based executor' do
         it_behaves_like 'a dispatcher handling concurrent streams'
@@ -364,13 +388,13 @@ RSpec.describe Datastar::Dispatcher do
           end
         end
 
-        let(:executor) { Datastar::AsyncExecutor.new }
+        let(:executor) { NexusUX::AsyncExecutor.new }
         it_behaves_like 'a dispatcher handling concurrent streams'
       end
     end
 
     specify ':heartbeat enabled' do
-      dispatcher = Datastar.new(request:, response:, heartbeat: 0.001)
+      dispatcher = NexusUX.new(request:, response:, heartbeat: 0.001)
       connected = true
       block_called = false
       dispatcher.on_client_disconnect { |conn| connected = false }
@@ -389,7 +413,7 @@ RSpec.describe Datastar::Dispatcher do
     end
 
     specify ':heartbeat disabled' do
-      dispatcher = Datastar.new(request:, response:, heartbeat: false)
+      dispatcher = NexusUX.new(request:, response:, heartbeat: false)
       connected = true
       block_called = false
       dispatcher.on_client_disconnect { |conn| connected = false }
@@ -415,7 +439,7 @@ RSpec.describe Datastar::Dispatcher do
         body: 'user[name]=joe&user[email]=joe@email.com'
       )
 
-      dispatcher = Datastar.new(request:, response:)
+      dispatcher = NexusUX.new(request:, response:)
       signals = nil
 
       dispatcher.stream do |sse|
@@ -486,7 +510,7 @@ RSpec.describe Datastar::Dispatcher do
     end
 
     specify '#on_error' do
-      allow(Datastar.config.logger).to receive(:error)
+      allow(NexusUX.config.logger).to receive(:error)
       errors = []
       dispatcher.on_error { |ex| errors << ex }
 
@@ -498,12 +522,12 @@ RSpec.describe Datastar::Dispatcher do
       
       dispatcher.response.body.call(socket)
       expect(errors.first).to be_a(ArgumentError)
-      expect(Datastar.config.logger).to have_received(:error).with(/ArgumentError \(Invalid argument\):/)
+      expect(NexusUX.config.logger).to have_received(:error).with(/ArgumentError \(Invalid argument\):/)
     end
 
     specify 'with global on_error' do
       errs = []
-      Datastar.config.on_error { |ex| errs << ex }
+      NexusUX.config.on_error { |ex| errs << ex }
       socket = TestSocket.new
       allow(socket).to receive(:<<).and_raise(ArgumentError, 'Invalid argument')
       
@@ -518,7 +542,7 @@ RSpec.describe Datastar::Dispatcher do
   private
 
   def build_request(path, method: 'GET', body: nil, content_type: 'application/json', accept: 'text/event-stream', headers: {})
-    headers = { 
+    headers = {
       'HTTP_ACCEPT' => accept, 
       'CONTENT_TYPE' => content_type,
       'REQUEST_METHOD' => method,

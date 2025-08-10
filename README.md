@@ -1,19 +1,19 @@
-[![Version](https://img.shields.io/github/package-json/v/starfederation/datastar?filename=library/package.json)](https://github.com/starfederation/datastar/releases)
-[![License](https://img.shields.io/github/license/starfederation/datastar)](https://github.com/starfederation/datastar/blob/main/LICENSE)
-[![Stars](https://img.shields.io/github/stars/starfederation/datastar?style=flat)](https://github.com/starfederation/datastar/stargazers)
+[![Version](https://img.shields.io/github/package-json/v/aereaco/nexus-ux?filename=library/package.json)](https://github.com/aereaco/nexus-ux/releases)
+[![License](https://img.shields.io/github/license/aereaco/nexus-ux)](https://github.com/aereaco/nexus-ux/blob/main/LICENSE)
+[![Stars](https://img.shields.io/github/stars/aereaco/nexus-ux?style=flat)](https://github.com/aereaco/nexus-ux/stargazers)
 
-<p align="center"><img width="200" src="https://data-star.dev/static/images/rocket.webp"></p>
+<p align="center"><img width="200" src="https://nexus.aerea.co/static/images/rocket.webp"></p>
 
-# Datastar
+# Nexus-UX
 
 ### The hypermedia framework.
 
-Datastar helps you build reactive web applications with the simplicity of server-side rendering and the power of a full-stack SPA framework.
+Nexus-UX helps you build reactive web applications with the simplicity of server-side rendering and the power of a full-stack SPA framework.
 
-Getting started is as easy as adding a single 20.0 KiB script tag to your HTML.
+Getting started is as easy as adding a single 22.8 KiB script tag to your HTML.
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v0.0.1-alpha/bundles/datastar.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@v0.0.1-alpha/bundles/nexus-ux.js"></script>
 ```
 
 Then start adding frontend reactivity using declarative <code>data-*</code> attributes.
@@ -24,19 +24,19 @@ Then start adding frontend reactivity using declarative <code>data-*</code> attr
 <button data-on-click="@post('/endpoint')">Save</button>
 ```
 
-Visit the [Datastar Website »](https://data-star.dev/)
+Visit the [Nexus-UX Website »](https://nexus.aerea.co/)
 
-Watch the [Videos »](https://www.youtube.com/@data-star)
+Watch the [Videos »](https://www.youtube.com/@nexus-ux)
 
 Join the [Discord Server »](https://discord.com/channels/1296224603642925098/1296224603642925102)
 
 ## Getting Started
 
-Read the [Getting Started Guide »](https://data-star.dev/guide/getting_started)
+Read the [Getting Started Guide »](https://nexus.aerea.co/guide/getting_started)
 
 ## Contributing
 
-Read the [Contribution Guidelines »](https://github.com/starfederation/datastar/blob/develop/CONTRIBUTING.md)
+Read the [Contribution Guidelines »](https://github.com/aereaco/nexus-ux/blob/develop/CONTRIBUTING.md)
 
 ## Custom Plugins
 
@@ -46,12 +46,12 @@ You can manually add your own plugins to the core:
 <script type="importmap">
 {
     "imports": {
-      "datastar": "https://cdn.jsdelivr.net/gh/starfederation/datastar@v0.0.1-alpha/bundles/datastar.js"
+      "nexus-ux": "https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@v0.0.1-alpha/bundles/nexus-ux.js"
     }
 }
 </script>
 <script type="module">
-    import { load } from 'datastar'
+    import { load } from 'nexus-ux'
 
     load(
         // Look ma’, I made a plugin!
@@ -59,4 +59,4 @@ You can manually add your own plugins to the core:
 </script>
 ```
 
-[![Star History Chart](https://api.star-history.com/svg?repos=starfederation/datastar&type=Date)](https://www.star-history.com/#starfederation/datastar&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=aereaco/nexus-ux&type=Date)](https://www.star-history.com/#aereaco/nexus-ux&Date)

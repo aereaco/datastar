@@ -3,8 +3,8 @@
     [clojure.string :as string]
     [examples.utils :as u]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
 
 
 ;; Tiny setup for that allows broadcasting events to several curl processes
@@ -26,7 +26,7 @@
         on-close
         (fn on-close [sse]
           (swap! !conns disj sse)
-          (println "Removed connection from pool"))}))))
+          (println "Removed connection from pool"))})))
 
 
 (def routes
@@ -78,4 +78,3 @@
   (u/reboot-jetty-server! #'handler {:async? true})
 
   (u/reboot-rj9a-server! #'handler {:async? true}))
-

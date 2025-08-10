@@ -4,7 +4,7 @@
     [test.examples.ring-handler :as rh]
     [lazytest.core :as lt :refer [defdescribe expect it]]
     [ring.adapter.jetty :as jetty]
-    [starfederation.datastar.clojure.adapter.ring :as jetty-gen])
+    [aereaco.nexus-ux.clojure.adapter.ring :as jetty-gen])
   (:import
     [org.eclipse.jetty.server Server ServerConnector]))
 
@@ -83,7 +83,3 @@
       (common/p-sse-status-ok? res)
       (common/p-sse-http1-headers-ok? res)
       (common/p-sse-body-ok? res))))
-
-
-
-

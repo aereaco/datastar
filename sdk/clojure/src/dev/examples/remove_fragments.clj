@@ -6,9 +6,9 @@
     [reitit.ring :as rr]
     [reitit.ring.middleware.parameters :as reitit-params]
     [ring.util.response :as ruresp]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]
-    [starfederation.datastar.clojure.consts :as consts]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]
+    [aereaco.nexus-ux.clojure.consts :as consts]))
 
 
 ;; Appending and removing fragments with the D* api
@@ -73,7 +73,7 @@
                ["/remove-fragment/:id" {:handler #'remove-fragment}]]))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (def handler
@@ -84,4 +84,3 @@
 
 (comment
   (u/reboot-hk-server! handler))
-

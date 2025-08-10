@@ -7,12 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
-
-	"github.com/starfederation/datastar/sdk/go/datastar"
 )
 
 const (
-	cdn  = "https://cdn.jsdelivr.net/gh/starfederation/datastar@develop/bundles/datastar.js"
+	cdn  = "https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@develop/bundles/nexus-ux.js"
 	port = 9001
 )
 
@@ -35,7 +33,7 @@ func main() {
 		</body>
 
 		</html>
-	`, cdn, style, datastar.GetSSE("/stream")))
+	`, cdn, style, state.GetSSE("/stream")))
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write(page)
@@ -45,7 +43,7 @@ func main() {
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 
-		sse := datastar.NewSSE(w, r)
+		sse := state.NewSSE(w, r)
 		for {
 			select {
 			case <-r.Context().Done():

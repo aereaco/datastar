@@ -19,7 +19,7 @@
                        com.github.flow-storm/flow-storm-web-plugin {:mvn/version "1.0.0-beta"}}
           :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
                      "-Dflowstorm.plugins.namespaces=flow-storm.plugins.web.all"
-                     "-Dclojure.storm.instrumentOnlyPrefixes=test.,reitit.,examples.,starfederation.,ring.adapter.jetty,org.httpkit.server"]}
+                     "-Dclojure.storm.instrumentOnlyPrefixes=test.,reitit.,examples.,aereaco.,ring.adapter.jetty,org.httpkit.server"]}
 
 
   
@@ -58,4 +58,3 @@
   :test.paths/adapter-ring-jetty ["src/test/adapter-ring-jetty"]
   :test.paths/adapter-rj9a       ["src/test/adapter-rj9a"]
   :test.paths/adapter-http-kit   ["src/test/adapter-http-kit"]}}
-

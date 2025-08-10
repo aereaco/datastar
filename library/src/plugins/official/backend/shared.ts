@@ -1,21 +1,21 @@
-import { DATASTAR } from '../../../engine/consts'
+import { STATE } from '../../../engine/consts'
 import type { HTMLorSVGElement } from '../../../engine/types'
 
-export const DATASTAR_FETCH_EVENT = `${DATASTAR}-fetch`
+export const STATE_FETCH_EVENT = `${STATE}-fetch`
 export const STARTED = 'started'
 export const FINISHED = 'finished'
 export const ERROR = 'error'
 export const RETRYING = 'retrying'
 export const RETRIES_FAILED = 'retrying'
 
-export interface DatastarFetchEvent {
+export interface StateFetchEvent {
   type: string
   el: HTMLorSVGElement
   argsRaw: Record<string, string>
 }
 
 export interface CustomEventMap {
-  [DATASTAR_FETCH_EVENT]: CustomEvent<DatastarFetchEvent>
+  [STATE_FETCH_EVENT]: CustomEvent<StateFetchEvent>
 }
 export type WatcherFn<K extends keyof CustomEventMap> = (
   this: Document,
@@ -37,13 +37,13 @@ declare global {
   }
 }
 
-export function datastarSSEEventWatcher(
+export function stateSSEEventWatcher(
   eventType: string,
   fn: (argsRaw: Record<string, string>) => void,
 ) {
   document.addEventListener(
-    DATASTAR_FETCH_EVENT,
-    (event: CustomEvent<DatastarFetchEvent>) => {
+    STATE_FETCH_EVENT,
+    (event: CustomEvent<StateFetchEvent>) => {
       if (event.detail.type !== eventType) return
       const { argsRaw } = event.detail
       fn(argsRaw)
@@ -57,9 +57,8 @@ export function dispatchFetch(
   argsRaw: Record<string, string>,
 ) {
   document.dispatchEvent(
-    new CustomEvent<DatastarFetchEvent>(DATASTAR_FETCH_EVENT, {
+    new CustomEvent<StateFetchEvent>(STATE_FETCH_EVENT, {
       detail: { type, el, argsRaw },
     }),
   )
 }
-

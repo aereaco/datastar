@@ -1,4 +1,4 @@
-# TypeScript SDK for Datastar
+# TypeScript SDK for Nexus-UX
 
 Implements the [SDK spec](../README.md) and exposes an abstract
 ServerSentEventGenerator class that can be used to implement runtime specific

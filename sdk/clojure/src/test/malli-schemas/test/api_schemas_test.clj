@@ -2,10 +2,10 @@
   (:require
     [lazytest.core :as lt :refer [defdescribe describe expect it]]
     [malli.instrument :as mi]
-    [starfederation.datastar.clojure.adapter.test :as at]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.api-schemas]
-    [starfederation.datastar.clojure.api.fragments :as frags])
+    [aereaco.nexus-ux.clojure.adapter.test :as at]
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.api-schemas]
+    [aereaco.nexus-ux.clojure.api.fragments :as frags])
   (:import
     clojure.lang.ExceptionInfo))
 
@@ -47,9 +47,9 @@
 (defdescribe malli-schemas
   (describe "without malli"
     (it "error can go through"
-      (expect (lt/throws? ExceptionInfo thunk-wrong-script-type))
+      (expect (lt/throws? clojure.lang.ExceptionInfo thunk-wrong-script-type))
       (expect (= (d*/execute-script! sse-gen dumy-script {d*/auto-remove :wrong-type})
-                 "event: datastar-execute-script\ndata: script console.log('hello')\n\n\n"))))
+                 "event: state-execute-script\ndata: script console.log('hello')\n\n\n"))))
 
   (describe "with malli"
     {:context [with-malli]}
@@ -63,10 +63,3 @@
     (it "doesn't trigger instrumentation"
       (expect (= (frags/->merge-fragment "" {d*/retry-duration :test})
                  [])))))
-
-
-
-
-
-
-

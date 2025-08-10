@@ -1,7 +1,7 @@
-//! Axum integration for Datastar.
+//! Axum integration for Nexus-UX.
 
 use {
-    crate::{Sse, TrySse, consts::DATASTAR_REQ_HEADER_STR, prelude::DatastarEvent},
+    crate::{Sse, TrySse, consts::STATE_REQ_HEADER_STR, prelude::StateEvent},
     axum::{
         Json,
         body::{Body, Bytes, HttpBody},
@@ -31,7 +31,7 @@ pin_project! {
 impl<S, I> IntoResponse for Sse<S>
 where
     S: Stream<Item = I> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
 {
     #[inline]
     fn into_response(self) -> Response {
@@ -42,7 +42,7 @@ where
 impl<S, I, E> IntoResponse for TrySse<S>
 where
     S: Stream<Item = Result<I, E>> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
     E: Into<Box<dyn std::error::Error + Send + Sync>>,
 {
     fn into_response(self) -> Response {
@@ -63,7 +63,7 @@ where
 
 impl<S, E> HttpBody for SseBody<S>
 where
-    S: Stream<Item = Result<DatastarEvent, E>>,
+    S: Stream<Item = Result<StateEvent, E>>,
 {
     type Data = Bytes;
     type Error = E;
@@ -86,16 +86,16 @@ where
 }
 
 #[derive(Deserialize)]
-struct DatastarParam {
-    datastar: serde_json::Value,
+struct StateParam {
+    state: serde_json::Value,
 }
 
-/// [`ReadSignals`] is a request extractor that reads datastar signals from the request.
+/// [`ReadSignals`] is a request extractor that reads state signals from the request.
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::prelude::ReadSignals;
+/// use nexus_ux::prelude::ReadSignals;
 /// use serde::Deserialize;
 ///
 /// #[derive(Deserialize)]
@@ -120,7 +120,7 @@ where
     type Rejection = Response;
 
     async fn from_request(req: Request, state: &S) -> Result<Option<Self>, Self::Rejection> {
-        if req.headers().get(DATASTAR_REQ_HEADER_STR).is_none() {
+        if req.headers().get(STATE_REQ_HEADER_STR).is_none() {
             return Ok(None);
         }
         Ok(Some(
@@ -138,11 +138,11 @@ where
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let json = match *req.method() {
             http::Method::GET => {
-                let query = Query::<DatastarParam>::from_request(req, state)
+                let query = Query::<StateParam>::from_request(req, state)
                     .await
                     .map_err(IntoResponse::into_response)?;
 
-                let signals = query.0.datastar.as_str().ok_or(
+                let signals = query.0.state.as_str().ok_or(
                     (http::StatusCode::BAD_REQUEST, "Failed to parse JSON str").into_response(),
                 )?;
 

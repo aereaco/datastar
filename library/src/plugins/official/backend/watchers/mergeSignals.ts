@@ -9,13 +9,13 @@ import {
 } from '../../../../engine/consts'
 import { PluginType, type WatcherPlugin } from '../../../../engine/types'
 import { isBoolString, jsStrToObject } from '../../../../utils/text'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const MergeSignals: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.MergeSignals,
   onGlobalInit: async (ctx) => {
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.MergeSignals,
       ({
         signals: raw = '{}',

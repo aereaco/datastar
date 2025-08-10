@@ -2,15 +2,15 @@
 (ns examples.snippets.polling2
   (:require
     [dev.onionpancakes.chassis.core :refer [html]]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.common :refer [on-open]]
-    [starfederation.datastar.clojure.adapter.test :as at :refer [->sse-response]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :refer [on-open]]
+    [aereaco.nexus-ux.clojure.adapter.test :as at :refer [->sse-response]]))
 
 #_{:clj-kondo/ignore true}
 (comment
   (require
-    '[starfederation.datastar.clojure.api :as d*]
-    '[starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]
+    '[aereaco.nexus-ux.clojure.api :as d*]
+    '[aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]
     '[some.hiccup.library :refer [html]]))
 
 (import
@@ -40,5 +40,3 @@
 
 (comment
   (handler {}))
-
-

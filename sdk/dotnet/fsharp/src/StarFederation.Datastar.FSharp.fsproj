@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <AssemblyName>StarFederation.Datastar.FSharp</AssemblyName>
+        <AssemblyName>AereaCo.NexusUX.FSharp</AssemblyName>
         <Version>1.0.0-beta.1</Version>
-        <RootNamespace>StarFederation.Datastar.FSharp</RootNamespace>
+        <RootNamespace>AereaCo.NexusUX.FSharp</RootNamespace>
         <Nullable>disabled</Nullable>
 
         <!-- General info -->
-        <Description>SDK for ServerSentEvents and convenience methods for Datastar</Description>
+        <Description>SDK for ServerSentEvents and convenience methods for Nexus-UX</Description>
         <Authors>Greg Holden and contributors</Authors>
         <NeutralLanguage>en-CA</NeutralLanguage>
 
@@ -18,21 +18,21 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <!-- NuGet config -->
-        <PackageId>StarFederation.Datastar.FSharp</PackageId>
-        <PackageTags>datastar;datastar-sharp;fsharp;functional;asp.net core;asp.net;.net core;routing;web;csharp</PackageTags>
-        <PackageProjectUrl>https://github.com/starfederation/datastar</PackageProjectUrl>
+        <PackageId>AereaCo.NexusUX.FSharp</PackageId>
+        <PackageTags>nexus-ux;nexus-ux-sharp;fsharp;functional;asp.net core;asp.net;.net core;routing;web;csharp</PackageTags>
+        <PackageProjectUrl>https://github.com/aereaco/nexus-ux</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageIcon>datastar_icon.png</PackageIcon>
+        <PackageIcon>nexus-ux_icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/starfederation/datastar</RepositoryUrl>
+        <RepositoryUrl>https://github.com/aereaco/nexus-ux</RepositoryUrl>
 
         <!-- SourceLink settings -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
-        <Title>StarFederation.Datastar.FSharp</Title>
+        <Title>AereaCo.NexusUX.FSharp</Title>
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
 
@@ -41,9 +41,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\assets\datastar_icon.png">
+        <None Include="..\..\assets\nexus-ux_icon.png">
           <Pack>true</Pack>
-          <Link>datastar_icon.png</Link>
+          <Link>nexus-ux_icon.png</Link>
           <PackagePath>$(PackageIconUrl)</PackagePath>
         </None>
         <Content Include="..\..\README.md">

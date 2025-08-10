@@ -1,4 +1,4 @@
-module github.com/starfederation/datastar
+module github.com/aereaco/nexus-ux
 
 go 1.24.2
 

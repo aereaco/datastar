@@ -355,5 +355,5 @@ MigrationBackup/
 # Rider (JetBrain's cross-platform .NET IDE) working folder
 .idea/
 
-# Datastar Bundles copied
+# Nexus-UX Bundles copied
 **/wwwroot/bundles/

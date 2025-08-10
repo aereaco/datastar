@@ -1,5 +1,5 @@
 import type { EffectFn, Signal } from '../vendored/preact-core'
-import { DATASTAR } from './consts'
+import { STATE } from './consts'
 import type { SignalsRoot } from './signals'
 
 export type CleanupUpdateCallback = () => void
@@ -14,7 +14,7 @@ export enum PluginType {
   Action = 3,
 }
 
-export interface DatastarPlugin {
+export interface StatePlugin {
   type: PluginType // The type of plugin
   name: string // The name of the plugin
 }
@@ -26,14 +26,14 @@ export enum Requirement {
   Exclusive = 3,
 }
 
-export interface DatastarSignalEvent {
+export interface StateSignalEvent {
   added: Array<string>
   removed: Array<string>
   updated: Array<string>
 }
-export const DATASTAR_SIGNAL_EVENT = `${DATASTAR}-signals`
+export const STATE_SIGNAL_EVENT = `${STATE}-signals`
 export interface CustomEventMap {
-  [DATASTAR_SIGNAL_EVENT]: CustomEvent<DatastarSignalEvent>
+  [STATE_SIGNAL_EVENT]: CustomEvent<StateSignalEvent>
 }
 export type WatcherFn<K extends keyof CustomEventMap> = (
   this: Document,
@@ -54,7 +54,7 @@ declare global {
 }
 
 // A plugin accesible via a `data-${name}` attribute on an element
-export interface AttributePlugin extends DatastarPlugin {
+export interface AttributePlugin extends StatePlugin {
   type: PluginType.Attribute
   onGlobalInit?: (ctx: InitContext) => void // Called once on registration of the plugin
   onLoad: (ctx: RuntimeContext) => {
@@ -73,8 +73,8 @@ export interface AttributePlugin extends DatastarPlugin {
   observesPerformance?: boolean; // NEW: Indicates if the plugin needs to observe performance events
 }
 
-// A plugin that runs on the global scope of the DastaStar instance
-export interface WatcherPlugin extends DatastarPlugin {
+// A plugin that runs on the global scope of the Nexus-UX instance
+export interface WatcherPlugin extends StatePlugin {
   type: PluginType.Watcher
   onGlobalInit?: (ctx: InitContext) => void
 }
@@ -82,7 +82,7 @@ export interface WatcherPlugin extends DatastarPlugin {
 export type ActionPlugins = Record<string, ActionPlugin>
 export type ActionMethod = (ctx: RuntimeContext, ...args: any[]) => any
 
-export interface ActionPlugin extends DatastarPlugin {
+export interface ActionPlugin extends StatePlugin {
   type: PluginType
   fn: ActionMethod
 }
@@ -90,7 +90,7 @@ export interface ActionPlugin extends DatastarPlugin {
 export type GlobalInitializer = (ctx: InitContext) => void
 
 export type InitContext = {
-  plugin: DatastarPlugin
+  plugin: StatePlugin
   signals: SignalsRoot
   effect: (fn: EffectFn) => CleanupUpdateCallback
   actions: Readonly<ActionPlugins>
@@ -102,7 +102,7 @@ export type HTMLorSVGElement = Element & (HTMLElement | SVGElement)
 export type Modifiers = Map<string, Set<string>> // mod name -> tags
 
 export type RuntimeContext = InitContext & {
-  plugin: DatastarPlugin // The name of the plugin
+  plugin: StatePlugin // The name of the plugin
   el: HTMLorSVGElement // The element the attribute is on
   rawKey: Readonly<string> // no parsing data-* key
   key: Readonly<string> // data-* key without the prefix or tags

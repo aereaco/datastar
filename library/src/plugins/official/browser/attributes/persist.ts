@@ -1,4 +1,4 @@
-import { DATASTAR } from '../../../../engine/consts'
+import { STATE } from '../../../../engine/consts'
 import {
   type AttributePlugin,
   PluginType,
@@ -13,7 +13,7 @@ export const Persist: AttributePlugin = {
   name: 'persist',
   keyReq: Requirement.Denied,
   onLoad: ({ effect, mods, signals, value }) => {
-    const storageKey = DATASTAR
+    const storageKey = STATE
     let currentStorage = mods.has('session') ? sessionStorage : localStorage
     let currentPaths = value !== '' ? value : '**'
 

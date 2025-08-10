@@ -1,7 +1,7 @@
 {%- func fsharpConsts(data *ConstTemplateData) -%}
 // {%s data.DoNotEdit %}
 
-namespace StarFederation.Datastar.FSharp
+namespace AereaCo.NexusUX.FSharp
 
 open System
 
@@ -12,7 +12,7 @@ type {%s enum.Name.Pascal %} =
 {% endfor %}
 {% endfor %}
 module Consts =
-    let [<Literal>] DatastarKey               = "{%s data.DatastarKey %}"
+    let [<Literal>] StateKey               = "{%s data.StateKey %}"
     let [<Literal>] Version                   = "{%s data.Version %}"
 
     {%- for _, d := range data.DefaultDurations -%}
@@ -22,7 +22,7 @@ module Consts =
 
     {%- for _, enum := range data.Enums -%}{%- if enum.DefaultIndex > -1 -%}
     /// Default: {%s enum.Default.Value %} - {%s enum.Default.Description %}
-    let Default{%s enum.Name.Pascal %} = {%s enum.Default.Name.Pascal %}{% endif %}{% endfor %}
+    let Default{%s enum.Name.Pascal %} = {%s enum.Name.Pascal %}::{%s enum.Default.Name.Pascal %}{% endif %}{% endfor %}
 
     {%- for _, b := range data.DefaultBools -%}
     let [<Literal>] Default{%s b.Name.Pascal %} = {%v b.Value %}
@@ -33,7 +33,7 @@ module Consts =
     {%- endfor -%}
 
     {%- for _, literal := range data.DatalineLiterals -%}
-    let [<Literal>] DatastarDataline{%s literal.Pascal %} = "{%s literal.Camel %}"
+    let [<Literal>] StateDataline{%s literal.Pascal %} = "{%s literal.Camel %}"
     {%- endfor -%}
 
 {%- for _, enum := range data.Enums -%}

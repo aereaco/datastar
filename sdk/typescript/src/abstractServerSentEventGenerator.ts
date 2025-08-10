@@ -1,12 +1,4 @@
-import {
-  DatastarEventOptions,
-  DefaultMapping,
-  EventType,
-  ExecuteScriptOptions,
-  FragmentOptions,
-  MergeFragmentsOptions,
-  MergeSignalsOptions,
-} from "./types.ts";
+import { StateEventOptions, DefaultMapping, EventType, ExecuteScriptOptions, FragmentOptions, MergeFragmentsOptions, MergeSignalsOptions } from "./types.ts";
 
 import {
   DefaultExecuteScriptAttributes,
@@ -39,7 +31,7 @@ export abstract class ServerSentEventGenerator {
   protected send(
     event: EventType,
     dataLines: string[],
-    options: DatastarEventOptions,
+    options: StateEventOptions,
   ): string[] {
     const { eventId, retryDuration } = options || {};
 
@@ -102,7 +94,7 @@ export abstract class ServerSentEventGenerator {
     const dataLines = this.eachOptionIsADataLine(renderOptions)
       .concat(this.eachNewlineIsADataLine("fragments", data));
 
-    return this.send("datastar-merge-fragments", dataLines, {
+    return this.send("state-merge-fragments", dataLines, {
       eventId,
       retryDuration,
     });
@@ -120,7 +112,7 @@ export abstract class ServerSentEventGenerator {
     const dataLines = this.eachOptionIsADataLine(eventOptions)
       .concat(this.eachNewlineIsADataLine("selector", selector));
 
-    return this.send("datastar-remove-fragments", dataLines, {
+    return this.send("state-remove-fragments", dataLines, {
       eventId,
       retryDuration,
     });
@@ -143,7 +135,7 @@ export abstract class ServerSentEventGenerator {
     const dataLines = this.eachOptionIsADataLine(eventOptions)
       .concat(this.eachNewlineIsADataLine("signals", signals));
 
-    return this.send("datastar-merge-signals", dataLines, {
+    return this.send("state-merge-signals", dataLines, {
       eventId,
       retryDuration,
     });
@@ -157,16 +149,16 @@ export abstract class ServerSentEventGenerator {
    */
   public removeSignals(
     paths: string[] | string,
-    options?: DatastarEventOptions,
+    options?: StateEventOptions,
   ): ReturnType<typeof this.send> {
-    const eventOptions = options || {} as DatastarEventOptions;
+    const eventOptions = options || {} as StateEventOptions;
     const pathsArray = typeof paths === "string"
       ? paths.split(" ")
       : paths.flatMap((path) => path.split(" "));
 
     const dataLines = pathsArray.map((path) => `paths ${path}`);
 
-    return this.send("datastar-remove-signals", dataLines, eventOptions);
+    return this.send("state-remove-signals", dataLines, eventOptions);
   }
 
   /**
@@ -203,7 +195,7 @@ export abstract class ServerSentEventGenerator {
       this.eachNewlineIsADataLine("script", script),
     );
 
-    return this.send("datastar-execute-script", dataLines, {
+    return this.send("state-execute-script", dataLines, {
       eventId,
       retryDuration,
     });

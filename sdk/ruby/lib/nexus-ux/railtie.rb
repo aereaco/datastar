@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+module NexusUX
+  class Railtie < ::Rails::Railtie
+    FINALIZE = proc do |view_context, response|
+      case view_context
+      when ActionView::Base
+        view_context.controller.response = response
+      else
+        raise ArgumentError, 'view_context must be an ActionView::Base'
+      end
+    end
+
+    initializer 'nexus_ux' do |_app|
+      NexusUX.config.finalize = FINALIZE
+
+      NexusUX.config.logger = Rails.logger
+
+      NexusUX.config.executor = if config.active_support.isolation_level == :fiber
+                                   require 'nexus_ux/rails_async_executor'
+                                   RailsAsyncExecutor.new
+                                 else
+                                   require 'nexus_ux/rails_thread_executor'
+                                   RailsThreadExecutor.new
+                                 end
+    end
+  end
+end

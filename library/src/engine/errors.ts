@@ -1,8 +1,8 @@
 import { snake } from '../utils/text'
-import { DATASTAR } from './consts'
+import { STATE } from './consts'
 import { type InitContext, PluginType, type RuntimeContext } from './types'
 
-const url = 'https://data-star.dev/errors'
+const url = 'https://nexus.aerea.co/errors'
 
 interface Metadata {
   error?: string
@@ -11,7 +11,7 @@ interface Metadata {
 
 function dserr(type: string, reason: string, metadata: Metadata = {}) {
   const e = new Error()
-  e.name = `${DATASTAR} ${type} error`
+  e.name = `${STATE} ${type} error`
   const r = snake(reason)
   const q = new URLSearchParams({
     metadata: JSON.stringify(metadata),

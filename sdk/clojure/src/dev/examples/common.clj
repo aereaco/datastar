@@ -2,13 +2,13 @@
   (:require
     [dev.onionpancakes.chassis.core :as h]
     [dev.onionpancakes.chassis.compiler :as hc]
-    [starfederation.datastar.clojure.consts :as consts]))
+    [aereaco.nexus-ux.clojure.consts :as consts]))
 
 
 (def cdn-url
-  (str "https://cdn.jsdelivr.net/gh/starfederation/datastar@"
+  (str "https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@"
        consts/version
-       "/bundles/datastar.js"))
+       "/bundles/nexus-ux.js"))
 
 
 (defn page-scaffold [body]

@@ -2,8 +2,8 @@
   (:require
     [examples.utils :as u]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open on-close]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open on-close]]))
 
 
 ;; Tiny setup for that allows broadcasting events to several curl processes
@@ -31,7 +31,7 @@
   (rr/router routes))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (def handler
@@ -54,4 +54,3 @@
   (broadcast-number! (rand-int 25))
   (u/clear-terminal!)
   (u/reboot-hk-server! #'handler))
-

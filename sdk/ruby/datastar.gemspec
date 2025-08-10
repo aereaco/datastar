@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require_relative 'lib/datastar/version'
+require_relative 'lib/nexus_ux/version'
 
 Gem::Specification.new do |spec|
-  spec.name = 'datastar'
-  spec.version = Datastar::VERSION
+  spec.name = 'nexus_ux'
+  spec.version = NexusUX::VERSION
   spec.authors = ['Ismael Celis']
   spec.email = ['ismaelct@gmail.com']
 
-  spec.summary = 'Ruby SDK for Datastar. Rack-compatible.'
-  spec.homepage = 'https://github.com/starfederation/datastar#readme'
+  spec.summary = 'Ruby SDK for Nexus-UX. Rack-compatible.'
+  spec.homepage = 'https://github.com/aereaco/nexus-ux#readme'
   spec.required_ruby_version = '>= 3.0.0'
 
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'https://github.com/starfederation/datastar'
+  spec.metadata['source_code_uri'] = 'https://github.com/aereaco/nexus-ux'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

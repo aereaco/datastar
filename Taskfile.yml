@@ -102,9 +102,9 @@ tasks:
       - git tag v{{.VERSION}}
       - git push origin --tags
       - npm publish --access public
-      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/bundles/datastar.js
+      - curl https://purge.jsdelivr.net/gh/aereaco/nexus-ux/bundles/datastar.js
       - git push origin --tags
-      - GOPROXY=proxy.golang.org go list -m github.com/starfederation/datastar@v{{.VERSION}}
+      - GOPROXY=proxy.golang.org go list -m github.com/aereaco/nexus-ux@v{{.VERSION}}
       - task: deploy
 
   sdktspub:
@@ -117,9 +117,9 @@ tasks:
       - git push origin --tags
       - deno run -A build.ts {{.VERSION}}
       - cd npm && npm publish --access public
-      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/web/serverSentEventGenerator.js
-      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/abstractServerSentEventGenerator.js
-      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/node/serverSentEventGenerator.js
+      - curl https://purge.jsdelivr.net/gh/aereaco/nexus-ux/sdk/typescript/npm/esm/web/serverSentEventGenerator.js
+      - curl https://purge.jsdelivr.net/gh/aereaco/nexus-ux/sdk/typescript/npm/esm/abstractServerSentEventGenerator.js
+      - curl https://purge.jsdelivr.net/gh/aereaco/nexus-ux/sdk/typescript/npm/esm/node/serverSentEventGenerator.js
       - git push origin --tags
 
   idiomorph:
@@ -190,13 +190,13 @@ tasks:
     deps:
       - support
     cmds:
-      - go test -v github.com/starfederation/datastar/site/smoketests -run '^TestUnit' -count=1 -timeout=1m
+      - go test -v github.com/aereaco/nexus-ux/site/smoketests -run '^TestUnit' -count=1 -timeout=1m
 
   test-all:
     deps:
       - support
     cmds:
-      - go test -v github.com/starfederation/datastar/site/smoketests -count=1 -timeout=1m
+      - go test -v github.com/aereaco/nexus-ux/site/smoketests -count=1 -timeout=1m
 
   default:
     cmds:

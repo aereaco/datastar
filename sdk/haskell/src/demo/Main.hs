@@ -33,9 +33,9 @@ main = do
 
 site :: Text -> Snap ()
 site indexText =
-    ifTop (writeText indexText) <|>
+    ifTop (writeText indexText) <|> 
     route [
-        ("favicon.ico" , return ())
+        ("favicon.ico" , return ()) 
       , ("feed"        , handlerFeed)
       , ("keats"       , handlerKeats)
       , ("signals"     , handlerSignals)
@@ -85,8 +85,8 @@ handlerFeed = do
       sendInApp removeDstar w
     writeNow :: SSEstream -> Int -> IO ()
     writeNow w n = do
-      now <- getCurrentTime >>=
-        return . T.pack . ((Prelude.replicate n '.') <> ) . show
+      now <- getCurrentTime >>= 
+        return . T.pack . ((Prelude.replicate n ".") <> ) . show
       sendInApp (feedDstar now) w
       threadDelay (1 * 1000 * 1000)
     writeBoth x w = putStrLn (T.unpack x) >> sendInApp (feedDstar x) w
@@ -104,7 +104,8 @@ handlerKeats = do
   runSSE (SSEapp (f ode))
   where
     f ::  Text -> SSEstream -> IO ()
-    f ode w =  foldM_ (\x -> foldSlowly w x) mempty (T.unpack ode)
+    f ode w =  foldM_ (
+      x -> foldSlowly w x) mempty (T.unpack ode)
     keatsDstar :: Text -> Text
     keatsDstar x =  mergeFragments ("<div>" <> textToHtml x <> "</div>") (SEL "#keats") Inner def def
     foldSlowly :: SSEstream -> Text ->  Char -> IO Text
@@ -130,7 +131,7 @@ textToHtml = T.concatMap escape
     escape '&'  = T.pack "&amp;"
     escape c    = T.singleton c
 
---    <script type="module" src="datastar.js"></script>
+--    <script type="module" src="nexus-ux.js"></script>
 
 ps :: Text ->  Snap ()
 ps =  liftIO . T.putStrLn

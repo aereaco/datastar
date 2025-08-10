@@ -1,4 +1,4 @@
-# Generic Clojure SDK for Datastar
+# Generic Clojure SDK for Nexus-UX
 
 This is where the code for the Generic SDK lives.
 
@@ -8,7 +8,7 @@ For now the SDK and adapters are distributed as git dependencies using a `deps.e
 If you roll your own adapter you only need:
 
 ```clojure
-{datastar/sdk {:git/url "https://github.com/starfederation/datastar/tree/develop"
+{nexus-ux/sdk {:git/url "https://github.com/aereaco/nexus-ux/tree/develop"
                :git/sha "LATEST SHA"
                :deps/root "sdk/clojure/sdk"}}
 ```

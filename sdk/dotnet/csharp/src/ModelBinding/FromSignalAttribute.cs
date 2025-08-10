@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace StarFederation.Datastar.ModelBinding;
+namespace AereaCo.NexusUX.ModelBinding;
 
-public class DatastarSignalsBindingSource(string path, JsonSerializerOptions? jsonSerializerOptions) : BindingSource(BindingSourceName, BindingSourceName, isGreedy: true, isFromRequest: true)
+public class StateSignalsBindingSource(string path, JsonSerializerOptions? jsonSerializerOptions) : BindingSource(BindingSourceName, BindingSourceName, isGreedy: true, isFromRequest: true)
 {
-    public const string BindingSourceName = "DatastarSignalsSource";
+    public const string BindingSourceName = "StateSignalsSource";
     public string BindingPath { get; } = path;
     public JsonSerializerOptions JsonSerializerOptions { get; } = jsonSerializerOptions ?? JsonSerializerOptions.Default;
 }
@@ -24,5 +24,5 @@ public class FromSignalsAttribute : Attribute, IBindingSourceMetadata
 {
     public string Path { get; set; } = String.Empty;
     public JsonSerializerOptions JsonSerializerOptions { get; set; } = JsonSerializerOptions.Default;
-    public BindingSource BindingSource => new DatastarSignalsBindingSource(Path, JsonSerializerOptions);
+    public BindingSource BindingSource => new StateSignalsBindingSource(Path, JsonSerializerOptions);
 }

@@ -3,7 +3,7 @@
 
 const std = @import("std");
 
-pub const datastar_key = "{%s data.DatastarKey %}";
+pub const state_key = "{%s data.StateKey %}";
 pub const version = "{%s data.Version %}";
 
 // #region Defaults

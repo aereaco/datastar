@@ -1,4 +1,4 @@
-//! Datastar is a Rust implementation of the [Datastar](https://data-star.dev) SDK specification.
+//! Nexus-UX is a Rust implementation of the [Nexus-UX](https://nexus.aerea.co) SDK specification.
 
 #![forbid(missing_docs)]
 #![forbid(missing_debug_implementations)]
@@ -26,14 +26,14 @@ struct ReadmeDoctests;
 
 pub mod consts;
 
-/// The prelude for the `datastar` crate
+/// The prelude for the `nexus-ux` crate
 pub mod prelude {
     #[cfg(feature = "axum")]
     pub use crate::axum::ReadSignals;
     #[cfg(all(feature = "rama", not(feature = "axum")))]
     pub use crate::rama::ReadSignals;
     pub use crate::{
-        DatastarEvent, Sse, TrySse, consts::FragmentMergeMode, execute_script::ExecuteScript,
+        StateEvent, Sse, TrySse, consts::FragmentMergeMode, execute_script::ExecuteScript,
         merge_fragments::MergeFragments, merge_signals::MergeSignals,
         remove_fragments::RemoveFragments, remove_signals::RemoveSignals,
     };
@@ -41,10 +41,10 @@ pub mod prelude {
 
 use core::{fmt::Display, time::Duration};
 
-/// [`DatastarEvent`] is a struct that represents a generic Datastar event.
-/// All Datastar events implement `Into<DatastarEvent>`.
+/// [`StateEvent`] is a struct that represents a generic Nexus-UX event.
+/// All Nexus-UX events implement `Into<StateEvent>`.
 #[derive(Debug)]
-pub struct DatastarEvent {
+pub struct StateEvent {
     /// `event` is the type of event.
     pub event: consts::EventType,
     /// `id` is can be used by the backend to replay events.
@@ -58,7 +58,7 @@ pub struct DatastarEvent {
     pub data: Vec<String>,
 }
 
-impl Display for DatastarEvent {
+impl Display for StateEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "event: {}", self.event.as_str())?;
 
@@ -81,10 +81,10 @@ impl Display for DatastarEvent {
     }
 }
 
-/// [`Sse`] is a wrapper around a stream of [`DatastarEvent`]s.
+/// [`Sse`] is a wrapper around a stream of [`StateEvent`]s.
 #[derive(Debug)]
 pub struct Sse<S>(pub S);
 
-/// [`TrySse`] is a wrapper around a stream of [`DatastarEvent`]s that can fail.
+/// [`TrySse`] is a wrapper around a stream of [`StateEvent`]s that can fail.
 #[derive(Debug)]
 pub struct TrySse<S>(pub S);

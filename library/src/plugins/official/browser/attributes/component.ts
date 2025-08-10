@@ -14,11 +14,11 @@ const componentDefinitionCache = new Map<string, Promise<void>>()
 
 // #region Base Component Class
 /**
- * Base class for all Nexus UX components. Provides lifecycle hooks, scoped utilities,
- * and integration with the Nexus UX reactivity system.
+ * Base class for all Nexus-UX components. Provides lifecycle hooks, scoped utilities,
+ * and integration with the Nexus-UX reactivity system.
  */
 export class BaseComponent extends HTMLElement {
-  // --- Internal properties for Nexus UX management ---
+  // --- Internal properties for Nexus-UX management ---
   // Functions to execute when the component is disconnected from the DOM.
   _cleanupFunctions: (() => void)[] = []
   // A unique ID for each component instance, used for scoped IDs.
@@ -29,7 +29,7 @@ export class BaseComponent extends HTMLElement {
   _componentSrc: string | null = null
   // Indicates if the component uses Shadow DOM.
   _isShadowDOM = false
-  // Stores the Nexus UX context for use in lifecycle methods like disconnectedCallback.
+  // Stores the Nexus-UX context for use in lifecycle methods like disconnectedCallback.
   _ctx?: Parameters<AttributePlugin['onLoad']>[0]
   // Flag to prevent double rendering
   _isRendered = false
@@ -119,7 +119,7 @@ export class BaseComponent extends HTMLElement {
   /**
    * A lifecycle hook intended for developers to override in their component's script.
    * It's called after the component's template has been attached and all initial
-   * Nexus UX attributes within it have been processed..
+   * Nexus-UX attributes within it have been processed..
    */
   contentReadyCallback() {
     // To be implemented by the component author.
@@ -133,7 +133,7 @@ export class BaseComponent extends HTMLElement {
    */
   async _loadAndRender(source: string) {
     if (!this._ctx) {
-      console.error(`[Nexus UX] Nexus UX context not available for <${this.tagName}>. Cannot load component source.`)
+      console.error(`[Nexus-UX] Nexus-UX context not available for <${this.tagName}>. Cannot load component source.`)
       return
     }
 
@@ -160,7 +160,7 @@ export class BaseComponent extends HTMLElement {
       }
 
       // IMPORTANT: Recursively walk the newly attached DOM within the component's root.
-      // This initializes all Nexus UX attributes (data-*, data-on-*, etc.) inside the component.
+      // This initializes all Nexus-UX attributes (data-*, data-on-*, etc.) inside the component.
       if (this._isShadowDOM) {
         Array.from(this.root.children).forEach(child => {
           this._ctx!.applyToElement(child as HTMLElement);
@@ -178,11 +178,11 @@ export class BaseComponent extends HTMLElement {
       try {
         this.contentReadyCallback()
       } catch (e) {
-        console.error(`[Nexus UX] Error in contentReadyCallback for <${this.tagName}>:`, e)
+        console.error(`[Nexus-UX] Error in contentReadyCallback for <${this.tagName}>:`, e)
       }
       this._isRendered = true
     } catch (error) {
-      console.error(`[Nexus UX] Error loading and rendering component <${this.tagName}> from source "${source}":`, error)
+      console.error(`[Nexus-UX] Error loading and rendering component <${this.tagName}> from source "${source}":`, error)
     }
   }
 
@@ -190,7 +190,7 @@ export class BaseComponent extends HTMLElement {
 
   /**
    * The standard `connectedCallback` for custom elements. This is where the component's
-   * content is attached, styles are applied, scripts are executed, and Nexus UX's
+   * content is attached, styles are applied, scripts are executed, and Nexus-UX's
    * reactivity is initialized within the component's DOM.
    */
   connectedCallback() {
@@ -200,7 +200,7 @@ export class BaseComponent extends HTMLElement {
       try {
         this._ctx.genRX()(connectedExpr)
       } catch (e) {
-        console.error(`[Nexus UX] Error in data-component-connected for <${this.tagName}>:`, e)
+        console.error(`[Nexus-UX] Error in data-component-connected for <${this.tagName}>:`, e)
       }
     }
 
@@ -226,7 +226,7 @@ export class BaseComponent extends HTMLElement {
         // Evaluate the expression in the context of the component instance.
         this._ctx.genRX()(disconnectExpr)
       } catch (e) {
-        console.error(`[Nexus UX] Error in data-on-disconnect for <${this.tagName}>:`, e)
+        console.error(`[Nexus-UX] Error in data-on-disconnect for <${this.tagName}>:`, e)
       }
     }
 
@@ -235,7 +235,7 @@ export class BaseComponent extends HTMLElement {
       try {
         fn()
       } catch (e) {
-        console.error(`[Nexus UX] Error during imperative cleanup for <${this.tagName}>:`, e)
+        console.error(`[Nexus-UX] Error during imperative cleanup for <${this.tagName}>:`, e)
       }
     })
     this._cleanupFunctions = [] // Clear the array after execution.
@@ -248,7 +248,7 @@ export class BaseComponent extends HTMLElement {
 /**
  * Intelligently retrieves the component's HTML content. It determines whether the
  * source is an inline template string or a URL to be fetched.
- * @param ctx The Nexus UX plugin context.
+ * @param ctx The Nexus-UX plugin context.
  * @param source The value of the data-component attribute (URL or inline HTML).
  * @returns A promise that resolves with the component's HTML string.
  */
@@ -259,7 +259,7 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
        try {
          evaluatedSource = ctx.genRX()(evaluatedSource)
        } catch (e) {
-         console.error(`[Nexus UX] Error evaluating dynamic component source "${source}":`, e)
+         console.error(`[Nexus-UX] Error evaluating dynamic component source "${source}":`, e)
          throw new Error(`Failed to evaluate dynamic component source: ${source}`)
        }
      }
@@ -287,7 +287,7 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
        }
        const templateElement = document.getElementById(fragmentId);
        if (!templateElement || !(templateElement instanceof HTMLTemplateElement)) {
-          throw new Error(`[Nexus UX] Template element with ID "${fragmentId}" not found or is not a <template> element on the current page.`);
+          throw new Error(`[Nexus-UX] Template element with ID "${fragmentId}" not found or is not a <template> element on the current page.`);
        }
        htmlContent = templateElement.outerHTML; // Get the <template> tag itself
      } else if (urlPart.trim().startsWith('<template>')) {
@@ -297,7 +297,7 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
        // Case: Data URL
        const parts = urlPart.split(',');
        if (parts.length < 2) {
-         throw new Error(`[Nexus UX] Invalid Data URL format: ${urlPart}`);
+         throw new Error(`[Nexus-UX] Invalid Data URL format: ${urlPart}`);
        }
        const metadata = parts[0].substring(5); // Remove "data:" prefix
        const data = parts.slice(1).join(','); // Re-join in case data itself contains commas
@@ -306,16 +306,17 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
          try {
            htmlContent = atob(data); // Decode base64
          } catch (e) {
-           throw new Error(`[Nexus UX] Failed to decode base64 data from Data URL: ${urlPart}. Error: ${e}`);
+           throw new Error(`[Nexus-UX] Failed to decode base64 data from Data URL: ${urlPart}. Error: ${e}`);
          }
        } else {
          htmlContent = decodeURIComponent(data); // Decode URI components for plain text
        }
      } else {
        // Case: URL (with or without fragment)
+       console.log(`[Nexus-UX Component] Fetching URL: ${urlPart}`);
        const response = await fetch(urlPart);
        if (!response.ok) {
-         throw new Error(`[Nexus UX] Failed to fetch component from ${urlPart}: ${response.statusText}`);
+         throw new Error(`[Nexus-UX] Failed to fetch component from ${urlPart}: ${response.statusText}`);
        }
        htmlContent = await response.text();
      }
@@ -326,13 +327,13 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
        // Find the main template element in the fetched document
        const mainTemplate = tempDoc.querySelector('template');
        if (!mainTemplate) {
-         throw new Error(`[Nexus UX] No <template> element found in fetched content from ${urlPart}.`);
+         throw new Error(`[Nexus-UX] No <template> element found in fetched content from ${urlPart}.`);
        }
 
        // Now, query within the content of that main template for the specific fragment ID
        const specificTemplate = mainTemplate.content.querySelector(`#${fragmentId}`);
        if (!specificTemplate || !(specificTemplate instanceof HTMLTemplateElement)) {
-         throw new Error(`[Nexus UX] Template with ID "${fragmentId}" not found or is not a <template> element within the main template in fetched content from ${urlPart}.`);
+         throw new Error(`[Nexus-UX] Template with ID "${fragmentId}" not found or is not a <template> element within the main template in fetched content from ${urlPart}.`);
        }
        return specificTemplate.outerHTML; // Return the specific <template> element's outerHTML
      }
@@ -350,15 +351,33 @@ async function getTemplateHtml(ctx: Parameters<AttributePlugin['onLoad']>[0], so
  */
 function parseComponentHTML(htmlString: string, tagName: string) {
   const doc = new DOMParser().parseFromString(htmlString, 'text/html')
-  const templateElement = doc.querySelector('template')
+  let templateElement = doc.querySelector('template')
+  let shadowMode: string | null = null;
+  let templateContent: DocumentFragment;
+  let styles: (HTMLStyleElement | HTMLLinkElement)[];
+  let scripts: HTMLScriptElement[];
+
   if (!templateElement) {
-    throw new Error(`Component HTML for <${tagName}> must be wrapped in a <template> tag.`)
+    // If no <template> tag is found, try to use the body content as the template
+    // This is a fallback for full HTML pages that are not pure fragments
+    console.warn(`[Nexus-UX] No <template> tag found for <${tagName}>. Attempting to use <body> content.`);
+    const body = doc.body;
+    if (!body) {
+      throw new Error(`[Nexus-UX] Could not find <body> or <template> for <${tagName}>.`);
+    }
+    // Create a new template element and put the body's children into it
+    templateElement = document.createElement('template');
+    while (body.firstChild) {
+      templateElement.content.appendChild(body.firstChild);
+    }
+    // No shadowMode if we're using body content as template
+    shadowMode = null;
   }
 
-  const shadowMode = templateElement.getAttribute('shadowrootmode')
-  const templateContent = templateElement.content
-  const styles = Array.from(templateContent.querySelectorAll('style, link[rel="stylesheet"]')) as (HTMLStyleElement | HTMLLinkElement)[];
-  const scripts = Array.from(templateContent.querySelectorAll('script')) as HTMLScriptElement[];
+  shadowMode = templateElement.getAttribute('shadowrootmode');
+  templateContent = templateElement.content;
+  styles = Array.from(templateContent.querySelectorAll('style, link[rel="stylesheet"]')) as (HTMLStyleElement | HTMLLinkElement)[];
+  scripts = Array.from(templateContent.querySelectorAll('script')) as HTMLScriptElement[];
 
   // Remove styles and scripts from the template content. They will be processed
   // and appended separately to prevent double processing or incorrect rendering.
@@ -387,7 +406,7 @@ function applyStyles(root: ShadowRoot | HTMLElement, styles: (HTMLStyleElement |
             sheet.replaceSync(styleNode.textContent || '')
             return sheet
           } catch (e) {
-            console.warn(`[Nexus UX] Could not construct stylesheet for <${tagName}>. Fallback to appending.`, e)
+            console.warn(`[Nexus-UX] Could not construct stylesheet for <${tagName}>. Fallback to appending.`, e)
             return null
           }
         }
@@ -409,9 +428,9 @@ function applyStyles(root: ShadowRoot | HTMLElement, styles: (HTMLStyleElement |
 
 /**
  * Safely executes scripts found within a component's template. Inline scripts are
- * executed with a special context, providing access to Nexus UX's core functions
+ * executed with a special context, providing access to Nexus-UX's core functions
  * and component-specific utilities.
- * @param ctx The Nexus UX plugin context.
+ * @param ctx The Nexus-UX plugin context.
  * @param scripts An array of script nodes (HTMLScriptElement).
  * @param componentInstance The custom element instance.
  */
@@ -483,7 +502,7 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
       URL.revokeObjectURL(moduleUrl);
 
     } catch (e) {
-      console.error(`[Nexus UX] Error executing inline script for <${componentInstance.tagName}>:`, e);
+      console.error(`[Nexus-UX] Error executing inline script for <${componentInstance.tagName}>:`, e);
     }
   });
 
@@ -496,7 +515,7 @@ function executeScripts(ctx: Parameters<AttributePlugin['onLoad']>[0], scripts: 
 /**
  * Defines a custom element class based on the provided template content and metadata.
  * This function ensures that a custom element is defined only once per tag name.
- * @param ctx The Nexus UX plugin context.
+ * @param ctx The Nexus-UX plugin context.
  * @param el The original HTML element with the data-component attribute.
  * @param componentSrc The source URL or inline HTML of the component.
  * @param formAssociated True if the component is form-associated.
@@ -514,7 +533,7 @@ async function defineComponent(
 
   // If componentSrc is null or empty, there's nothing to define.
   if (!componentSrc) {
-    console.warn(`[Nexus UX] Attempted to define component <${tagName}> with null or empty source. Skipping.`);
+    console.warn(`[Nexus-UX] Attempted to define component <${tagName}> with null or empty source. Skipping.`);
     return;
   }
 
@@ -542,14 +561,14 @@ async function defineComponent(
 
 /**
  * The main attribute handler for `data-component`. This function is executed by the
- * Nexus UX engine whenever it encounters the attribute during its `walk` process.
+ * Nexus-UX engine whenever it encounters the attribute during its `walk` process.
  * It orchestrates the component's definition, reactive property setup, and conditional loading.
  */
 export const Component: AttributePlugin = {
   type: PluginType.Attribute,
   name: 'component',
   keyReq: Requirement.Allowed, // data-component does not use a key (e.g., data-component:key)
-  valReq: Requirement.Must,   // data-component requires a value (the source URL or inline HTML)
+  valReq: Requirement.Allowed, // data-component does not require a value (the source URL or inline HTML)
   onLoad: (ctx) => {
     const { el, value: initialComponentSrc, signals, effect } = ctx
     const tagName = el.tagName.toLowerCase()
@@ -571,7 +590,7 @@ export const Component: AttributePlugin = {
         const { signal: propSignal } = signals.upsertIfMissing<any>(signalPath, undefined);
         propSignals[propName] = propSignal;
         
-        // Create a Nexus UX effect to keep this prop signal updated reactively.
+        // Create a Nexus-UX effect to keep this prop signal updated reactively.
         // Whenever the expression in the data-signals-* attribute changes, this effect re-runs.
         effect(() => {
           propSignal.value = ctx.genRX()(attr.value)
@@ -585,6 +604,19 @@ export const Component: AttributePlugin = {
     // 2. Handle component definition and rendering.
     const isFormAssociated = el.hasAttribute('data-component:formAssociated');
 
+    // Auto-inject router params into props if this component is a router outlet
+    if (initialComponentSrc.includes('$router.')) {
+        effect(() => {
+            const routerParams = signals.signal<object>('$router.params')?.value;
+            if (routerParams) {
+                const propsSignal = signals.signal<object>(`${tagName}.$props`);
+                if (propsSignal) {
+                    propsSignal.value = { ...propsSignal.value, ...routerParams };
+                }
+            }
+        });
+    }
+
     // Create a signal to hold the resolved component source (static path, inline template, or resolved dynamic signal)
     const { signal: resolvedComponentSourceSignal } = signals.upsertIfMissing<string | null>(`${tagName}._resolvedComponentSource`, initialComponentSrc);
 
@@ -593,20 +625,22 @@ export const Component: AttributePlugin = {
       const currentComponentSrc = ctx.value;
       if (currentComponentSrc && currentComponentSrc.startsWith('$')) {
         try {
-          const resolvedValue = ctx.genRX()(currentComponentSrc);
+          const resolvedValue = ctx.rx<string | null>();
           if (typeof resolvedValue === 'string') {
             resolvedComponentSourceSignal.value = resolvedValue;
           } else {
-            console.warn(`[Nexus UX] Dynamic component source "${currentComponentSrc}" resolved to a non-string value:`, resolvedValue);
+            console.warn(`[Nexus-UX] Dynamic component source "${currentComponentSrc}" resolved to a non-string value:`, resolvedValue);
             resolvedComponentSourceSignal.value = null; // Set to null to prevent further errors
           }
         } catch (e) {
-          console.error(`[Nexus UX] Error resolving dynamic component source "${currentComponentSrc}":`, e);
+          console.error(`[Nexus-UX] Error resolving dynamic component source "${currentComponentSrc}":`, e);
           resolvedComponentSourceSignal.value = null; // Set to null to prevent further errors
         }
-      } else if (typeof currentComponentSrc === 'string') {
+      }
+      else if (typeof currentComponentSrc === 'string') {
         resolvedComponentSourceSignal.value = currentComponentSrc;
-      } else {
+      }
+      else {
         resolvedComponentSourceSignal.value = null; // Handle null or non-string initial values
       }
     });
@@ -616,31 +650,36 @@ export const Component: AttributePlugin = {
       const currentResolvedSource = resolvedComponentSourceSignal.value;
       if (!currentResolvedSource) return; // Do nothing if source is empty or null
 
-      const definitionCacheKey = `${tagName}-${currentResolvedSource}`;
-      if (!componentDefinitionCache.has(definitionCacheKey)) {
-        const definitionPromise = defineComponent(ctx, el as HTMLElement, currentResolvedSource, isFormAssociated)
-          .catch(error => {
-            console.error(`[Nexus UX] Error defining component <${tagName}> from source "${currentResolvedSource}":`, error);
-            throw error; // Re-throw the error to propagate it further if needed.
-          });
-        componentDefinitionCache.set(definitionCacheKey, definitionPromise);
-      }
+      try {
+        const definitionCacheKey = `${tagName}-${currentResolvedSource}`;
+        if (!componentDefinitionCache.has(definitionCacheKey)) {
+          const definitionPromise = defineComponent(ctx, el as HTMLElement, currentResolvedSource, isFormAssociated)
+            .catch(error => {
+              console.error(`[Nexus-UX] Error defining component <${tagName}> from source "${currentResolvedSource}":`, error);
+              return Promise.reject(error); // Re-reject to be caught by the outer try/catch
+            });
+          componentDefinitionCache.set(definitionCacheKey, definitionPromise);
+        }
 
-      // Wait for the custom element class to be fully defined before proceeding.
-      await componentDefinitionCache.get(definitionCacheKey);
+        // Wait for the custom element class to be fully defined before proceeding.
+        await componentDefinitionCache.get(definitionCacheKey);
 
-      // If the element is already an instance of BaseComponent, trigger re-render
-      if (el instanceof BaseComponent) {
-        // Re-parse the new source and update the instance's properties
-        const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
-        const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
+        // If the element is already an instance of BaseComponent, trigger re-render
+        if (el instanceof BaseComponent) {
+          // Re-parse the new source and update the instance's properties
+          const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
+          const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
 
-        el._templateContent = templateContent;
-        el._styles = styles;
-        el._scripts = scripts;
-        el._isShadowDOM = !!shadowMode;
+          el._templateContent = templateContent;
+          el._styles = styles;
+          el._scripts = scripts;
+          el._isShadowDOM = !!shadowMode;
 
-        el._loadAndRender(currentResolvedSource);
+          el._loadAndRender(currentResolvedSource);
+        }
+      } catch (error) {
+        console.error(`[Nexus-UX] Component <${tagName}> failed to render from source "${currentResolvedSource}":`, error);
+        // Do not re-throw, allow other components to render.
       }
     });
 

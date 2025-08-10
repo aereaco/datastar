@@ -1,10 +1,10 @@
 require 'bundler'
 Bundler.setup(:test)
 
-require 'datastar'
+require 'nexus_ux'
 
 # This is a test Rack endpoint to run
-# Datastar's SDK test suite agains.
+# Nexus-UX's SDK test suite agains.
 # To run:
 #
 #   # install dependencies
@@ -13,12 +13,12 @@ require 'datastar'
 #   bundle exec puma examples/test.ru
 #
 # Then you can run SDK's test bash script:
-# See https://github.com/starfederation/datastar/blob/develop/sdk/test/README.md
+# See https://github.com/aereaco/nexus-ux/blob/develop/sdk/test/README.md
 #
 #   ./test-all.sh http://localhost:9292
 #
 run do |env|
-  datastar = Datastar
+  nexus_ux = NexusUX
              .from_rack_env(env)
              .on_connect do |socket|
     p ['connect', socket]
@@ -31,7 +31,7 @@ run do |env|
     puts error.backtrace.join("\n")
   end
 
-  datastar.stream do |sse|
+  nexus_ux.stream do |sse|
     sse.signals['events'].each do |event|
       type = event.delete('type')
       case type

@@ -1,18 +1,18 @@
 //! [`RemoveSignals`] sends signals to the browser to be removed from the signals.
 
 use {
-    crate::{DatastarEvent, consts},
+    crate::{StateEvent, consts},
     core::time::Duration,
 };
 
 /// [`RemoveSignals`] sends signals to the browser to be removed from the signals.
 ///
-/// See the [Datastar documentation](https://data-star.dev/reference/sse_events#datastar-remove-signals) for more information.
+/// See the [Nexus-UX documentation](https://nexus.aerea.co/reference/sse_events#state-remove-signals) for more information.
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::prelude::{Sse, RemoveSignals};
+/// use nexus_ux::prelude::{Sse, RemoveSignals};
 /// use async_stream::stream;
 ///
 /// Sse(stream! {
@@ -30,7 +30,7 @@ pub struct RemoveSignals {
     pub retry: Duration,
     /// `paths` is a list of strings that represent the signal paths to be removed from the signals.
     /// The paths ***must*** be valid . delimited paths to signals within the signals.
-    /// The Datastar client side will use these paths to remove the data from the signals.
+    /// The Nexus-UX client side will use these paths to remove the data from the signals.
     pub paths: Vec<String>,
 }
 
@@ -56,14 +56,14 @@ impl RemoveSignals {
         self
     }
 
-    /// Converts this [`RemoveSignals`] into a [`DatastarEvent`].
+    /// Converts this [`RemoveSignals`] into a [`StateEvent`].
     #[inline]
-    pub fn into_event(self) -> DatastarEvent {
+    pub fn into_event(self) -> StateEvent {
         self.into()
     }
 }
 
-impl From<RemoveSignals> for DatastarEvent {
+impl From<RemoveSignals> for StateEvent {
     fn from(val: RemoveSignals) -> Self {
         let mut data: Vec<String> = Vec::new();
 

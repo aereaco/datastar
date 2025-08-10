@@ -9,8 +9,8 @@
     [reitit.ring :as rr]
     [reitit.ring.middleware.parameters :as params]
     [reitit.ring.middleware.multipart :as mpparams]
-    [starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 
 ;; Trying out several way we might rightly and wrongly use html forms
@@ -83,7 +83,7 @@
         signals (u/get-signals request)
         val (or input-val (get signals "input-1"))]
     (->sse-response request
-      {on-open
+      {ac/on-open
        (fn [sse-gen]
          (u/clear-terminal!)
          (? (dissoc request :reitit.core/match :reitit.core/router))
@@ -109,7 +109,7 @@
 
 (def handler
   (rr/ring-handler router
-                   (rr/create-default-handler)
+                   (rr/create-default-handler())
                    {:middleware [params/parameters-middleware]}))
 
 

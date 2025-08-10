@@ -1,16 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
-using StarFederation.Datastar.DependencyInjection;
+using AereaCo.NexusUX.DependencyInjection;
 
-namespace StarFederation.Datastar.ModelBinding;
+namespace AereaCo.NexusUX.ModelBinding;
 
 public static class ServiceCollectionExtensionMethods
 {
-    public static IServiceCollection AddDatastarMvc(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddNexusUXMvc(this IServiceCollection serviceCollection)
     {
         // ReSharper disable once SuspiciousTypeConversion.Global
-        if (!serviceCollection.Any(_ => _.ServiceType == typeof(IDatastarSignalsReaderService)))
+        if (!serviceCollection.Any(_ => _.ServiceType == typeof(IStateSignalsReaderService)))
         {
-            throw new Exception($"{nameof(AddDatastarMvc)} requires that {nameof(StarFederation.Datastar.DependencyInjection.ServiceCollectionExtensionMethods.AddDatastar)} is added first");
+            throw new Exception($"{nameof(AddNexusUXMvc)} requires that {nameof(AereaCo.NexusUX.DependencyInjection.ServiceCollectionExtensionMethods.AddNexusUX)} is added first");
         }
 
         serviceCollection.AddControllers(options => options.ModelBinderProviders.Insert(0, new SignalsModelBinderProvider()));

@@ -1,18 +1,18 @@
 //! [`ExecuteScript`] executes JavaScript in the browser.
 
 use {
-    crate::{DatastarEvent, consts},
+    crate::{StateEvent, consts},
     core::time::Duration,
 };
 
 /// [`ExecuteScript`] executes JavaScript in the browser
 ///
-/// See the [Datastar documentation](https://data-star.dev/reference/sse_events#datastar-execute-script).
+/// See the [Nexus-UX documentation](https://nexus.aerea.co/reference/sse_events#state-execute-script).
 ///
 /// # Examples
 ///
 /// ```
-/// use datastar::prelude::{Sse, ExecuteScript};
+/// use nexus_ux::prelude::{Sse, ExecuteScript};
 /// use async_stream::stream;
 ///
 /// Sse(stream! {
@@ -22,7 +22,6 @@ use {
 /// });
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-
 pub struct ExecuteScript {
     /// `id` can be used by the backend to replay events.
     /// This is part of the SSE spec and is used to tell the browser how to handle the event.
@@ -33,9 +32,9 @@ pub struct ExecuteScript {
     pub retry: Duration,
     /// `script` is a string that represents the JavaScript to be executed by the browser.
     pub script: String,
-    /// Whether to remove the script after execution, if not provided the Datastar client side will default to `true`.
+    /// Whether to remove the script after execution, if not provided the Nexus-UX client side will default to `true`.
     pub auto_remove: bool,
-    /// A list of attributes to add to the script element, if not provided the Datastar client side will default to `type module`.
+    /// A list of attributes to add to the script element, if not provided the Nexus-UX client side will default to `type module`.
     /// Each item in the array ***must*** be a string in the format `key value`.
     pub attributes: Vec<String>,
 }
@@ -76,14 +75,14 @@ impl ExecuteScript {
         self
     }
 
-    /// Converts this [`ExecuteScript`] into a [`DatastarEvent`].
+    /// Converts this [`ExecuteScript`] into a [`StateEvent`].
     #[inline]
-    pub fn into_event(self) -> DatastarEvent {
+    pub fn into_event(self) -> StateEvent {
         self.into()
     }
 }
 
-impl From<ExecuteScript> for DatastarEvent {
+impl From<ExecuteScript> for StateEvent {
     fn from(val: ExecuteScript) -> Self {
         let mut data: Vec<String> = Vec::new();
 

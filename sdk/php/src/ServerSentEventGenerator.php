@@ -3,15 +3,15 @@
  * @copyright Copyright (c) PutYourLightsOn
  */
 
-namespace starfederation\datastar;
+namespace aereaco\nexus-ux;
 
-use starfederation\datastar\enums\FragmentMergeMode;
-use starfederation\datastar\events\EventInterface;
-use starfederation\datastar\events\ExecuteScript;
-use starfederation\datastar\events\MergeFragments;
-use starfederation\datastar\events\MergeSignals;
-use starfederation\datastar\events\RemoveFragments;
-use starfederation\datastar\events\RemoveSignals;
+use aereaco\nexus-ux\enums\FragmentMergeMode;
+use aereaco\nexus-ux\events\EventInterface;
+use aereaco\nexus-ux\events\ExecuteScript;
+use aereaco\nexus-ux\events\MergeFragments;
+use aereaco\nexus-ux\events\MergeSignals;
+use aereaco\nexus-ux\events\RemoveFragments;
+use aereaco\nexus-ux\events\RemoveSignals;
 
 class ServerSentEventGenerator
 {
@@ -42,7 +42,7 @@ class ServerSentEventGenerator
      */
     public static function readSignals(): array
     {
-        $input = $_GET[Consts::DATASTAR_KEY] ?? file_get_contents('php://input');
+        $input = $_GET[Consts::STATE_KEY] ?? file_get_contents('php://input');
 
         return $input ? json_decode($input, true) : [];
     }
@@ -79,7 +79,7 @@ class ServerSentEventGenerator
      *     useViewTransition?: bool|null,
      *     eventId?: string|null,
      *     retryDuration?: int|null,
-     * } $options
+     * }
      */
     public function mergeFragments(string $fragments, array $options = []): string
     {
@@ -92,7 +92,7 @@ class ServerSentEventGenerator
      * @param array{
      *      eventId?: string|null,
      *      retryDuration?: int|null,
-     *  } $options
+     *  }
      */
     public function removeFragments(string $selector, array $options = []): string
     {
@@ -128,7 +128,7 @@ class ServerSentEventGenerator
      */
     public function location(string $uri, array $options = []): string
     {
-        $script = "setTimeout(() => window.location = '$uri')";
+        $script = "setTimeout(() => window.location = '$uri'");
         
         return $this->executeScript($script, $options);
     }

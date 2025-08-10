@@ -4,7 +4,7 @@
     [test.examples.http-kit-handler :as hkh]
     [lazytest.core :as lt :refer [defdescribe expect it]]
     [org.httpkit.server :as hk-server]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]))
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]))
 
 ;; -----------------------------------------------------------------------------
 ;; HTTP-Kit stuff
@@ -69,4 +69,3 @@
       (common/p-sse-status-ok? res)
       (common/p-sse-http1-headers-ok? res)
       (common/p-sse-body-ok? res))))
-

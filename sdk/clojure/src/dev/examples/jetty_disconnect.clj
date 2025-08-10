@@ -2,8 +2,8 @@
   (:require
     [examples.utils :as u]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
 
 
 ;; This is a small experiment to determine the behaviour of
@@ -19,7 +19,8 @@
   (let [b (StringBuilder.)]
     (doseq [i (range 10000)]
       (doto ^StringBuilder b
-        (.append (str "-------------" i "-----------------\n"))))
+        (.append (str "-------------" i "-----------------\
+"))))
     (str b)))
 
 
@@ -69,7 +70,3 @@
 
   (u/clear-terminal!)
   (u/reboot-jetty-server! #'handler {:async? true}))
-
-
-
-

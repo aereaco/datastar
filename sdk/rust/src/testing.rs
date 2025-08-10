@@ -108,7 +108,7 @@ impl TestEvent {
     }
 }
 
-pub(crate) fn test(events: Vec<TestEvent>) -> impl Stream<Item = DatastarEvent> + Send + 'static {
+pub(crate) fn test(events: Vec<TestEvent>) -> impl Stream<Item = StateEvent> + Send + 'static {
     stream! {
         for event in events {
             yield match event {
@@ -120,12 +120,12 @@ pub(crate) fn test(events: Vec<TestEvent>) -> impl Stream<Item = DatastarEvent> 
                     auto_remove,
                 } => {
                     let attributes = attributes
-                        .map(|attrs| {
+                        .map(|attrs|
                             attrs
                                 .as_object()
                                 .unwrap()
                                 .iter()
-                                .map(|(name, value)| {
+                                .map(|(name, value)|
                                     format!("{} {}", name, value.as_str().unwrap())
                                 })
                                 .collect()
@@ -231,10 +231,10 @@ pub(crate) async fn base_test_server(base_url: &str) {
                 .expect("Failed to serialize events");
                 client
                     .get(url)
-                    .query(&[("datastar", json_string)])
+                    .query(&[("state", json_string)])
                     .header(
                         if body.is_some() {
-                            "datastar-request"
+                            "state-request"
                         } else {
                             "normal-request"
                         },
@@ -258,8 +258,9 @@ pub(crate) async fn base_test_server(base_url: &str) {
                 .post(url)
                 .header(
                     if body.is_some() {
-                        "datastar-request"
-                    } else {
+                        "state-request"
+                    }
+                    else {
                         "normal-request"
                     },
                     "1",

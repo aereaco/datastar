@@ -13,5 +13,5 @@ clojure -M:repl -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 - main:
 
 ```
-clojure -M -m starfederation.datastar.clojure.sdk-test.main
+clojure -M -m aereaco.nexusux.clojure.sdk-test.main
 ```

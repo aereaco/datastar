@@ -1,8 +1,8 @@
-# Haskell SDK for Datastar
+# Haskell SDK for Nexus-UX
 
-After familiarizing yourself with the functionality of Datastar, this
+After familiarizing yourself with the functionality of Nexus-UX, this
 haskell interface basically comes down to a few main functions
-specified in the Datastar sdK
+specified in the Nexus-UX sdK
 
     mergeFragments  :: Text -> Selector -> MergeMode -> FragmentOptions -> Options -> Text
     removeFragments :: Selector  -> FragmentOptions -> Options -> Text
@@ -47,7 +47,7 @@ dealing with it directly.
 Finally, the demo, which you can try out by typing "./run" in the 
 top level directory and pointing your browser to:
   http://localhost:8000/
-will give you a simple demo of some Datastar features and show that
+will give you a simple demo of some Nexus-UX features and show that
 streaming SSE events to the browser work. 
 
 The code itself is extensively documented, with many doctest examples
@@ -56,5 +56,4 @@ that show up in the Haddock files.
 Best wishes,  
 Henry Laxen  
 nadine.and.henry@pobox.com  
-http://nadineloveshenry.com/  
-
+http://nadineloveshenry.com/

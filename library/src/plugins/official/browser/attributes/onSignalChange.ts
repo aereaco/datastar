@@ -1,7 +1,8 @@
+
 import {
   type AttributePlugin,
-  DATASTAR_SIGNAL_EVENT,
-  type DatastarSignalEvent,
+  STATE_SIGNAL_EVENT,
+  type StateSignalEvent,
   PluginType,
   Requirement,
   type MutationUpdateCallback,
@@ -27,12 +28,12 @@ export const OnSignalChange: AttributePlugin = {
       callback = modifyViewTransition(callback, mods)
 
       if (key === '') {
-        const signalFn = (event: CustomEvent<DatastarSignalEvent>) =>
+        const signalFn = (event: CustomEvent<StateSignalEvent>) =>
           callback(event)
-        document.addEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+        document.addEventListener(STATE_SIGNAL_EVENT, signalFn)
 
         currentCleanup = () => {
-          document.removeEventListener(DATASTAR_SIGNAL_EVENT, signalFn)
+          document.removeEventListener(STATE_SIGNAL_EVENT, signalFn)
         }
       } else {
         const pattern = modifyCasing(key, mods)

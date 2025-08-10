@@ -8,7 +8,7 @@ import {
 import { kebab, modifyCasing } from '../../../../utils/text'
 import { modifyTiming } from '../../../../utils/timing'
 import { modifyViewTransition } from '../../../../utils/view-transtions'
-import { DATASTAR_FETCH_EVENT } from '../../backend/shared'
+import { STATE_FETCH_EVENT } from '../../backend/shared'
 
 export const On: AttributePlugin = {
   type: PluginType.Attribute,
@@ -71,7 +71,7 @@ export const On: AttributePlugin = {
       let eventName = kebab(key);
       eventName = modifyCasing(eventName, mods);
 
-      if (eventName === DATASTAR_FETCH_EVENT) {
+      if (eventName === STATE_FETCH_EVENT) {
         target = document;
       }
 

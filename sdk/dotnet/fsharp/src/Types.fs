@@ -1,4 +1,4 @@
-namespace StarFederation.Datastar.FSharp
+namespace AereaCo.NexusUX.FSharp
 
 open System
 open System.Collections.Generic
@@ -8,16 +8,16 @@ open System.Text.Json.Nodes
 open System.Text.RegularExpressions
 open System.Threading
 open System.Threading.Tasks
-open StarFederation.Datastar.FSharp.Utility
+open AereaCo.NexusUX.FSharp.Utility
 
-type ServerSentEvent =
+type ServerSentEvent = 
     { EventType: EventType
       Id: string voption
       Retry: TimeSpan
       DataLines: string[] }
 
 /// <summary>
-/// Signals read to and from Datastar on the front end
+/// Signals read to and from Nexus-UX on the front end
 /// </summary>
 type Signals = string
 
@@ -31,21 +31,21 @@ type SignalPath = string
 /// </summary>
 type Selector = string
 
-type MergeFragmentsOptions =
+type MergeFragmentsOptions = 
     { Selector: Selector voption
       MergeMode: FragmentMergeMode
       UseViewTransition: bool
       EventId: string voption
       Retry: TimeSpan }
-type MergeSignalsOptions =
+type MergeSignalsOptions = 
     { OnlyIfMissing: bool
       EventId: string voption
       Retry: TimeSpan }
-type RemoveFragmentsOptions =
+type RemoveFragmentsOptions = 
     { UseViewTransition: bool
       EventId: string voption
       Retry: TimeSpan }
-type ExecuteScriptOptions =
+type ExecuteScriptOptions = 
     { AutoRemove: bool
       Attributes: string[]
       EventId: string voption
@@ -88,7 +88,7 @@ module ServerSentEvent =
 
             yield! sse.DataLines |> Array.map (fun dataLine -> $"data: {dataLine}")
 
-            ""; ""; ""
+            "", "", ""
         } |> String.concat "\n"
 
 module Signals =
@@ -126,7 +126,7 @@ module SignalPath =
             ) (JsonValue.Create(signalValue) :> JsonNode)
 
 module Selector =
-    let regex = Regex(@"[#.][-_]?[_a-zA-Z]+(?:\w|\\.)*|(?<=\s+|^)(?:\w+|\*)|\[[^\s""'=<>`]+?(?<![~|^$*])([~|^$*]?=(?:['""].*['""]|[^\s""'=<>`]+))?\]|:[\w-]+(?:\(.*\))?", RegexOptions.Compiled)
+    let regex = Regex(@"[#.]_?[_a-z]+(?:\w|\\.)*|(?<=\s+|^)(?:\w+|\*)|[[^_s_"'=<>`]+?(?<![~|^$*])([~|^$*]?=(?:['""].*['""]|[^_s_"'=<>`]+))?]|:[_w-]+(?:\(.*\\))?", RegexOptions.Compiled)
     let value (selector:Selector) = selector.ToString()
     let isValid (selectorString:string) = regex.IsMatch selectorString
     let tryCreate (selectorString:string) =
@@ -168,4 +168,3 @@ module ExecuteScriptOptions =
 
 module EventOptions =
     let defaults = { EventId = ValueNone; Retry = Consts.DefaultSseRetryDuration }
-

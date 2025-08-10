@@ -3,9 +3,9 @@
  * @copyright Copyright (c) PutYourLightsOn
  */
 
-namespace starfederation\datastar\events;
+namespace aereaco\nexus-ux\events;
 
-use starfederation\datastar\enums\EventType;
+use aereaco\nexus-ux\enums\EventType;
 
 interface EventInterface
 {

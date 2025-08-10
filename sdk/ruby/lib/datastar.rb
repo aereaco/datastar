@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'datastar/version'
-require_relative 'datastar/consts'
+require_relative 'nexus_ux/version'
+require_relative 'nexus_ux/consts'
 
-module Datastar
+module NexusUX
   BLANK_OPTIONS = {}.freeze
 
   def self.config
@@ -26,7 +26,7 @@ module Datastar
   end
 end
 
-require_relative 'datastar/configuration'
-require_relative 'datastar/dispatcher'
-require_relative 'datastar/server_sent_event_generator'
-require_relative 'datastar/railtie' if defined?(Rails::Railtie)
+require_relative 'nexus_ux/configuration'
+require_relative 'nexus_ux/dispatcher'
+require_relative 'nexus_ux/server_sent_event_generator'
+require_relative 'nexus_ux/railtie' if defined?(Rails::Railtie)

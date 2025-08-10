@@ -7,10 +7,10 @@
     [ring.util.response :as ruresp]
     [reitit.ring :as rr]
     [reitit.ring.middleware.parameters :as reitit-params]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]
-    [starfederation.datastar.clojure.adapter.ring :as ring-gen]
-    [starfederation.datastar.clojure.adapter.common  :as ac]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]
+    [aereaco.nexus-ux.clojure.adapter.ring :as ring-gen]
+    [aereaco.nexus-ux.clojure.adapter.common  :as ac]
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 
 ;; Here we try to use compression on little update to see if some
@@ -99,7 +99,7 @@
      ["/updates" {:handler (->updates ->sse-response opts)}]]))
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 
 (defn ->handler [->sse-response & {:as opts}]
@@ -121,4 +121,3 @@
   (reset! !sses #{})
   (u/reboot-hk-server! #'handler-hk)
   (u/reboot-jetty-server! #'handler-ring {:async? true}))
-

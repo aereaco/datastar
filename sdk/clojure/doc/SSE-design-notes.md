@@ -72,7 +72,7 @@ Here are some solutions for buffering the writes:
 > A `ByteArrayOutputStream` is also another buffer, it doesn't shrink in size
 > when reset is called (see [javadoc](<https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/ByteArrayOutputStream.html#reset()>))
 
-## Datastar SDK
+## Nexus-UX SDK
 
 ### Considerations
 
@@ -86,7 +86,7 @@ SDK and I haven't found a ready made solution anyway.
 
 #### Common SSE machinery
 
-##### `starfederation.datastar.clojure.api.sse`
+##### `aereaco.nexus-ux.clojure.api.sse`
 
 This namespace provides 2 generic functions:
 
@@ -96,9 +96,9 @@ This namespace provides 2 generic functions:
   `java.util.appendable`.
 
 These functions provide a basis for implementing SSE and are orthogonal to
-Datastar's specific SSE events.
+Nexus-UX's specific SSE events.
 
-##### `starfederation.datastar.clojure.adapter.common`
+##### `aereaco.nexus-ux.clojure.adapter.common`
 
 This namespace provides helpers we use to build the SSE machinery for ring
 adapters. It mainly provides a mechanism called "write profiles" to allow
@@ -111,7 +111,7 @@ See the [write profiles doc](./Write-profiles.md).
 
 If the write profile system doesn't provide enough control there is still
 the possibility to implement adapters using the
-`starfederation.datastar.clojure.protocols/SSEGenerator` and control everything.
+`aereaco.nexus-ux.clojure.protocols/SSEGenerator` and control everything.
 
 The hope is that there is enough material between the documentation and the
 source code to make this relatively easy.

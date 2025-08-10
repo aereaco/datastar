@@ -16,7 +16,7 @@ temporary write buffer strategy. We can create a write profile to do this.
 
 ```clojure
 (require
-  '[starfederation.datastar.clojure.adapter.common :as ac])
+  '[aereaco.nexus-ux.clojure.adapter.common :as ac])
 
 (def my-write-profile
    ;; We specify a function that will wrap the output stream
@@ -38,8 +38,8 @@ When using the `->sse-response` function we can do:
 
 ```clojure
 (require
-  '[starfederation.datastar.clojure.api :as d*]
-  '[starfederation.datastar.clojure.adapter.ring :refer [->sse-response on-open]])
+  '[aereaco.nexus-ux.clojure.api :as d*]
+  '[aereaco.nexus-ux.clojure.adapter.ring :refer [->sse-response on-open]])
 
 (defn handler [req]
   (->sse-response req

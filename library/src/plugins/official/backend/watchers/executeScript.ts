@@ -11,13 +11,13 @@ import {
 import { initErr } from '../../../../engine/errors'
 import { PluginType, type WatcherPlugin } from '../../../../engine/types'
 import { isBoolString } from '../../../../utils/text'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const ExecuteScript: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.ExecuteScript,
   onGlobalInit: async (ctx) => {
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.ExecuteScript,
       ({
         autoRemove: autoRemoveRaw = `${DefaultExecuteScriptAutoRemove}`,

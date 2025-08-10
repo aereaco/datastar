@@ -1,4 +1,4 @@
-package starfederation.datastar.adapters.request;
+package aereaco.nexus-ux.adapters.request;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;

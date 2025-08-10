@@ -13,9 +13,9 @@ import {
 import { isEmpty } from '../../../../utils/paths'
 import { jsStrToObject } from '../../../../utils/text'
 import { modifyTiming } from '../../../../utils/timing'
-import { DATASTAR } from '../../../../engine/consts'
+import { STATE } from '../../../../engine/consts'
 
-export const DATASTAR_SIGNAL_PATCH_EVENT = `${DATASTAR}-signals-patch`
+export const STATE_SIGNAL_PATCH_EVENT = `${STATE}-signals-patch`
 
 export interface JSONPatch {
   op: 'add' | 'remove' | 'replace'
@@ -53,10 +53,10 @@ export const OnSignalPatch: AttributePlugin = {
       mods,
     )
 
-    document.addEventListener(DATASTAR_SIGNAL_PATCH_EVENT, callback)
+    document.addEventListener(STATE_SIGNAL_PATCH_EVENT, callback)
 
     const cleanupCallback: CleanupUpdateCallback = () => {
-      document.removeEventListener(DATASTAR_SIGNAL_PATCH_EVENT, callback)
+      document.removeEventListener(STATE_SIGNAL_PATCH_EVENT, callback)
     }
 
     const mutationCallback: MutationUpdateCallback = () => {
@@ -67,7 +67,7 @@ export const OnSignalPatch: AttributePlugin = {
       if (newFiltersRaw) {
         filters = jsStrToObject(newFiltersRaw)
       }
-      document.addEventListener(DATASTAR_SIGNAL_PATCH_EVENT, callback)
+      document.addEventListener(STATE_SIGNAL_PATCH_EVENT, callback)
     }
 
     return { cleanupCallback, mutationCallback }

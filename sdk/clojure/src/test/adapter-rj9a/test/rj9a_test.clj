@@ -4,7 +4,7 @@
     [test.examples.ring-handler :as rh]
     [lazytest.core :as lt :refer [defdescribe expect it]]
     [ring.adapter.jetty9 :as jetty]
-    [starfederation.datastar.clojure.adapter.ring :as jetty-gen])
+    [aereaco.nexus-ux.clojure.adapter.ring :as jetty-gen])
   (:import
     [org.eclipse.jetty.server Server ServerConnector]))
 

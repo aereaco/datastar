@@ -1,17 +1,17 @@
 {
-  "name": "@starfederation/datastar",
+  "name": "@aereaco/nexus-ux",
   "author": "Delaney Gillilan",
   "description": "The hypermedia framework.",
   "version": "0.0.1-alpha",
   "license": "MIT",
   "private": false,
-  "homepage": "https://data-star.dev",
+  "homepage": "https://nexus.aerea.co",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/starfederation/datastar.git"
+    "url": "git+https://github.com/aereaco/nexus-ux.git"
   },
   "bugs": {
-    "url": "https://github.com/starfederation/datastar/issues"
+    "url": "https://github.com/aereaco/nexus-ux/issues"
   },
   "files": [
     "dist"

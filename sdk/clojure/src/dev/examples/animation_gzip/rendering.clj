@@ -7,7 +7,7 @@
     [dom-top.core :as dt]
     [examples.common :as c]
     [examples.animation-gzip.animation :as animation]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 ;; -----------------------------------------------------------------------------
 ;; Rendering util
@@ -144,7 +144,7 @@
                  [:td (:duration ping)]
                  [:td (:speed ping)]
                  [:td (:traveled ping)]
-                 [:td [:pre (pr-str (:pos ping))]]]))]]]))]))
+                 [:td [:pre (pr-str (:pos ping))]]]))]]])))))
 
 
 

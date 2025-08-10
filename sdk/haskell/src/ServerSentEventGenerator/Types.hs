@@ -45,7 +45,7 @@ instance Default Selector where
 instance Prompt Selector where
   prompt (SEL x) = withDefault cSelector cDefaultSelector x
     
--- | A sum of the possible Datastar specific events that can be sent
+-- | A sum of the possible Nexus-UX specific events that can be sent
 
 data EventType =
     MergeFragments
@@ -74,7 +74,7 @@ data FunctionExecuteScript =  FunctionExecuteScript {
   , eOptions    :: Options
   } deriving Show
 
--- | A sum of the possible Datastar specific merge modes that can be sent
+-- | A sum of the possible Nexus-UX specific merge modes that can be sent
 
 data MergeMode =
      Morph
@@ -146,4 +146,3 @@ data ServerSentEventGeneratorExceptions =
  | ExecuteScriptIsMissing          
 
 instance Exception ServerSentEventGeneratorExceptions
-

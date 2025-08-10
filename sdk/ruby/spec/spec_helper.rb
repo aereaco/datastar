@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'datastar'
+require 'nexus_ux'
 require 'rack'
-require 'datastar/async_executor'
+require 'nexus_ux/async_executor'
 require 'debug'
 require_relative './support/dispatcher_examples'
 

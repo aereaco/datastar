@@ -3,8 +3,8 @@
     [clojure.pprint :as pp]
     [examples.utils :as u]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.ring :refer [->sse-response on-open on-close]]))
 
 ;; Testing several ways exception might be caught when using a ring adapter
 
@@ -54,13 +54,13 @@
               (handler req
                        #(respond (do
                                    (pp/pprint %)
-                                   %))
+                                   %)))
                        #(do
                           (println "captured the faulty event with raise in async mode")
                           (raise %))))))})
 
 
-(def default-handler (rr/create-default-handler))
+(def default-handler (rr/create-default-handler()))
 
 (def handler
   (rr/ring-handler router
@@ -74,4 +74,3 @@
   (u/reboot-jetty-server! #'handler {:async? true})
   (u/reboot-rj9a-server! #'handler)
   (u/reboot-rj9a-server! #'handler {:async? true}))
-

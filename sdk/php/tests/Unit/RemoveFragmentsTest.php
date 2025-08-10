@@ -1,7 +1,7 @@
 <?php
 
-use starfederation\datastar\Consts;
-use starfederation\datastar\events\RemoveFragments;
+use aereaco\nexus-ux\Consts;
+use aereaco\nexus-ux\events\RemoveFragments;
 
 test('Options are correctly output', function() {
     $content = 'body';

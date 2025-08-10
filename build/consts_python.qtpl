@@ -29,7 +29,7 @@ class {%s enum.Name.Pascal %}(StrEnum):
 {%- endfor -%}
 # endregion Enums
 
-DATASTAR_KEY = "{%s data.DatastarKey %}"
+STATE_KEY = "{%s data.StateKey %}"
 VERSION = "{%s data.Version %}"
 
 # region Default durations

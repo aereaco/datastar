@@ -4,7 +4,7 @@
     [test.examples.counter :as counters]
     [test.examples.form :as form]
     [reitit.ring :as rr]
-    [starfederation.datastar.clojure.adapter.http-kit :as hk-gen]))
+    [aereaco.nexus-ux.clojure.adapter.http-kit :as hk-gen]))
 
 
 ;; -----------------------------------------------------------------------------
@@ -60,6 +60,3 @@
   (rr/ring-handler router
                    common/default-handler
                    {:middleware common/global-middleware}))
-
-
-

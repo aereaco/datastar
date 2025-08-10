@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace StarFederation.Datastar;
+namespace AereaCo.NexusUX;
 
 internal static class Utilities
 {

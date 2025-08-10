@@ -1,7 +1,7 @@
-//! Rocket integration for Datastar.
+//! Rocket integration for Nexus-UX.
 
 use {
-    crate::{Sse, TrySse, prelude::DatastarEvent},
+    crate::{Sse, TrySse, prelude::StateEvent},
     core::error::Error,
     futures_util::{Stream, StreamExt},
     rocket::{
@@ -15,7 +15,7 @@ use {
 impl<'r, S, I> Responder<'r, 'r> for Sse<S>
 where
     S: Stream<Item = I> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
 {
     fn respond_to(self, _: &'r Request<'_>) -> response::Result<'r> {
         let stream = self.0.map(|event| Cursor::new(event.into().to_string()));
@@ -37,7 +37,7 @@ impl<'r, S, I, E> Responder<'r, 'r> for TrySse<S>
 where
     E: Into<Box<dyn Error + Send + Sync>> + Send + 'r,
     S: Stream<Item = Result<I, E>> + Send + 'static,
-    I: Into<DatastarEvent> + Send + 'static,
+    I: Into<StateEvent> + Send + 'static,
 {
     fn respond_to(self, _: &'r Request<'_>) -> response::Result<'r> {
         // we just ignore errors because rocket doesn't support them in streams!
@@ -65,7 +65,7 @@ where
 mod tests {
     use {
         crate::{
-            DatastarEvent, Sse,
+            StateEvent, Sse,
             testing::{self, Signals, base_test_server},
         },
         futures_util::Stream,
@@ -131,45 +131,45 @@ mod tests {
         Ok(())
     }
 
-    #[get("/test?<datastar>")]
+    #[get("/test?<state>")]
     fn base_test_endpoint_required_get(
-        datastar: Json<Signals>,
-    ) -> Sse<impl Stream<Item = DatastarEvent>> {
-        Sse(testing::test(datastar.into_inner().events))
+        state: Json<Signals>,
+    ) -> Sse<impl Stream<Item = StateEvent>> {
+        Sse(testing::test(state.into_inner().events))
     }
 
-    #[post("/test", data = "<datastar>")]
+    #[post("/test", data = "<state>")]
     fn base_test_endpoint_required_post(
-        datastar: Json<Signals>,
-    ) -> Sse<impl Stream<Item = DatastarEvent>> {
-        Sse(testing::test(datastar.into_inner().events))
+        state: Json<Signals>,
+    ) -> Sse<impl Stream<Item = StateEvent>> {
+        Sse(testing::test(state.into_inner().events))
     }
 
     #[derive(Responder)]
-    enum PageOrEvents<S: Stream<Item = DatastarEvent>> {
+    enum PageOrEvents<S: Stream<Item = StateEvent>> {
         Html(RawHtml<&'static str>),
         Events(Sse<S>),
     }
 
-    #[get("/test-opt?<datastar>")]
+    #[get("/test-opt?<state>")]
     fn base_test_endpoint_optional_get(
-        datastar: Option<Json<Signals>>,
-    ) -> PageOrEvents<impl Stream<Item = DatastarEvent>> {
-        match datastar {
-            Some(datastar) => {
-                PageOrEvents::Events(Sse(testing::test(datastar.into_inner().events)))
+        state: Option<Json<Signals>>,
+    ) -> PageOrEvents<impl Stream<Item = StateEvent>> {
+        match state {
+            Some(state) => {
+                PageOrEvents::Events(Sse(testing::test(state.into_inner().events)))
             }
             None => PageOrEvents::Html(RawHtml("<p>Hello</p>")),
         }
     }
 
-    #[post("/test-opt", data = "<datastar>")]
+    #[post("/test-opt", data = "<state>")]
     fn base_test_endpoint_optional_post(
-        datastar: Option<Json<Signals>>,
-    ) -> PageOrEvents<impl Stream<Item = DatastarEvent>> {
-        match datastar {
-            Some(datastar) => {
-                PageOrEvents::Events(Sse(testing::test(datastar.into_inner().events)))
+        state: Option<Json<Signals>>,
+    ) -> PageOrEvents<impl Stream<Item = StateEvent>> {
+        match state {
+            Some(state) => {
+                PageOrEvents::Events(Sse(testing::test(state.into_inner().events)))
             }
             None => PageOrEvents::Html(RawHtml("<p>Hello</p>")),
         }

@@ -5,8 +5,8 @@
     [dev.onionpancakes.chassis.compiler :as hc]
     [ring.middleware.multipart-params]
     [ring.util.response :as rur]
-    [starfederation.datastar.clojure.adapter.common :as ac]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.adapter.common :as ac]
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 
 ;; -----------------------------------------------------------------------------
@@ -80,4 +80,3 @@
      (process-endpoint request ->sse-response))
     ([request respond _raise]
      (respond (endpoint request)))))
-

@@ -2,17 +2,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://www.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>datastar-java-sdk-jaxrs</artifactId>
+    <artifactId>nexus-ux-java-sdk-jaxrs</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <parent>
-        <groupId>dev.data-star</groupId>
-        <artifactId>datastar-java-sdk-suite</artifactId>
+        <groupId>dev.nexus-ux</groupId>
+        <artifactId>nexus-ux-java-sdk-suite</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <name>Datastar Java SDK JAX-RS plugin </name>
-    <description>JAX-RS plugin for the Datastar SDK</description>
+    <name>Nexus-UX Java SDK JAX-RS plugin </name>
+    <description>JAX-RS plugin for the Nexus-UX SDK</description>
 
     <properties>
         <jakarta.ws-rs-api.version>4.0.0</jakarta.ws-rs-api.version>
@@ -22,7 +22,7 @@
     <distributionManagement>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/rphumulock/datastar</url>
+            <url>https://maven.pkg.github.com/aereaco/nexus-ux</url>
         </repository>
     </distributionManagement>
 
@@ -42,8 +42,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>dev.data-star</groupId>
-            <artifactId>datastar-java-sdk-core</artifactId>
+            <groupId>dev.nexus-ux</groupId>
+            <artifactId>nexus-ux-java-sdk-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

@@ -1,27 +1,27 @@
-# Datastar Zig SDK
+# Nexus-UX Zig SDK
 
-The Datastar SDK in Zig, with support for http.zig and tokamak.
+The Nexus-UX SDK in Zig, with support for http.zig and tokamak.
 
 ## Installation
 
-Install with `zig fetch --save git+https://github.com/starfederation/datastar-zig` and add datastar as a dependency.
+Install with `zig fetch --save git+https://github.com/aereaco/nexus-ux-zig` and add nexus-ux as a dependency.
 
 ```zig
-const datastar = b.dependency("datastar", .{
+const nexusux = b.dependency("nexusux", .{
     .target = target,
     .optimize = optimize,
     .framework = .httpz, // or .tokamak
-}).module("datastar");
+}).module("nexusux");
 
-exe.root_module.addImport("datastar", datastar);
+exe.root_module.addImport("nexusux", nexusux);
 ```
 
 ## Usage
 ```zig
-const datastar = @import("datastar").httpz;
+const nexusux = @import("nexusux").httpz;
 
 // Creates a new `ServerSentEventGenerator`.
-var sse = try datastar.ServerSentEventGenerator.init(res);
+var sse = try nexusux.ServerSentEventGenerator.init(res);
 
 // Merges HTML fragments into the DOM.
 try sse.mergeFragments("<div id='question'>What do you put in a toaster?</div>", .{});
@@ -30,4 +30,4 @@ try sse.mergeFragments("<div id='question'>What do you put in a toaster?</div>",
 try sse.mergeSignals(.{ .response = "", .answer = "bread" }, .{});
 ```
 
-Full examples at https://github.com/starfederation/datastar/tree/main/examples/zig
+Full examples at https://github.com/aereaco/nexus-ux/tree/main/examples/zig

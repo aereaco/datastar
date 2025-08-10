@@ -1,13 +1,13 @@
 {%- func rustConsts(data *ConstTemplateData) -%}
-//! Datastar constants
+//! Nexus-UX constants
 #![allow(rustdoc::invalid_html_tags)]
 
 // {%s data.DoNotEdit %}
 
 #[expect(unused)]
-pub(crate) const DATASTAR_KEY: &str = "{%s data.DatastarKey %}";
+pub(crate) const STATE_KEY: &str = "{%s data.StateKey %}";
 #[allow(unused)]
-pub(crate) const DATASTAR_REQ_HEADER_STR: &str = "{%s data.DatastarKey %}-request";
+pub(crate) const STATE_REQ_HEADER_STR: &str = "{%s data.StateKey %}-request";
 #[expect(unused)]
 pub(crate) const VERSION: &str = "{%s data.Version %}";
 

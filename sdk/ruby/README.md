@@ -1,24 +1,24 @@
-# Datastar Ruby SDK
+# Nexus-UX Ruby SDK
 
-Implement the [Datastart SSE procotocol](https://data-star.dev/reference/sse_events) in Ruby. It can be used in any Rack handler, and Rails controllers.
+Implement the [Nexus-UX SSE procotocol](https://nexus.aerea.co/reference/sse_events) in Ruby. It can be used in any Rack handler, and Rails controllers.
 
 ## Installation
 
 Add this gem to your `Gemfile`
 
 ```bash
-gem 'datastar'
+gem 'nexus_ux'
 ```
 
 Or point your `Gemfile` to the source
 
 ```bash
-gem 'datastar', git: 'https://github.com/starfederation/datastar', glob: 'sdk/ruby/*.gemspec'
+gem 'nexus_ux', git: 'https://github.com/aereaco/nexus-ux', glob: 'sdk/ruby/*.gemspec'
 ```
 
 ## Usage
 
-### Initialize the Datastar dispatcher
+### Initialize the Nexus-UX dispatcher
 
 In your Rack handler or Rails controller:
 
@@ -26,12 +26,13 @@ In your Rack handler or Rails controller:
 # Rails controllers, as well as Sinatra and others, 
 # already have request and response objects.
 # `view_context` is optional and is used to render Rails templates.
+# `view_context` is optional and is used to render Rails templates.
 # Or view components that need access to helpers, routes, or any other context.
 
-datastar = Datastar.new(request:, response:, view_context:)
+nexus_ux = NexusUX.new(request:, response:, view_context:)
 
 # In a Rack handler, you can instantiate from the Rack env
-datastar = Datastar.from_rack_env(env)
+nexus_ux = NexusUX.from_rack_env(env)
 ```
 
 ### Sending updates to the browser
@@ -44,14 +45,14 @@ There are two ways to use this gem in HTTP handlers:
 #### One-off update:
 
 ```ruby
-datastar.merge_fragments(%(<h1 id="title">Hello, World!</h1>))
+nexus_ux.merge_fragments(%(<h1 id="title">Hello, World!</h1>))
 ```
 In this mode, the response is closed after the fragment is sent.
 
 #### Streaming updates
 
 ```ruby
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   sse.merge_fragments(%(<h1 id="title">Hello, World!</h1>))
   # Streaming multiple updates
   100.times do |i|
@@ -69,14 +70,14 @@ Their updates are linearized and sent to the browser as they are produced.
 
 ```ruby
 # Stream to the browser from two concurrent threads
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   100.times do |i|
     sleep 1
     sse.merge_fragments(%(<h1 id="slow">#{i}!</h1>))
   end
 end
 
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   1000.times do |i|
     sleep 0.1
     sse.merge_fragments(%(<h1 id="fast">#{i}!</h1>))
@@ -84,14 +85,14 @@ datastar.stream do |sse|
 end
 ```
 
-See the [examples](https://github.com/starfederation/datastar/tree/main/examples/ruby) directory.
+See the [examples](https://github.com/aereaco/nexus-ux/tree/main/examples/ruby) directory.
 
-### Datastar methods
+### Nexus-UX methods
 
 All these methods are available in both the one-off and the streaming modes.
 
 #### `merge_fragments`
-See https://data-star.dev/reference/sse_events#datastar-merge-fragments
+See https://nexus.aerea.co/reference/sse_events#state-merge-fragments
 
 ```ruby
 sse.merge_fragments(%(<div id="foo">\n<span>hello</span>\n</div>))
@@ -107,35 +108,35 @@ sse.merge_fragments(
 ```
 
 #### `remove_fragments`
- See https://data-star.dev/reference/sse_events#datastar-remove-fragments
+ See https://nexus.aerea.co/reference/sse_events#state-remove-fragments
 
 ```ruby
 sse.remove_fragments('#users')
 ```
 
 #### `merge_signals`
- See https://data-star.dev/reference/sse_events#datastar-merge-signals
+ See https://nexus.aerea.co/reference/sse_events#state-merge-signals
 
 ```ruby
 sse.merge_signals(count: 4, user: { name: 'John' })
 ```
 
 #### `remove_signals`
- See https://data-star.dev/reference/sse_events#datastar-remove-signals
+ See https://nexus.aerea.co/reference/sse_events#state-remove-signals
 
 ```ruby
 sse.remove_signals(['user.name', 'user.email'])
 ```
 
 #### `execute_script`
-See https://data-star.dev/reference/sse_events#datastar-execute-script
+See https://nexus.aerea.co/reference/sse_events#state-execute-script
 
 ```ruby
 sse.execute_scriprt(%(alert('Hello World!'))
 ```
 
 #### `signals`
-See https://data-star.dev/guide/getting_started#data-signals
+See https://nexus.aerea.co/guide/getting_started#data-signals
 
 Returns signals sent by the browser.
 
@@ -156,7 +157,7 @@ sse.redirect('/new_location')
 Register server-side code to run when the connection is first handled.
 
 ```ruby
-datastar.on_connect do
+nexus_ux.on_connect do
   puts 'A user has connected'
 end
 ```
@@ -165,7 +166,7 @@ end
 Register server-side code to run when the connection is closed by the client
 
 ```ruby
-datastar.on_client_disconnect do
+nexus_ux.on_client_disconnect do
   puts 'A user has disconnected connected'
 end
 ```
@@ -178,7 +179,7 @@ Register server-side code to run when the connection is closed by the server.
 Ie when the served is done streaming without errors.
 
 ```ruby
-datastar.on_server_disconnect do
+nexus_ux.on_server_disconnect do
   puts 'Server is done streaming'
 end
 ```
@@ -187,7 +188,7 @@ end
 Ruby code to handle any exceptions raised by streaming blocks.
 
 ```ruby
-datastar.on_error do |exception|
+nexus_ux.on_error do |exception|
   Sentry.notify(exception)
 end
 ```
@@ -204,9 +205,9 @@ The default heartbeat is 3 seconds, and it will close the connection and trigger
 In cases where a streaming block doesn't need a heartbeat and you want to save precious threads (for example a regular ticker update, ie non-idle), you can disable the heartbeat:
 
 ```ruby
-datastar = Datastar.new(request:, response:, view_context:, heartbeat: false)
+nexus_ux = NexusUX.new(request:, response:, view_context:, heartbeat: false)
 
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   100.times do |i|
     sleep 1
     sse.merge_signals count: i
@@ -225,9 +226,9 @@ heartbeat: 0.5
 If you want to check connection status on your own, you can disable the heartbeat and use `sse.check_connection!`, which will close the connection and trigger callbacks if the client is disconnected.
 
 ```ruby
-datastar = Datastar.new(request:, response:, view_context:, heartbeat: false)
+nexus_ux = NexusUX.new(request:, response:, view_context:, heartbeat: false)
 
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   # The event bus implementaton will check connection status when idle
   # by calling #check_connection! on it
   EventBus.subscribe('channel', sse) do |event|
@@ -239,7 +240,7 @@ end
 ### Global configuration
 
 ```ruby
-Datastar.configure do |config|
+NexusUX.configure do |config|
   # Global on_error callback
   # Can be overriden on specific instances
   config.on_error do |exception|
@@ -254,13 +255,13 @@ end
 
 ### Rendering Rails templates
 
-In Rails, make sure to initialize Datastar with the `view_context` in a controller.
+In Rails, make sure to initialize Nexus-UX with the `view_context` in a controller.
 This is so that rendered templates, components or views have access to helpers, routes, etc.
 
 ```ruby
-datastar = Datastar.new(request:, response:, view_context:)
+nexus_ux = NexusUX.new(request:, response:, view_context:)
 
-datastar.stream do |sse|
+nexus_ux.stream do |sse|
   10.times do |i|
     sleep 1
     tpl = render_to_string('events/user', layout: false, locals: { name: "David #{i}" })
@@ -313,7 +314,7 @@ sse.merge_fragments MyComponent.new('Joe')
 bundle exec rspec
 ```
 
-#### Running Datastar's SDK test suite
+#### Running Nexus-UX's SDK test suite
 
 Install dependencies.
 ```bash
@@ -340,4 +341,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/starfederation/datastar.
+Bug reports and pull requests are welcome on GitHub at https://github.com/aereaco/nexus-ux.

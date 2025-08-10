@@ -1,13 +1,13 @@
 {%- func javaConsts(data *ConstTemplateData) -%}
-package starfederation.datastar;
+package aereaco.nexusux;
 
-import starfederation.datastar.enums.FragmentMergeMode;
+import aereaco.nexusux.enums.FragmentMergeMode;
 
 /**
  * {%s data.DoNotEdit %}
  */
 public final class Consts {
-    public static final String DATASTAR_KEY = "{%s data.DatastarKey %}";
+    public static final String STATE_KEY = "{%s data.StateKey %}";
     public static final String VERSION = "{%s data.Version %}";
     {%- for _, d := range data.DefaultDurations %}
     // {%s= d.Description %}
@@ -36,7 +36,7 @@ public final class Consts {
 {%- endfunc -%}
 
 {%- func javaEventType(data *ConstTemplateData) -%}
-package starfederation.datastar.enums;
+package aereaco.nexusux.enums;
 
 /**
  * {%s data.DoNotEdit %}
@@ -70,7 +70,7 @@ public enum EventType {
 {%- endfunc -%}
 
 {%- func javaFragmentMergeMode(data *ConstTemplateData) -%}
-package starfederation.datastar.enums;
+package aereaco.nexusux.enums;
 
 /**
  * {%s data.DoNotEdit %}

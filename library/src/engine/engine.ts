@@ -8,7 +8,7 @@ import {
   type ActionPlugin,
   type ActionPlugins,
   type AttributePlugin,
-  type DatastarPlugin,
+  type StatePlugin,
   type GlobalInitializer,
   type HTMLorSVGElement,
   type InitContext,
@@ -59,7 +59,7 @@ export function setAlias(value: string) {
   alias = value
 }
 
-export function load(...pluginsToLoad: DatastarPlugin[]) {
+export function load(...pluginsToLoad: StatePlugin[]) {
   for (const plugin of pluginsToLoad) {
     const ctx: InitContext = {
       plugin,
@@ -321,122 +321,144 @@ function applyAttributePlugin(
   }
 
   // Load the plugin
-  const result = plugin.onLoad(ctx)
   let cleanupCallback: CleanupUpdateCallback = () => {}
   let mutationCallback: MutationUpdateCallback | undefined
   let resizeCallback: ResizeUpdateCallback | undefined
   let intersectionCallback: IntersectionUpdateCallback | undefined
   let performanceCallback: PerformanceUpdateCallback | undefined
 
-  if (typeof result === 'function') {
-    cleanupCallback = result
-  } else if (typeof result === 'object' && result !== null) {
-    cleanupCallback = result.cleanupCallback || cleanupCallback
-    mutationCallback = result.mutationCallback
-    resizeCallback = result.resizeCallback
-    intersectionCallback = result.intersectionCallback
-    performanceCallback = result.performanceCallback
-  }
+  try {
+    const result = plugin.onLoad(ctx)
 
-  // Store the cleanup function
-  let elTracking = removals.get(el.id)
-  if (!elTracking) {
-    elTracking = new Map()
-    removals.set(el.id, elTracking)
-  }
-  elTracking.set(hash, cleanupCallback)
-
-  // Register the attribute with the ownership map
-  let elAttributeOwnership = attributeOwnership.get(el)
-  if (!elAttributeOwnership) {
-    elAttributeOwnership = new Map()
-    attributeOwnership.set(el, elAttributeOwnership)
-  }
-  if (mutationCallback) {
-    elAttributeOwnership.set(plugin.name, mutationCallback)
-  } else {
-    // If no specific mutationCallback is provided, default to re-applying the plugin
-    elAttributeOwnership.set(plugin.name, (_newValue: string | null) => {
-      // This is the fallback callback for plugins that don't provide their own.
-      // It re-applies the plugin to re-synchronize with the signal's value.
-      applyAttributePlugin(el, camelCasedKey, hash)
-    })
-  }
-
-  // Register the resize callback with the ownership map
-  if (plugin.observesResize) {
-    let elResizeOwnership = resizeOwnership.get(el)
-    if (!elResizeOwnership) {
-      elResizeOwnership = new Map()
-      resizeOwnership.set(el, elResizeOwnership)
+    if (typeof result === 'function') {
+      cleanupCallback = result
+    } else if (typeof result === 'object' && result !== null) {
+      cleanupCallback = result.cleanupCallback || cleanupCallback
+      mutationCallback = result.mutationCallback
+      resizeCallback = result.resizeCallback
+      intersectionCallback = result.intersectionCallback
+      performanceCallback = result.performanceCallback
     }
-    if (resizeCallback) {
-      elResizeOwnership.set(plugin.name, resizeCallback)
+
+    // Store the cleanup function
+    let elTracking = removals.get(el.id)
+    if (!elTracking) {
+      elTracking = new Map()
+      removals.set(el.id, elTracking)
+    }
+    elTracking.set(hash, cleanupCallback)
+
+    // Register the attribute with the ownership map
+    let elAttributeOwnership = attributeOwnership.get(el)
+    if (!elAttributeOwnership) {
+      elAttributeOwnership = new Map()
+      attributeOwnership.set(el, elAttributeOwnership)
+    }
+    if (mutationCallback) {
+      elAttributeOwnership.set(plugin.name, mutationCallback)
     } else {
-      // If no specific resizeCallback is provided, default to re-applying the plugin
-      elResizeOwnership.set(plugin.name, (_entry: ResizeObserverEntry) => {
+      // If no specific mutationCallback is provided, default to re-applying the plugin
+      elAttributeOwnership.set(plugin.name, (_newValue: string | null) => {
+        // This is the fallback callback for plugins that don't provide their own.
+        // It re-applies the plugin to re-synchronize with the signal's value.
         applyAttributePlugin(el, camelCasedKey, hash)
       })
     }
-  }
 
-  // Register the intersection callback with the ownership map
-  if (plugin.observesIntersection) {
-    let elIntersectionOwnership = intersectionOwnership.get(el)
-    if (!elIntersectionOwnership) {
-      elIntersectionOwnership = new Map()
-      intersectionOwnership.set(el, elIntersectionOwnership)
+    // Register the resize callback with the ownership map
+    if (plugin.observesResize) {
+      let elResizeOwnership = resizeOwnership.get(el)
+      if (!elResizeOwnership) {
+        elResizeOwnership = new Map()
+        resizeOwnership.set(el, elResizeOwnership)
+      }
+      if (resizeCallback) {
+        elResizeOwnership.set(plugin.name, resizeCallback)
+      } else {
+        // If no specific resizeCallback is provided, default to re-applying the plugin
+        elResizeOwnership.set(plugin.name, (_entry: ResizeObserverEntry) => {
+          applyAttributePlugin(el, camelCasedKey, hash)
+        })
+      }
     }
-    if (intersectionCallback) {
-      elIntersectionOwnership.set(plugin.name, intersectionCallback)
-    } else {
-      // If no specific intersectionCallback is provided, default to re-applying the plugin
-      elIntersectionOwnership.set(plugin.name, (_entry: IntersectionObserverEntry) => {
-        applyAttributePlugin(el, camelCasedKey, hash)
-      })
-    }
-  }
 
-  // Register the performance callback with the ownership map
-  if (plugin.observesPerformance) {
-    let elPerformanceOwnership = performanceOwnership.get(el)
-    if (!elPerformanceOwnership) {
-      elPerformanceOwnership = new Map()
-      performanceOwnership.set(el, elPerformanceOwnership)
+    // Register the intersection callback with the ownership map
+    if (plugin.observesIntersection) {
+      let elIntersectionOwnership = intersectionOwnership.get(el)
+      if (!elIntersectionOwnership) {
+        elIntersectionOwnership = new Map()
+        intersectionOwnership.set(el, elIntersectionOwnership)
+      }
+      if (intersectionCallback) {
+        elIntersectionOwnership.set(plugin.name, intersectionCallback)
+      } else {
+        // If no specific intersectionCallback is provided, default to re-applying the plugin
+        elIntersectionOwnership.set(plugin.name, (_entry: IntersectionObserverEntry) => {
+          applyAttributePlugin(el, camelCasedKey, hash)
+        })
+      }
     }
-    if (performanceCallback) {
-      elPerformanceOwnership.set(plugin.name, performanceCallback)
-    } else {
-      // If no specific performanceCallback is provided, default to re-applying the plugin
-      elPerformanceOwnership.set(plugin.name, (_element: HTMLorSVGElement, _entry: PerformanceObserverEntryList) => {
-        applyAttributePlugin(el, camelCasedKey, hash)
-      })
-    }
-  }
 
-  // If the plugin observes resize events, register the element with the ResizeObserverService
-  if (plugin.observesResize) {
-    if (!resizeObserverService) {
-      resizeObserverService = new ResizeObserverService(handleResize);
+    // Register the performance callback with the ownership map
+    if (plugin.observesPerformance) {
+      let elPerformanceOwnership = performanceOwnership.get(el)
+      if (!elPerformanceOwnership) {
+        elPerformanceOwnership = new Map()
+        performanceOwnership.set(el, elPerformanceOwnership)
+      }
+      if (performanceCallback) {
+        elPerformanceOwnership.set(plugin.name, performanceCallback)
+      } else {
+        // If no specific performanceCallback is provided, default to re-applying the plugin
+        elPerformanceOwnership.set(plugin.name, (_element: HTMLorSVGElement, _entry: PerformanceObserverEntryList) => {
+          applyAttributePlugin(el, camelCasedKey, hash)
+        })
+      }
     }
-    resizeObserverService.observe(el);
-  }
 
-  // If the plugin observes intersection events, register the element with the IntersectionObserverService
-  if (plugin.observesIntersection) {
-    if (!intersectionObserverService) {
-      intersectionObserverService = new IntersectionObserverService(handleIntersection);
+    // If the plugin observes resize events, register the element with the ResizeObserverService
+    if (plugin.observesResize) {
+      if (!resizeObserverService) {
+        resizeObserverService = new ResizeObserverService(handleResize);
+      }
+      resizeObserverService.observe(el);
     }
-    intersectionObserverService.observe(el);
-  }
 
-  // If the plugin observes performance events, initialize the PerformanceObserverService
-  if (plugin.observesPerformance) {
-    if (!performanceObserverService) {
-      // TODO: Determine appropriate entryTypes based on plugin needs
-      performanceObserverService = new PerformanceObserverService(handlePerformance, ['mark', 'measure']);
+    // If the plugin observes intersection events, register the element with the IntersectionObserverService
+    if (plugin.observesIntersection) {
+      if (!intersectionObserverService) {
+        intersectionObserverService = new IntersectionObserverService(handleIntersection);
+      }
+      intersectionObserverService.observe(el);
     }
-    // PerformanceObserver does not observe specific elements, so no observe(el) call here
+
+    // If the plugin observes performance events, initialize the PerformanceObserverService
+    if (plugin.observesPerformance) {
+      if (!performanceObserverService) {
+        // TODO: Determine appropriate entryTypes based on plugin needs
+        performanceObserverService = new PerformanceObserverService(handlePerformance, ['mark', 'measure']);
+      }
+      // PerformanceObserver does not observe specific elements, so no observe(el) call here
+    }
+  } catch (error: any) {
+    console.error(`[Nexus-UX] Error loading plugin "${plugin.name}" on element`, el, `for attribute "data-${camelCasedKey}":`, error);
+    // Clean up any partial state that might have been set before the error
+    const elTracking = removals.get(el.id);
+    if (elTracking) {
+      elTracking.delete(hash);
+      if (elTracking.size === 0) {
+        removals.delete(el.id);
+      }
+    }
+    // Remove from attribute ownership map if partially added
+    const elAttributeOwnership = attributeOwnership.get(el);
+    if (elAttributeOwnership) {
+      elAttributeOwnership.delete(plugin.name);
+      if (elAttributeOwnership.size === 0) {
+        attributeOwnership.delete(el);
+      }
+    }
+    // No need to re-throw, allow other plugins and DOM elements to be processed
   }
 }
 
@@ -446,7 +468,7 @@ function genRX(
 ): RuntimeExpressionFunction {
   let userExpression = ''
 
-  // This regex allows Datastar expressions to support nested
+  // This regex allows Nexus-UX expressions to support nested
   // regex and strings that contain ; without breaking.
   //
   // Each of these regex defines a block type we want to match

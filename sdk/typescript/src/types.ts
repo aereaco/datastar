@@ -1,14 +1,14 @@
 import {
-  DatastarDatalineAttributes,
-  DatastarDatalineAutoRemove,
-  DatastarDatalineFragments,
-  DatastarDatalineMergeMode,
-  DatastarDatalineOnlyIfMissing,
-  DatastarDatalinePaths,
-  DatastarDatalineScript,
-  DatastarDatalineSelector,
-  DatastarDatalineSignals,
-  DatastarDatalineUseViewTransition,
+  StateDatalineAttributes,
+  StateDatalineAutoRemove,
+  StateDatalineFragments,
+  StateDatalineMergeMode,
+  StateDatalineOnlyIfMissing,
+  StateDatalinePaths,
+  StateDatalineScript,
+  StateDatalineSelector,
+  StateDatalineSignals,
+  StateDatalineUseViewTransition,
   DefaultExecuteScriptAttributes,
   DefaultExecuteScriptAutoRemove,
   DefaultFragmentMergeMode,
@@ -29,46 +29,46 @@ export type StreamOptions = Partial<{
   keepalive: boolean;
 }>
 
-export interface DatastarEventOptions {
+export interface StateEventOptions {
   eventId?: string;
   retryDuration?: number;
 }
 
-export interface FragmentOptions extends DatastarEventOptions {
-  [DatastarDatalineUseViewTransition]?: boolean;
+export interface FragmentOptions extends StateEventOptions {
+  [StateDatalineUseViewTransition]?: boolean;
 }
 
 export interface MergeFragmentsOptions extends FragmentOptions {
-  [DatastarDatalineMergeMode]?: FragmentMergeMode;
-  [DatastarDatalineSelector]?: string;
+  [StateDatalineMergeMode]?: FragmentMergeMode;
+  [StateDatalineSelector]?: string;
 }
 
 export interface MergeFragmentsEvent {
-  event: "datastar-merge-fragments";
+  event: "state-merge-fragments";
   options: MergeFragmentsOptions;
-  [DatastarDatalineFragments]: string;
+  [StateDatalineFragments]: string;
 }
 
 export interface RemoveFragmentsEvent {
-  event: "datastar-remove-fragments";
+  event: "state-remove-fragments";
   options: FragmentOptions;
-  [DatastarDatalineSelector]: string;
+  [StateDatalineSelector]: string;
 }
 
-export interface MergeSignalsOptions extends DatastarEventOptions {
-  [DatastarDatalineOnlyIfMissing]?: boolean;
+export interface MergeSignalsOptions extends StateEventOptions {
+  [StateDatalineOnlyIfMissing]?: boolean;
 }
 
 export interface MergeSignalsEvent {
-  event: "datastar-merge-signals";
+  event: "state-merge-signals";
   options: MergeSignalsOptions;
-  [DatastarDatalineSignals]: Record<string, Jsonifiable>;
+  [StateDatalineSignals]: Record<string, Jsonifiable>;
 }
 
 export interface RemoveSignalsEvent {
-  event: "datastar-remove-signals";
-  options: DatastarEventOptions;
-  [DatastarDatalinePaths]: string[];
+  event: "state-remove-signals";
+  options: StateEventOptions;
+  [StateDatalinePaths]: string[];
 }
 type ScriptAttributes = {
   type?: "module" | "importmap" | "speculationrules" | "text/javascript";
@@ -97,15 +97,15 @@ type ScriptAttributes = {
   async: true;
 };
 
-export interface ExecuteScriptOptions extends DatastarEventOptions {
-  [DatastarDatalineAutoRemove]?: boolean;
-  [DatastarDatalineAttributes]?: ScriptAttributes | string[];
+export interface ExecuteScriptOptions extends StateEventOptions {
+  [StateDatalineAutoRemove]?: boolean;
+  [StateDatalineAttributes]?: ScriptAttributes | string[];
 }
 
 export interface ExecuteScriptEvent {
-  event: "datastar-execute-script";
+  event: "state-execute-script";
   options: ExecuteScriptOptions;
-  [DatastarDatalineScript]: string;
+  [StateDatalineScript]: string;
 }
 
 export const sseHeaders = {
@@ -115,18 +115,18 @@ export const sseHeaders = {
 } as const;
 
 export type MultilineDatalinePrefix =
-  | typeof DatastarDatalineScript
-  | typeof DatastarDatalineFragments
-  | typeof DatastarDatalineSignals;
+  | typeof StateDatalineScript
+  | typeof StateDatalineFragments
+  | typeof StateDatalineSignals;
 
-export type DatastarEventOptionsUnion =
+export type StateEventOptionsUnion =
   | MergeFragmentsOptions
   | FragmentOptions
   | MergeSignalsOptions
-  | DatastarEventOptions
+  | StateEventOptions
   | ExecuteScriptOptions;
 
-export type DatastarEvent =
+export type StateEvent =
   | MergeFragmentsEvent
   | RemoveFragmentsEvent
   | MergeSignalsEvent
@@ -134,12 +134,12 @@ export type DatastarEvent =
   | ExecuteScriptEvent;
 
 export const DefaultMapping = {
-  [DatastarDatalineMergeMode]: DefaultFragmentMergeMode,
-  [DatastarDatalineUseViewTransition]: DefaultFragmentsUseViewTransitions,
-  [DatastarDatalineOnlyIfMissing]: DefaultMergeSignalsOnlyIfMissing,
-  [DatastarDatalineAttributes]: {
+  [StateDatalineMergeMode]: DefaultFragmentMergeMode,
+  [StateDatalineUseViewTransition]: DefaultFragmentsUseViewTransitions,
+  [StateDatalineOnlyIfMissing]: DefaultMergeSignalsOnlyIfMissing,
+  [StateDatalineAttributes]: {
     [DefaultExecuteScriptAttributes.split(" ")[0]]:
       DefaultExecuteScriptAttributes.split(" ")[1],
   },
-  [DatastarDatalineAutoRemove]: DefaultExecuteScriptAutoRemove,
+  [StateDatalineAutoRemove]: DefaultExecuteScriptAutoRemove,
 } as const;

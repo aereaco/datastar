@@ -6,13 +6,13 @@
 import { EventTypes } from '../../../../engine/consts'
 import { initErr } from '../../../../engine/errors'
 import { PluginType, type WatcherPlugin } from '../../../../engine/types'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const RemoveSignals: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.RemoveSignals,
   onGlobalInit: async (ctx) => {
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.RemoveSignals,
       ({ paths: pathsRaw = '' }) => {
         const paths = pathsRaw.split('\n').map((p) => p.trim())

@@ -1,7 +1,7 @@
 (ns examples.data-dsl
   (:require
-    [starfederation.datastar.clojure.consts :as consts]
-    [starfederation.datastar.clojure.api :as d*]))
+    [aereaco.nexus-ux.clojure.consts :as consts]
+    [aereaco.nexus-ux.clojure.api :as d*]))
 
 ;; Examples of how one might want to build a higher level api
 ;; on top of the SDK
@@ -18,7 +18,7 @@
 ;; -----------------------------------------------------------------------------
 ;; Pure version just for data-lines
 ;; -----------------------------------------------------------------------------
-(require '[starfederation.datastar.clojure.api.fragments :as frags])
+(require '[aereaco.nexus-ux.clojure.api.fragments :as frags])
 
 
 (defn sse-event [e]
@@ -37,7 +37,7 @@
 ;; -----------------------------------------------------------------------------
 ;; Pure version handling buffer
 ;; -----------------------------------------------------------------------------
-(require '[starfederation.datastar.clojure.api.sse :as sse])
+(require '[aereaco.nexus-ux.clojure.api.sse :as sse])
 
 (defn fragment->str [e]
   (let [buffer (StringBuilder.)]
@@ -54,7 +54,7 @@
       (fragment->str e)))
 
 (event->str example)
-; "event: datastar-merge-fragments\n
+; "event: state-merge-fragments\n
 ; retry: 1000\n
 ; data: selector foo\n
 ; data: mergeMode append\n
@@ -64,7 +64,7 @@
 ;; -----------------------------------------------------------------------------
 ;; Side effecting version
 ;; -----------------------------------------------------------------------------
-(require '[starfederation.datastar.clojure.adapters.test :as at])
+(require '[aereaco.nexus-ux.clojure.adapter.test :as at])
 
 ;; SSE generator that returns the sse event string instead of sending it
 (def sse-gen (at/->sse-gen))
@@ -77,7 +77,7 @@
 
 
 (sse-event! sse-gen example)
-; "event: datastar-merge-fragments\n
+; "event: state-merge-fragments\n
 ; retry: 1000\n
 ; data: selector foo\n
 ; data: mergeMode append\n

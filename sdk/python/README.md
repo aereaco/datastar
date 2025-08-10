@@ -1,11 +1,11 @@
-# datastar-py
+# nexusux-py
 
-The `datastar-py` package provides backend helpers for the [Datastar](https://data-star.dev) JS library.
+The `nexusux-py` package provides backend helpers for the [Nexus-UX](https://nexus.aerea.co) JS library.
 
-Datastar sends responses back to the browser using SSE. This allows the backend to
+Nexus-UX sends responses back to the browser using SSE. This allows the backend to
 send any number of events, from zero to infinity in response to a single request.
 
-`datastar-py` has helpers for creating those responses, formatting the events,
+`nexusux-py` has helpers for creating those responses, formatting the events,
 reading signals from the frontend, and generating the data-* HTML attributes.
 
 The event generator can be used with any framework. There are also custom
@@ -21,11 +21,11 @@ helpers included for the following frameworks:
 
 ## Event Generation Helpers
 
-To use `datastar-py`, import the SSE generator in your app and then use
+To use `nexusux-py`, import the SSE generator in your app and then use
 it in your route handler:
 
 ```python
-from datastar_py import ServerSentEventGenerator as SSE
+from nexusux_py import ServerSentEventGenerator as SSE
 
 # ... various app setup.
 # The example below is for the Quart framework, and is only using the event generation helpers.
@@ -48,22 +48,22 @@ async def updates():
 
 ## Response Helpers
 
-A datastar response consists of 0..N datastar events. There are response
+A nexus-ux response consists of 0..N nexus-ux events. There are response
 classes included to make this easy in all of the supported frameworks.
 
 The following examples will work across all supported frameworks when the
 response class is imported from the appropriate framework package.
-e.g. `from datastar_py.quart import DatastarResponse` The containing functions
+e.g. `from nexusux_py.quart import StateResponse` The containing functions
 are not shown here, as they will differ per framework.
 
 
 ```python
 # 0 events, a 204
-return DatastarResponse()
+return StateResponse()
 # 1 event
-return DatastarResponse(ServerSentEventGenerator.merge_fragments("<div id='mydiv'></div>"))
+return StateResponse(ServerSentEventGenerator.merge_fragments("<div id='mydiv'></div>"))
 # 2 events
-return DatastarResponse([
+return StateResponse([
     ServerSentEventGenerator.merge_fragments("<div id='mydiv'></div>"),
     ServerSentEventGenerator.merge_signals({"mysignal": "myval"}),
 ])
@@ -72,23 +72,23 @@ async def updates():
     while True:
         yield ServerSentEventGenerator.merge_fragments("<div id='mydiv'></div>")
         await asyncio.sleep(1)
-return DatastarResponse(updates())
+return StateResponse(updates())
 # A long lived stream for sanic
-response = await datastar_respond(request)
+response = await state_respond(request)
 # which is just a helper for the following
-# response = await request.respond(DatastarResponse())
+# response = await request.respond(StateResponse())
 while True:
     await response.send(ServerSentEventGenerator.merge_fragments("<div id='mydiv'></div>"))
     await asyncio.sleep(1)
 ```
 
 ## Signal Helpers
-The current state of the datastar signals is included by default in every 
-datastar request. A helper is included to load those signals for each
+The current state of the nexus-ux signals is included by default in every 
+nexus-ux request. A helper is included to load those signals for each
 framework. `read_signals`
 
 ```python
-from datastar_py.quart import read_signals
+from nexusux_py.quart import read_signals
 
 @app.route("/updates")
 async def updates():
@@ -96,12 +96,12 @@ async def updates():
 ```
 
 ## Attribute Generation Helper
-Datastar allows HTML generation to be done on the backend. datastar-py includes
+Nexus-UX allows HTML generation to be done on the backend. nexusux-py includes
 a helper to generate data-* attributes in your HTML with IDE completion and
 type checking. It can be used with many different HTML generation libraries.
 
 ```python
-from datastar_py import attribute_generator as data
+from nexusux_py import attribute_generator as data
 
 # htpy
 button(data.on("click", "console.log('clicked')").debounce(1000).stop)["My Button"]

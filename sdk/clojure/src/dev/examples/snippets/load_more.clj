@@ -2,9 +2,9 @@
 (ns examples.snippets.load-more
   (:require
     [dev.onionpancakes.chassis.core :refer [html]]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.common :refer [on-open]]
-    [starfederation.datastar.clojure.adapter.test :refer [->sse-response]]
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :refer [on-open]]
+    [aereaco.nexus-ux.clojure.adapter.test :refer [->sse-response]]
     [charred.api :as charred]))
 
 
@@ -19,8 +19,8 @@
 (comment
   (require
     '[charred.api :as charred]
-    '[starfederation.datastar.clojure.api :as d*]
-    '[starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]
+    '[aereaco.nexus-ux.clojure.api :as d*]
+    '[aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]
     '[some.hiccup.library :refer [html]]
     '[some.json.library :refer [read-json-str write-json-str]]))
 
@@ -49,8 +49,7 @@
 
 
 (comment
-  (handler {:request-method :get :query-params {"datastar" "{\"offset\": 1}"}})
-  (handler {:request-method :get :query-params {"datastar" "{\"offset\": 2}"}})
-  (handler {:request-method :get :query-params {"datastar" "{\"offset\": 3}"}})
-  (handler {:request-method :get :query-params {"datastar" "{\"offset\": 4}"}}))
-
+  (handler {:request-method :get :query-params {"state" "{\"offset\": 1}"}}) 
+  (handler {:request-method :get :query-params {"state" "{\"offset\": 2}"}}) 
+  (handler {:request-method :get :query-params {"state" "{\"offset\": 3}"}}) 
+  (handler {:request-method :get :query-params {"state" "{\"offset\": 4}"}}))

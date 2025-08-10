@@ -1,4 +1,4 @@
-package starfederation.datastar.adapter.unit;
+package aereaco.nexus-ux.adapter.unit;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import starfederation.datastar.adapters.request.JaxRsRequestAdapter;
+import aereaco.nexus-ux.adapters.request.JaxRsRequestAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

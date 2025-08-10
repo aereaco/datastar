@@ -1,8 +1,8 @@
 (ns examples.snippets
   (:require
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.adapter.common :refer [on-open]]
-    [starfederation.datastar.clojure.adapter.test :as at :refer [->sse-response]]))
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :refer [on-open]]
+    [aereaco.nexus-ux.clojure.adapter.test :as at :refer [->sse-response]]))
 
 
 ;; Snippets used in the website docs
@@ -19,8 +19,8 @@
 #_{:clj-kondo/ignore true}
 (comment
   (require
-    '[starfederation.datastar.clojure.api :as d*]
-    '[starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]))
+    '[aereaco.nexus-ux.clojure.api :as d*]
+    '[aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]))
 
 
 (defn handler [request]
@@ -30,7 +30,7 @@
        (d*/merge-fragment! sse
          "<div id=\"question\">What do you put in a toaster?</div>")
 
-       (d*/merge-signals! sse "{response: '', answer: 'bread'}"))}))
+       (d*/merge-signals! sse "{response: \"\", answer: 'bread'}"))}))
 
 (comment
   (handler {}))
@@ -39,8 +39,8 @@
 #_{:clj-kondo/ignore true}
 (comment
   (require
-    '[starfederation.datastar.clojure.api :as d*]
-    '[starfederation.datastar.clojure.adapter.http-kit :refer [->sse-response on-open]]))
+    '[aereaco.nexus-ux.clojure.api :as d*]
+    '[aereaco.nexus-ux.clojure.adapter.http-kit :refer [->sse-response on-open]]))
 
 
 #_{:clj-kondo/ignore true}

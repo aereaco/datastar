@@ -4,8 +4,8 @@
     [dev.onionpancakes.chassis.core :as h]
     [dev.onionpancakes.chassis.compiler :as hc]
     [ring.util.response :as rur]
-    [starfederation.datastar.clojure.adapter.common :as ac]
-    [starfederation.datastar.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.adapter.common :as ac]
+    [aereaco.nexus-ux.clojure.api :as d*]
     [test.utils :as u]))
 
 ;; -----------------------------------------------------------------------------
@@ -107,5 +107,3 @@
       {ac/on-open (fn [sse-gen]
                     (d*/merge-signals! sse-gen (apply update-signal* req f args))
                     (d*/close-sse! sse-gen))})))
-
-

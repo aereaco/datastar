@@ -1,7 +1,7 @@
 {
-  "name": "@starfederation/datastar-sdk",
+  "name": "@aereaco/nexus-ux-sdk",
   "version": "1.0.0-beta.11",
-  "description": "TypeScript SDK for Datastar",
+  "description": "TypeScript SDK for Nexus-UX",
   "scripts": {
     "check": "deno lint && deno check src/node/node.ts && deno check src/web/deno.ts",
     "serve-deno": "deno run -A src/web/deno.ts",
@@ -10,14 +10,14 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/starfederation/datastar.git"
+    "url": "git+https://github.com/aereaco/nexus-ux.git"
   },
   "author": "Patrick Marchand",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/starfederation/datastar/issues"
+    "url": "https://github.com/aereaco/nexus-ux/issues"
   },
-  "homepage": "https://github.com/starfederation/datastar#readme",
+  "homepage": "https://github.com/aereaco/nexus-ux#readme",
   "dependencies": {
     "deepmerge-ts": "^7.1.4"
   },

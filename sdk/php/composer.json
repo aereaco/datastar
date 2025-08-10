@@ -1,6 +1,6 @@
 {
-  "name": "starfederation/datastar-php",
-  "description": "A PHP SDK for working with Datastar.",
+  "name": "aereaco/nexus-ux-php",
+  "description": "A PHP SDK for working with Nexus-UX.",
   "type": "library",
   "license": "mit",
   "require": {
@@ -13,7 +13,7 @@
   },
   "autoload": {
     "psr-4": {
-      "starfederation\\datastar\\": "src/"
+      "aereaco\\nexus-ux\\": "src/"
     }
   },
   "scripts": {
@@ -36,8 +36,8 @@
     }
   ],
   "support": {
-    "docs": "https://github.com/starfederation/datastar-php",
-    "source": "https://github.com/starfederation/datastar-php",
-    "issues": "https://github.com/starfederation/datastar-php/issues"
+    "docs": "https://github.com/aereaco/nexus-ux-php",
+    "source": "https://github.com/aereaco/nexus-ux-php",
+    "issues": "https://github.com/aereaco/nexus-ux-php/issues"
   }
 }

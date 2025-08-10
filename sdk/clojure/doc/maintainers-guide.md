@@ -2,7 +2,7 @@
 
 ## Directory structure
 
-In the whole Datastar project:
+In the whole Nexus-UX project:
 
 - `examples/clojure`
 
@@ -46,7 +46,7 @@ In the SDK code proper `sdk/clojure`:
 
 ## Release
 
-- The library artifacts are published to Clojars (http://clojars.org) under the `dev.data-star` namespace.
+- The library artifacts are published to Clojars (http://clojars.org) under the `dev.nexus-ux` namespace.
 - The Clojars account is managed by Ben Croker, the DNS verification is managed by Delaney.
 - The Clojars deploy token is also managed by Ben and added to this repo as a GH Actions Secret
   - Secret name: `CLOJARS_USERNAME`
@@ -57,7 +57,7 @@ In the SDK code proper `sdk/clojure`:
 
 The Github Actions [CI workflow for clojure](../../.github/workflows/clojure-sdk.yml) will always run the tests and produce jar artifacts.
 
-Triggering a deployment to clojars is a manual process. A Datastar core contributor must trigger the Clojure SDK workflow with the `publish` input boolean set to `true.
+Triggering a deployment to clojars is a manual process. A Nexus-UX core contributor must trigger the Clojure SDK workflow with the `publish` input boolean set to `true`.
 
 **Release process:**
 
@@ -72,7 +72,7 @@ Triggering a deployment to clojars is a manual process. A Datastar core contribu
 - for the unit and smoke tests see the bb tasks.
 - for the generic bash SDK tests
   1. go to `sdk/clojure/sdk-tests/`
-  2. run `clojure -M -m starfederation.datastar.clojure.sdk-test.main`
+  2. run `clojure -M -m aereaco.nexus-ux.clojure.sdk-test.main`
   3. go to `sdk/test/`
   4. run `./test-all.sh localhost:8080`
 

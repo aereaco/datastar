@@ -1,6 +1,6 @@
 [project]
-name = "datastar-py"
-description = "Helper functions and classes for the Datastar library (https://data-star.dev/)"
+name = "nexusux-py"
+description = "Helper functions and classes for the Nexus-UX library (https://nexus.aerea.co/)"
 version = "0.5.0"
 readme = "README.md"
 authors = [
@@ -11,7 +11,7 @@ authors = [
 requires-python = ">=3.9"
 dependencies = []
 license = {text = "MIT"}
-keywords = ["datastar", "django", "fastapi", "fasthtml", "flask", "litestar", "quart", "sanic", "starlette", "html"]
+keywords = ["nexus-ux", "django", "fastapi", "fasthtml", "flask", "litestar", "quart", "sanic", "starlette", "html"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -27,8 +27,8 @@ classifiers = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/starfederation/datastar/blob/develop/sdk/python/README.md"
-GitHub = "https://github.com/starfederation/datastar"
+Documentation = "https://github.com/aereaco/nexus-ux/blob/develop/sdk/python/README.md"
+GitHub = "https://github.com/aereaco/nexus-ux"
 
 [build-system]
 requires = ["hatchling"]
@@ -50,7 +50,7 @@ dev = [
 [tool.ruff]
 line-length = 99
 exclude = [
-  "src/datastar_py/consts.py",
+  "src/nexusux_py/consts.py",
 ]
 [tool.ruff.lint]
 select = [

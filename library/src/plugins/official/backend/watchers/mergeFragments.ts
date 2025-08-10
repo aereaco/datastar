@@ -23,14 +23,14 @@ import {
   supportsViewTransitions,
 } from '../../../../utils/view-transtions'
 import { Idiomorph } from '../../../../vendored/idiomorph.esm'
-import { datastarSSEEventWatcher } from '../shared'
+import { stateSSEEventWatcher } from '../shared'
 
 export const MergeFragments: WatcherPlugin = {
   type: PluginType.Watcher,
   name: EventTypes.MergeFragments,
   onGlobalInit: async (ctx) => {
     const fragmentContainer = document.createElement('template')
-    datastarSSEEventWatcher(
+    stateSSEEventWatcher(
       EventTypes.MergeFragments,
       ({
         fragments: fragmentsRaw = '<div></div>',

@@ -1,11 +1,11 @@
-import { DATASTAR } from '../engine/consts'
+import { STATE } from '../engine/consts'
 import type { HTMLorSVGElement } from '../engine/types'
 
 export class Hash {
   #value = 0
   #prefix: string
 
-  constructor(prefix = DATASTAR) {
+  constructor(prefix = STATE) {
     this.#prefix = prefix
   }
 

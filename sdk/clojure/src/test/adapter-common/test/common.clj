@@ -7,10 +7,10 @@
     [lazytest.core :as lt]
     [lazytest.extensions.matcher-combinators :as mc]
     [org.httpkit.client :as http]
-    [starfederation.datastar.clojure.adapter.test :as test-gen]
-    [starfederation.datastar.clojure.adapter.common :as ac]
-    [starfederation.datastar.clojure.api :as d*]
-    [starfederation.datastar.clojure.api.sse :as sse]
+    [aereaco.nexus-ux.clojure.adapter.test :as test-gen]
+    [aereaco.nexus-ux.clojure.adapter.common :as ac]
+    [aereaco.nexus-ux.clojure.api :as d*]
+    [aereaco.nexus-ux.clojure.api.sse :as sse]
     [test.utils :as u]))
 
 
@@ -118,7 +118,6 @@
 (def expected-counters {:get "2"
                         :post "-1"
                         :signal "1"})
-
 
 ;; -----------------------------------------------------------------------------
 ;; form test

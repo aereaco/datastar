@@ -1,4 +1,4 @@
-namespace StarFederation.Datastar.FSharp
+namespace AereaCo.NexusUX.FSharp
 
 open System.IO
 open System.Text
@@ -62,7 +62,7 @@ type SignalsHttpHandler (httpRequest:HttpRequest) =
     static member GetSignalsStream (httpRequest:HttpRequest) =
         match httpRequest.Method with
         | System.Net.WebRequestMethods.Http.Get ->
-            match httpRequest.Query.TryGetValue(Consts.DatastarKey) with
+            match httpRequest.Query.TryGetValue(Consts.StateKey) with
             | true, stringValues when stringValues.Count > 0 -> (new MemoryStream(Encoding.UTF8.GetBytes(stringValues[0])) :> Stream)
             | _ -> Stream.Null
         | _ -> httpRequest.Body
@@ -70,7 +70,7 @@ type SignalsHttpHandler (httpRequest:HttpRequest) =
     static member ReadSignalsAsync (httpRequest:HttpRequest, cancellationToken:CancellationToken) = task {
         match httpRequest.Method with
         | System.Net.WebRequestMethods.Http.Get ->
-            match httpRequest.Query.TryGetValue(Consts.DatastarKey) with
+            match httpRequest.Query.TryGetValue(Consts.StateKey) with
             | true, stringValues when stringValues.Count > 0 -> return (stringValues[0] |> Signals.create)
             | _ -> return Signals.empty
         | _ ->
@@ -87,7 +87,7 @@ type SignalsHttpHandler (httpRequest:HttpRequest) =
         try
             match httpRequest.Method with
             | System.Net.WebRequestMethods.Http.Get ->
-                match httpRequest.Query.TryGetValue(Consts.DatastarKey) with
+                match httpRequest.Query.TryGetValue(Consts.StateKey) with
                 | true, stringValues when stringValues.Count > 0 ->
                     return ValueSome (JsonSerializer.Deserialize<'T>(stringValues[0], jsonSerializerOptions))
                 | _ ->
