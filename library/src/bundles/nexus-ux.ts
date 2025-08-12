@@ -70,7 +70,6 @@ load(
   ExecuteScript,
   PatchElements,
   PatchSignals,
-  PatchSignals,
   // Browser
   Clipboard,
   CustomValidity,
