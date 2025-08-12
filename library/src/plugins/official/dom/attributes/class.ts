@@ -44,7 +44,7 @@ export const Class: AttributePlugin = {
 
     const mutationCallback: MutationUpdateCallback = () => {
       // Re-run the effect to apply the latest class values
-      applyClasses()
+      //applyClasses()
     }
 
     return { cleanupCallback, mutationCallback }

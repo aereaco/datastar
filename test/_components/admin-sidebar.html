@@ -2,9 +2,9 @@
     <aside class="h-full bg-neutral-950/60 backdrop-blur-lg overflow-hidden"
     x-data="{ activeTab: 1 }"
     x-effect="
-        if (!appData.theme.expanded && !sidebarOpen && !sidebarHovered ) {
-            activeTab = 1;
-        }
+        // if (!appData.theme.expanded && !sidebarOpen && !sidebarHovered ) {
+        //     activeTab = 1;
+        // }
     "
 >
 <div class="flex flex-col h-full bg-neutral/55">
@@ -52,7 +52,7 @@
             </button>
         </div>
         <div>
-            <button class="close pt-5 pe-4" @click="sidebarOpen = false">
+            <button class="close pt-5 pe-4">
                 <svg class="stroke-current size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-xbox-x" />
                 </svg>
@@ -62,7 +62,7 @@
     <div class="tabcontent grow size-full overflow-x-hidden overflow-y-auto">
         <ul x-show="activeTab === 1"  class="menu pt-6">
             <li>
-            <a class="" href="/#Home">
+            <a class="" href="/">
                 <svg class="stroke-current size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-home" />
                 </svg>
@@ -108,7 +108,7 @@
             </details>
             </li>
             <li>
-            <a class="">
+            <a class="" href="/dynamic.html">
                 <svg class="stroke-current size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-chart-area" />
                 </svg>
@@ -151,7 +151,7 @@
         </button>
     </div>            
 </div></aside>
-<div class="sidebar-overlay" x-bind:class="{ 'open': sidebarOpen }" @click="sidebarOpen = false"></div>
+<div class="sidebar-overlay" _click="$sidebarOpen = false"></div>
 <style>
     [x-cloak] {display: none; }    
 

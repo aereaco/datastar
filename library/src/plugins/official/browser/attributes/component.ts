@@ -122,6 +122,11 @@ export class BaseComponent extends HTMLElement {
    * Nexus-UX attributes within it have been processed..
    */
   contentReadyCallback() {
+    // Diagnostic: Re-apply plugins to the host element after content is ready
+    // This is to ensure data-class and data-on-* on the host element are re-processed
+    if (this._ctx) {
+      this._ctx.applyToElement(this); // 'this' refers to the BaseComponent instance (the host element)
+    }
     // To be implemented by the component author.
   }
 
@@ -666,17 +671,21 @@ export const Component: AttributePlugin = {
 
         // If the element is already an instance of BaseComponent, trigger re-render
         if (el instanceof BaseComponent) {
-          // Re-parse the new source and update the instance's properties
-          const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
-          const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
+          // Only re-parse and re-render if the source has actually changed
+          // or if it's the initial render.
+          if (el._componentSrc !== currentResolvedSource || !el._isRendered) {
+            const htmlContent = await getTemplateHtml(ctx, currentResolvedSource);
+            const { templateContent, styles, scripts, shadowMode } = parseComponentHTML(htmlContent, tagName);
 
-          el._templateContent = templateContent;
-          el._styles = styles;
-          el._scripts = scripts;
-          el._isShadowDOM = !!shadowMode;
+            el._templateContent = templateContent;
+            el._styles = styles;
+            el._scripts = scripts;
+            el._isShadowDOM = !!shadowMode;
 
-          el._loadAndRender(currentResolvedSource);
+            el._loadAndRender(currentResolvedSource);
+          }
         }
+
       } catch (error) {
         console.error(`[Nexus-UX] Component <${tagName}> failed to render from source "${currentResolvedSource}":`, error);
         // Do not re-throw, allow other components to render.

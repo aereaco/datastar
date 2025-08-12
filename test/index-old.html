@@ -382,10 +382,7 @@
   <body
     class="overflow-hidden"
     :class="{ 'expanded': appData.theme.expanded }"
-    x-data="{
-      sidebarOpen: false,
-      sidebarHovered: false,
-      }"        
+        
   >
     <dashboard-header shadow class="dashboard-header"></dashboard-header>
     <!--<dashboard-header2 dat-component-src="_components/dashboard-header.tmpl" class="dashboard-header"></dashboard-header2>-->
@@ -401,6 +398,7 @@
       :class="{ 'open': sidebarOpen, 'hovered': sidebarHovered && !sidebarOpen }"
       @mouseenter="if (!sidebarOpen) sidebarHovered = true"
       @mouseleave="sidebarHovered = false; if (!event.target.closest('#sidebar .close')) sidebarOpen = false;"
+          x-data="{ sidebarOpen: false, sidebarHovered: false }"
     ></dashboard-sidebar>
 
     <dashboard-main shadow class="dashboard-main"></dashboard-main>

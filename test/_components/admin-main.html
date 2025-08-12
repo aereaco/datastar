@@ -88,60 +88,9 @@
       
       
     <article class="p-12">
-      <h2>Expandable Sidebar</h2>
-      <p class="pb-8">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem ab non
-        dolorem reiciendis harum quasi inventore a eum soluta. Suscipit id
-        asperiores libero veritatis ducimus sapiente minus reprehenderit
-        eligendi pariatur.
-      </p>
-      <example-cards data-component="_components/example-cards.html"></example-cards>       
-      <div class="my-8">
-        <h3 class="text-xl font-bold mb-4">Dynamic Component Sources</h3>
-        <p>Change the input below to load a different component into the placeholder area.</p>
-        <p class="text-sm text-base-content/70">Try: <code>_components/test-twoway.html</code> or <code>_components/test-computed.html</code></p>
 
-        <div class="my-4 p-4 border rounded-md min-h-96"
-             data-signals="{ compSource1: '_components/test-twoway.html' }"
-        >
-            <dynamic-component1 data-component="$compSource1">
-              <p>Loading...</p>
-            </dynamic-component1>
-        </div>
-        <div class="form-control w-full my-4">
-            <label class="label">
-                <span class="label-text">Component Source Path 1</span>
-            </label>
-            <input type="text" data-bind="compSource1" class="input input-bordered w-full" />
-        </div>
-        
-        <div class="my-4 p-4 border rounded-md min-h-96"
-             data-signals="{ compSource2: '_components/test-computed.html' }">
-            <dynamic-component2 data-component="$compSource2">
-              <p>Loading...</p>
-            </dynamic-component2>
-        </div>
-        <div class="form-control w-full my-4">
-            <label class="label">
-                <span class="label-text">Component Source Path 2</span>
-            </label>
-            <input type="text" data-bind="compSource2" class="input input-bordered w-full" />
-        </div>
+      <router-outlet data-component="$router.route"></router-outlet>       
 
-        <div class="my-4 p-4 border rounded-md min-h-96"
-             data-signals="{ compSource3: '_components/placeholder-grid.html' }">
-            <dynamic-component3 data-component="$compSource3">
-              <p>Loading...</p>
-            </dynamic-component3>
-        </div>
-        <div class="form-control w-full my-4">
-            <label class="label">
-                <span class="label-text">Component Source Path 3</span>
-            </label>
-            <input type="text" data-bind="compSource3" class="input input-bordered w-full" />
-        </div>
-        
-      </div>
     </article>
   </div>
   <template id="home2">test</template>
