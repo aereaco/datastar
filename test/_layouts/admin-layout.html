@@ -192,7 +192,66 @@
             }      
         }
     </style>
-    <div id="theme" class="h-full overflow-hidden">
+    <div id="theme"
+        data-signals="{
+            theme: {
+                state: 0,
+                expanded: false,
+                direction: 'ltr',
+                zoom: { value: 1, temp: 1 },
+                types: [
+                    { type: 'light', title: 'Light', selected: 'light', template: 'sun-svg' },
+                    { type: 'dark', title: 'Dark', selected: 'dark', template: 'moon-svg' },
+                    { type: 'system', title: 'System', selected: 'system', template: 'brightness-svg' }
+                ]
+            },
+            themes: [
+                'light',
+                'dark',
+                'cupcake',
+                'bumblebee',
+                'emerald',
+                'corporate',
+                'synthwave',
+                'retro',
+                'cyberpunk',
+                'valentine',
+                'halloween',
+                'garden',
+                'forest',
+                'aqua',
+                'lofi',
+                'pastel',
+                'fantasy',
+                'wireframe',
+                'black',
+                'luxury',
+                'dracula',
+                'cmyk',
+                'autumn',
+                'business',
+                'acid',
+                'lemonade',
+                'night',
+                'coffee',
+                'winter',
+                'dim',
+                'nord',
+                'sunset'
+            ],
+            bookmarks: {
+                visible: false,
+                list:[
+                    { title: 'Home', icon: 'home', pinned: true, route:'/' },
+                    { title: 'E-commerce', icon: null , pinned: false, route:'/ecommerce' },
+                    { title: 'Communication', icon: null , pinned: false, route:'/communication' }
+                ] 
+            }
+        }"
+        data-persist
+        class="h-full overflow-hidden"
+        data-class="{ 'expanded': $theme.expanded, 'ltr': $theme.direction === 'ltr', 'rtl': $theme.direction === 'rtl' }"
+    >
         <admin-header
             class="admin-header bg-neutral"
             data-component="_components/admin-header.html"
@@ -212,7 +271,6 @@
             data-on-mouseenter="!$sidebarOpen ? $sidebarHovered = true : null;"
             data-on-mouseleave="$sidebarHovered ? $sidebarHovered = false : null"
             data-on-click="($sidebarOpen || $sidebarHovered) && event.target.closest('a, #sidebar .close') ? ($sidebarOpen = false, $sidebarHovered = false) : null;"
-            data-effect="console.log('$'+'sidebarOpen = ' + $sidebarOpen + ', ' + '$'+'sidebarHovered = ' + $sidebarHovered)"
         ></admin-sidebar>
 
         <admin-main

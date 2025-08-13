@@ -7,8 +7,8 @@ import "time"
 const (
     StateKey = "state"
     Version                   = "0.0.1-alpha"
-    VersionClientByteSize     = 68800
-    VersionClientByteSizeGzip = 23447
+    VersionClientByteSize     = 69338
+    VersionClientByteSizeGzip = 23594
 
     //region Default durations
 

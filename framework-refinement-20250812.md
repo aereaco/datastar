@@ -145,3 +145,100 @@ By implementing these refinements and features, Nexus-UX can differentiate itsel
 *   **Prioritizing Performance:** Leveraging native browser APIs and efficient libraries for fast, smooth user experiences.
 *   **Providing a Strong DX:** With better tooling, clearer error messages, and streamlined development workflows.
 *   **Expanding Capabilities:** Moving beyond basic interactivity to support complex, real-time, and performant web applications.
+
+### D. Expanded Candidates for Declarative Web Technology Integration
+
+Building on Nexus-UX's philosophy of leveraging native browser capabilities in a declarative manner, the following technologies are strong candidates for future integration:
+
+1.  **Service Workers (for Offline & PWA Capabilities)**
+    *   **Why:** Service Workers are fundamental for building Progressive Web Apps (PWAs), enabling offline experiences, advanced caching strategies, and push notifications. Managing their lifecycle (registration, updates, caching) can be complex imperatively.
+    *   **Declarative Approach:**
+        *   `data-service-worker="<path_to_sw.js>"`: To register a service worker.
+        *   `data-service-worker-cache="<json_config>"`: To define caching strategies (e.g., `{"/assets": "cache-first", "/api": "network-first"}`).
+        *   `data-service-worker-on-update="<expression>"`: To trigger UI updates when a new service worker is available.
+        *   `data-service-worker-push-subscribe="<signal_path>"`: To declaratively subscribe to push notifications and store the subscription object in a signal.
+    *   **Benefit:** Simplifies PWA development, making advanced offline and notification features accessible directly from HTML.
+
+2.  **IndexedDB (for Robust Client-Side Storage)**
+    *   **Why:** While `data-persist` handles `localStorage`/`sessionStorage`, IndexedDB offers a more powerful, asynchronous, and structured client-side database for larger datasets or complex data relationships.
+    *   **Declarative Approach:**
+        *   `data-indexeddb="<db_name>"`: On a container element, defining the database.
+        *   `data-indexeddb-store="<store_name>"`: On child elements, defining object stores.
+        *   `data-indexeddb-get="<key_or_signal>"`: To retrieve data by key, storing the result in a signal.
+        *   `data-indexeddb-put="<signal_path>"`: To store/update data from a signal.
+        *   `data-indexeddb-delete="<key_or_signal>"`: To delete data.
+        *   `data-indexeddb-query="<json_query>"`: For more complex queries (e.g., by index, range).
+    *   **Benefit:** Enables rich offline data management and complex client-side caching without imperative IndexedDB API calls.
+
+3.  **Web Workers (for Background Processing)**
+    *   **Why:** Offloading heavy computations from the main thread is crucial for maintaining UI responsiveness. Web Workers are the standard for this.
+    *   **Declarative Approach:**
+        *   `data-worker="<path_to_worker.js>"`: To instantiate a Web Worker.
+        *   `data-worker-post-message="<signal_path>"`: To send messages to the worker when a signal changes.
+        *   `data-worker-on-message="<expression>"`: To handle messages received from the worker, updating signals.
+        *   `data-worker-on-error="<expression>"`: To handle worker errors.
+    *   **Benefit:** Keeps the UI fluid by moving CPU-intensive tasks to a background thread, directly from HTML.
+
+4.  **Web Animations API (WAAPI)**
+    *   **Why:** WAAPI offers more powerful, performant, and declarative control over animations than CSS transitions/animations alone, especially for complex sequences or JavaScript-driven animations.
+    *   **Declarative Approach:**
+        *   `data-animate-keyframe="<json_keyframes>"`: Defines keyframes.
+        *   `data-animate-options="<json_options>"`: Defines animation options (duration, easing, iterations).
+        *   `data-animate-play="<boolean_signal>"`: To play/pause animation based on a signal.
+        *   `data-animate-seek="<signal_path>"`: To control animation progress.
+        *   `data-animate-on-finish="<expression>"`: To react when an animation finishes.
+    *   **Benefit:** Enables sophisticated, performant animations directly from HTML, without complex imperative JavaScript.
+
+### E. Other Potential Declarative Integrations:
+
+*   **Drag and Drop API:** `data-draggable`, `data-droptarget`, `data-on-dragstart`, `data-on-drop`.
+*   **Payment Request API:** `data-payment-request="<json_details>"`, `data-payment-on-success="<expression>"`.
+*   **Credential Management API:** `data-credential-get="<json_options>"`, `data-credential-store="<signal_path>"`.
+*   **Geolocation API:** `data-geolocation-watch="<signal_path>"`, `data-geolocation-on-change="<expression>"`.
+*   **WebTransport (HTTP/3 based):** A newer, more flexible alternative to WebSockets for certain use cases, offering both reliable and unreliable data streams. Could be a `data-webtransport` plugin.
+   1. Modals / Dialogs / Popups:
+       * Common Problem: Managing visibility, overlay, focus trapping (for accessibility), closing on escape
+         key, closing on outside click, stacking multiple modals, and handling scroll lock on the body.
+       * Declarative Approach:
+           * data-modal-open="$signal": Controls visibility.
+           * data-modal-close-on-escape="true": Closes on ESC key.
+           * data-modal-close-on-outside-click="true": Closes when clicking outside the modal.
+           * data-modal-focus-trap="true": Traps keyboard focus within the modal for accessibility.
+           * data-modal-aria-label="<string>": For accessibility.
+       * Benefit: Simplifies a notoriously complex UX pattern, ensuring accessibility and correct behavior
+         out-of-the-box.
+
+   2. Tooltips / Popovers:
+       * Common Problem: Accurate positioning relative to a target element, showing/hiding on hover/focus,
+         managing delays, handling overflow, and accessibility.
+       * Declarative Approach:
+           * data-tooltip-show="$signal": Controls visibility.
+           * data-tooltip-for="<target_id>": Links tooltip to its trigger element.
+           * data-tooltip-position="top|bottom|left|right|auto": Controls placement.
+           * data-tooltip-offset="<px>": Adjusts distance from target.
+           * data-tooltip-delay="<ms>": Delay before showing/hiding.
+           * data-tooltip-trigger="hover|click|focus": How it's activated.
+       * Benefit: Provides a simple, consistent way to add contextual information without manual positioning
+         calculations.
+
+   3. Carousels / Sliders:
+       * Common Problem: Managing active slide, navigation (next/prev buttons, pagination dots), auto-play,
+         looping, touch/swipe support, and handling dynamic content.
+       * Declarative Approach:
+           * data-carousel-active-slide="$signal": Controls the currently visible slide.
+           * data-carousel-autoplay="<ms>": Auto-advances slides.
+           * data-carousel-loop="true": Enables infinite looping.
+           * data-carousel-next="<target_id>" / data-carousel-prev="<target_id>": Buttons to navigate.
+           * data-carousel-pagination-for="<target_id>": Generates pagination dots.
+           * data-carousel-swipe="true": Enables touch/swipe navigation.
+       * Benefit: Simplifies a common but often feature-rich and complex UI component.
+
+   4. Accordion / Expandable Panels:
+       * Common Problem: Toggling visibility of content sections, managing multiple open panels (single vs.
+         multi-expand), and accessibility.
+       * Declarative Approach:
+           * data-accordion-expanded="$signal": Controls if a panel is open.
+           * data-accordion-group="<group_id>": For single-expand behavior within a group.
+           * data-accordion-on-toggle="<expression>": Executes an expression when a panel expands/collapses.
+       * Benefit: Provides a clean way to manage collapsible content sections. (Tabs are a related pattern
+         that could also be declaratively implemented).

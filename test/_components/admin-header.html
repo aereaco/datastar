@@ -2,7 +2,7 @@
   <div id="main-header" class="navbar bg-base-100 shadow-sm">
     <div class="navbar-start">
         
-      <button class="expander btn btn-ghost btn-circle" @click="toggleThemeExpanded()" data-expand-btn>
+      <button class="expander btn btn-ghost btn-circle" data-on-click="$theme.expanded = !$theme.expanded">
         <svg class="size-2/3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
             <use href="assets/images/icons/tabler-sprite-nostroke.svg#tabler-chevrons-right" />
         </svg>
