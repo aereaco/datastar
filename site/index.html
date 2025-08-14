@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"
+  data-signals='{
+    "router": {
+        "routes": [
+            { "path": "/", "component": "/home.html", "layout": "/_layouts/main-layout.html" },
+            { "path": "/about", "component": "/about.html", "layout": "/_layouts/main-layout.html" },
+            { "path": "/users/:id", "component": "/users/[id].html", "layout": "/_layouts/main-layout.html" },
+            { "path": "/404.html", "component": "/404.html" }
+        ]
+    }
+}'>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus-UX Router Demo</title>
+  <script type="module" src="/bundles/nexus-ux.js"></script>
+  <script type="module">
+    import { load } from '/library/src/index.ts';
+    import { Router } from '/library/src/plugins/official/browser/watchers/router.ts';
+    import { History } from '/library/src/plugins/official/browser/watchers/history.ts';
+    import { Route } from '/library/src/plugins/official/browser/attributes/route.ts';
+
+    load(Router, History, Route);
+  </script>
+</head>
+
+<body>
+  <!-- The router will dynamically load the layout into this custom element -->
+  <main-layout data-component="$router.current.route">
+    <!-- The layout itself will contain the <router-outlet> -->
+  </main-layout>
+</body>
+
+</html>
