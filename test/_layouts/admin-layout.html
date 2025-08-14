@@ -46,7 +46,7 @@
         .admin-sidebar {
             grid-area: sidebar;     
             z-index: 1000;
-            transition: width 0.3s ease-in-out;
+            transition: width 0.01s ease-in-out;
             &.open {
                 .close {
                     display: block;
@@ -259,6 +259,7 @@
 
         <admin-tabs
             class="admin-tabs bg-base-300/80 -mb-14 z-10 transition-all"
+            data-class="{ '-mt-16 h-0 overflow-hidden': !$bookmarks.visible, }"
             data-component="_components/admin-tabs.html"
         ></admin-tabs>
         
