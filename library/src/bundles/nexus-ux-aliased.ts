@@ -25,7 +25,7 @@ import { ScrollIntoView } from '../plugins/official/browser/attributes/scrollInt
 import { ViewTransition } from '../plugins/official/browser/attributes/viewTransition'
 import { Component } from '../plugins/official/browser/attributes/component'
 import { Effect } from '../plugins/official/browser/attributes/effect'
-import { Trap } from '../plugins/official/browser/attributes/trap'
+import { Focus } from '../plugins/official/browser/attributes/focus'
 import { Id as IdAttribute } from '../plugins/official/browser/attributes/id'
 import { Id as IdAction } from '../plugins/official/browser/actions/id'
 import { Attr } from '../plugins/official/dom/attributes/attr'
@@ -107,7 +107,7 @@ load(
   LinkRewriter,
   Component,
   Effect,
-  Trap,
+  Focus,
   IdAttribute,
   IdAction,
   NextTick,

@@ -16,9 +16,9 @@ const FOCUSABLE_SELECTORS = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
-export const Trap: AttributePlugin = {
+export const Focus: AttributePlugin = {
   type: PluginType.Attribute,
-  name: 'trap',
+  name: 'focus',
   keyReq: Requirement.Denied,
   valReq: Requirement.Must,
 
@@ -26,7 +26,7 @@ export const Trap: AttributePlugin = {
     const rx = genRX()
 
     let lastFocusedElement: HTMLElement | null = null
-    let isTrapped = false
+    let isFocused = false
     let currentEffectCleanup: CleanupUpdateCallback = () => {}
 
     const getFocusableElements = (): HTMLElement[] => {
@@ -34,7 +34,7 @@ export const Trap: AttributePlugin = {
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab' || !isTrapped) return
+      if (e.key !== 'Tab' || !isFocused) return
 
       const focusableElements = getFocusableElements()
       if (focusableElements.length === 0) return
@@ -58,9 +58,9 @@ export const Trap: AttributePlugin = {
       }
     }
 
-    const activateTrap = () => {
-      if (isTrapped) return
-      isTrapped = true
+    const activateFocus = () => {
+      if (isFocused) return
+      isFocused = true
 
       lastFocusedElement = document.activeElement as HTMLElement
 
@@ -73,9 +73,9 @@ export const Trap: AttributePlugin = {
       document.addEventListener('keydown', handleKeyDown)
     }
 
-    const deactivateTrap = () => {
-      if (!isTrapped) return
-      isTrapped = false
+    const deactivateFocus = () => {
+      if (!isFocused) return
+      isFocused = false
 
       document.removeEventListener('keydown', handleKeyDown)
 
@@ -85,31 +85,31 @@ export const Trap: AttributePlugin = {
       }
     }
 
-    const setupTrap = () => { // Removed expressionValue parameter
+    const setupFocus = () => { // Removed expressionValue parameter
       currentEffectCleanup() // Clean up previous effect
 
       currentEffectCleanup = effect(() => {
-        const shouldTrap = rx<boolean>()
-        if (shouldTrap) {
-          activateTrap()
+        const shouldFocus = rx<boolean>()
+        if (shouldFocus) {
+          activateFocus()
         }
         else {
-          deactivateTrap()
+          deactivateFocus()
         }
       })
     }
 
     // Initial setup
-    setupTrap() // Call without argument
+    setupFocus() // Call without argument
 
     const cleanupCallback: CleanupUpdateCallback = () => {
-      deactivateTrap() // Ensure trap is deactivated on plugin cleanup
+      deactivateFocus() // Ensure focus is deactivated on plugin cleanup
       currentEffectCleanup() // Clean up the effect
     }
 
     const mutationCallback: MutationUpdateCallback = (newValue) => {
       if (newValue !== null) { // Attribute value changed
-        setupTrap() // Call without argument
+        setupFocus() // Call without argument
       }
       else {
         cleanupCallback()
