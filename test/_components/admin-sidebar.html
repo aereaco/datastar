@@ -55,7 +55,6 @@
             <div
                 class="tabcontent grow size-full overflow-x-hidden overflow-y-auto"
                 data-signals="{ sidebarContent: '#sidebarMenu' }"
-                data-component="$sidebarContent"
                 data-effect="
                     ( !$sidebarOpen && !$sidebarHovered && !$theme.expanded ) ?
                     $sidebarContent = '#sidebarMenu' : null
@@ -124,16 +123,16 @@
 
                 <div id="sidebarFavorites"
                     data-show="$sidebarContent === '#sidebarFavorites'">
-                    <div class="p-8">
-                        <div class="mb-6"><h1 class="text-lg">Favorites</h1></div>
+                    <div class="">
+                        <div class="p-8 mb-6"><h1 class="text-lg">Favorites</h1></div>
                     </div>            
                 </div>                
                 
                 <div id="sidebarPreferences"
                     data-show="$sidebarContent === '#sidebarPreferences'">
-                    <dashboard-sidebar-preferences
+                    <admin-sidebar-preferences
                         data-component="_components/admin-sidebar-preferences.html">
-                    </dashboard-sidebar-preferences>
+                    </admin-sidebar-preferences>
                 </div>
 
 

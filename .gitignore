@@ -5,7 +5,7 @@ datastar_site
 examples
 site
 build
-data
+#data
 .rollback
 .task
 .idea

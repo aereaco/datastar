@@ -9,7 +9,7 @@
             <template x-for="theme in appData.themes" :key="theme">
                 <label :class="{ '[&amp;_svg]:visible': currentTheme === theme }" class="outline-base-content text-start outline-offset-4 theme-controller">
                     <input
-                        data-on-click="setTimeout(() => { $openThemeOptions = !$openThemeOptions; }, 00);"
+                        _data-on-click="setTimeout(() => { $openThemeOptions = !$openThemeOptions; }, 00);"
                         @change="() => updateTheme(theme)"
                         type="radio"
                         name="theme-radios"

@@ -1,3 +1,4 @@
+<template>
 <div class="p-8" x-data="{selectedTheme: activeTheme ? 'secondaryTheme' : 'primaryTheme'}">
     <div class="mb-6 whitespace-nowrap"><h1 class="text-lg">Panel Preferences</h1>
     </div>
@@ -7,9 +8,11 @@
             data-component="_components/theme-chooser.html">
         </theme-chooser>
         <div class="divider"></div>
-            <theme-textflow></theme-textflow>
+            <theme-textflow
+            data-component="_components/theme-textflow.html"></theme-textflow>
         <div class="divider"></div>
-            <theme-zoom></theme-zoom>
+            <theme-zoom
+            data-component="_components/theme-zoom.html"></theme-zoom>
         <div class="divider"></div>
 
         <div class="form-control">
@@ -28,3 +31,4 @@
     </div>
     </div>
 </div>
+</template>

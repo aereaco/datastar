@@ -25,14 +25,19 @@ import { ScrollIntoView } from '../plugins/official/browser/attributes/scrollInt
 import { ViewTransition } from '../plugins/official/browser/attributes/viewTransition'
 import { Component } from '../plugins/official/browser/attributes/component'
 import { Effect } from '../plugins/official/browser/attributes/effect'
+import { Trap } from '../plugins/official/browser/attributes/trap'
+import { Id as IdAttribute } from '../plugins/official/browser/attributes/id'
+import { Id as IdAction } from '../plugins/official/browser/actions/id'
 import { Attr } from '../plugins/official/dom/attributes/attr'
 import { Bind } from '../plugins/official/dom/attributes/bind'
 import { Class } from '../plugins/official/dom/attributes/class'
+import { For } from '../plugins/official/dom/attributes/for'
 import { On } from '../plugins/official/dom/attributes/on'
 import { Ref } from '../plugins/official/dom/attributes/ref'
 import { Show } from '../plugins/official/dom/attributes/show'
 import { Style } from '../plugins/official/dom/attributes/style'
 import { Text } from '../plugins/official/dom/attributes/text'
+import { Teleport } from '../plugins/official/dom/attributes/teleport'
 import { JsonSignals } from '../plugins/official/dom/attributes/jsonSignals'
 import { PatchElements } from '../plugins/official/backend/watchers/patchElements'
 import { PatchSignals } from '../plugins/official/backend/watchers/patchSignals'
@@ -44,18 +49,26 @@ import { Router } from '../plugins/official/browser/attributes/router'
 import { History } from '../plugins/official/browser/watchers/history'
 import { Route } from '../plugins/official/browser/attributes/route'
 import { LinkRewriter } from '../plugins/official/browser/watchers/linkRewriter'
+import { Html } from '../plugins/official/dom/attributes/html'
+import { Cloak } from '../plugins/official/dom/attributes/cloak'
+import { NextTick } from '../plugins/official/browser/actions/nextTick'
+
 
 load(
   // DOM
   Attr,
   Bind,
   Class,
+  For,
   On,
   Ref,
   Show,
   Style,
   Text,
+  Teleport,
   JsonSignals,
+  Html,
+  Cloak,
   // Backend
   Indicator,
   GET,
@@ -90,6 +103,10 @@ load(
   LinkRewriter,
   Component,
   Effect,
+  Trap,
+  IdAttribute,
+  IdAction,
+  NextTick,
   // Logic
   Fit,
   SetAll,
