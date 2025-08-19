@@ -51,6 +51,7 @@ import { Route } from '../plugins/official/browser/attributes/route'
 import { LinkRewriter } from '../plugins/official/browser/watchers/linkRewriter'
 import { Html } from '../plugins/official/dom/attributes/html'
 import { Cloak } from '../plugins/official/dom/attributes/cloak'
+import { If } from '../plugins/official/dom/attributes/if'
 import { NextTick } from '../plugins/official/browser/actions/nextTick'
 import { WebSocketPlugin } from '../plugins/official/browser/attributes/websocket'
 import { WebSocketSendAction } from '../plugins/official/logic/actions/websocket'
@@ -73,6 +74,7 @@ load(
   JsonSignals,
   Html,
   Cloak,
+  If,
   // Backend
   Indicator,
   GET,

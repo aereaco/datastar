@@ -36,6 +36,7 @@ import { Ignore } from './official/dom/attributes/ignore'
 import { IgnoreMorph } from './official/dom/attributes/ignoreMorph'
 import { Animate } from './official/dom/attributes/animate'
 import { PreserveAttr } from './official/dom/attributes/preserveAttr'
+import { If } from './official/dom/attributes/if'
 import { PatchElements } from './official/backend/watchers/patchElements'
 import { PatchSignals } from './official/backend/watchers/patchSignals'
 import { Fit } from './official/logic/actions/fit'
@@ -60,6 +61,7 @@ export {
   IgnoreMorph,
   Animate,
   PreserveAttr,
+  If,
   // Backend
   Indicator,
   GET,
