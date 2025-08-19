@@ -37,20 +37,19 @@ The `data-graphql` attribute will be placed on an element and its value will be 
 
 **Key Attributes/Modifiers:**
 
-*   **`data-graphql="<query_string_or_signal>"` (Required):** The GraphQL query or mutation string. Can be a literal string or a signal path (e.g., `"$myQuerySignal"`) that resolves to a query string.
-*   **`data-graphql-url="<url_string_or_signal>"` (Optional):** The GraphQL endpoint URL. Can be a literal string or a signal path. Defaults to `/graphql` if not provided.
-*   **`data-graphql-variables="<json_object_or_signal>"` (Optional):** A JSON object or a signal path that resolves to a JSON object, containing the variables for the query/mutation.
-    *   **Example:** `data-graphql-variables="{ id: $userId, type: 'admin' }"` or `data-graphql-variables="$queryVariables"`.
-*   **`data-graphql-operation-name="<string_or_signal>"` (Optional):** The name of the GraphQL operation (for multi-operation queries). Can be a literal string or a signal path.
+*   **`data-graphql="<query_string_or_signal>"` (Required):** The GraphQL query or mutation string. This can be a direct string literal (e.g., `"query { hello }"`) or a JavaScript expression that evaluates to a string (e.g., `"$myQuerySignal"` or `"'query { user(id: ' + $userId + ') }'"`).
+*   **`data-graphql-url="<url_string_or_signal>"` (Optional):** The GraphQL endpoint URL. This can be a direct string literal (e.g., `"/api/graphql"`) or a JavaScript expression that evaluates to a string (e.g., `"$graphqlEndpoint"` or `"'https://' + $apiHost + '/graphql'"`). Defaults to `/graphql` if not provided.
+*   **`data-graphql-variables="<json_object_or_signal>"` (Optional):** Variables for the query/mutation. This can be a direct JSON object literal (e.g., `"{ id: 1, type: 'admin' }"`) or a JavaScript expression that evaluates to a JSON object (e.g., `"$queryVariables"` or `"{ id: $userId, name: $userName }"`).
+*   **`data-graphql-operation-name="<string_or_signal>"` (Optional):** The name of the GraphQL operation (for multi-operation queries). This can be a direct string literal (e.g., `"GetUser"`) or a JavaScript expression that evaluates to a string (e.g., `"$operationNameSignal"`).
 *   **`data-graphql-method="<method>"` (Optional):** The HTTP method to use (`'POST'` or `'GET'`). Defaults to `'POST'`.
-*   **`data-graphql-headers="<json_object_or_signal>"` (Optional):** A JSON object or signal path resolving to an object, containing custom HTTP headers for the request.
+*   **`data-graphql-headers="<json_object_or_signal>"` (Optional):** Custom HTTP headers for the request. This can be a direct JSON object literal (e.g., `"{ 'Authorization': 'Bearer token' }"`) or a JavaScript expression that evaluates to a JSON object (e.g., `"$authHeaders"` or `"{ 'X-Custom-Header': $headerValue }"`).
 *   **`data-graphql-result-signal="<signal_path>"` (Optional):** The signal path where the `data` payload from the GraphQL response will be stored. Defaults to `graphql.result`.
 *   **`data-graphql-error-signal="<signal_path>"` (Optional):** The signal path where the `errors` array from the GraphQL response will be stored. Defaults to `graphql.error`.
 *   **`data-graphql-loading-signal="<signal_path>"` (Optional):** A boolean signal path to indicate loading state (`true` during fetch, `false` after). Defaults to `graphql.loading`.
 *   **`data-graphql-on-success="<expression>"` (Optional):** Executes an expression when the GraphQL request successfully returns data (even if `errors` are present). `event` context available (e.g., `event.detail.data`, `event.detail.errors`).
 *   **`data-graphql-on-error="<expression>"` (Optional):** Executes an expression if a network error occurs or if the GraphQL response contains errors. `event` context available (e.g., `event.detail.error` for network, `event.detail.errors` for GraphQL errors).
 *   **`data-graphql-on-complete="<expression>"` (Optional):** Executes an expression after the GraphQL request completes, regardless of success or error.
-*   **`data-graphql-refetch-on-change="<signal_path_or_array>"` (Optional):** Automatically re-fetches the GraphQL query when the specified signal(s) change. Can be a single signal path or a JSON array of signal paths.
+*   **`data-graphql-refetch-on-change="<signal_path_or_array>"` (Optional):** Automatically re-fetches the GraphQL query when the specified signal(s) change. This can be a single signal path (e.g., `"$userId"`) or a JavaScript expression that evaluates to an array of signal paths (e.g., `"['$userId', '$filter']"` or `"$refetchSignalsArray"`).
 *   **`data-graphql-poll-interval="<ms>"` (Optional):** Milliseconds to wait before automatically re-fetching the query.
 
 ### 3.2. `onLoad` Logic (`AttributePlugin.onLoad`)

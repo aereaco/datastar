@@ -42,6 +42,9 @@ import { Fit } from './official/logic/actions/fit'
 import { SetAll } from './official/logic/actions/setAll'
 import { ToggleAll } from './official/logic/actions/toggleAll'
 import { Peek } from './official/logic/actions/peek'
+import { WebSocketPlugin } from './official/browser/attributes/websocket'
+import { WebSocketSendAction } from './official/logic/actions/websocket'
+import { GraphQLPlugin } from './official/browser/attributes/graphql'
 
 export {
   // DOM
@@ -87,9 +90,12 @@ export {
   ViewTransition,
   Component,
   Effect,
+  WebSocketPlugin,
+  GraphQLPlugin,
   // Logic
   Fit,
   SetAll,
   ToggleAll,
   Peek,
+  WebSocketSendAction,
 }

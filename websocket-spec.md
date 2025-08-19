@@ -36,7 +36,7 @@ The `data-websocket` attribute will be placed on an element (e.g., a `div`, `bod
 
 **Key Attributes/Modifiers:**
 
-*   **`data-websocket="<url>"` (Required):** The WebSocket server URL (e.g., `ws://localhost:8080/ws`, `wss://api.example.com/chat`). Can be a reactive expression (e.g., `"$wsUrl"`).
+*   **`data-websocket="<url>"` (Required):** The WebSocket server URL. This can be a direct string literal (e.g., `wss://echo.websocket.events`) or a JavaScript expression that evaluates to a string (e.g., `"$wsUrl"` or `"'wss://' + $host + '/ws'"`).
 *   **`data-websocket-signals="<json_object>"` (Optional):** A JSON object defining the names of signals to be created/updated by the plugin.
     *   `status`: (String) Signal for connection status (`'connecting'`, `'open'`, `'closing'`, `'closed'`, `'error'`). Default: `ws.status`.
     *   `message`: (Any) Signal for the last received message data. Default: `ws.message`.

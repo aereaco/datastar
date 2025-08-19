@@ -52,6 +52,9 @@ import { LinkRewriter } from '../plugins/official/browser/watchers/linkRewriter'
 import { Html } from '../plugins/official/dom/attributes/html'
 import { Cloak } from '../plugins/official/dom/attributes/cloak'
 import { NextTick } from '../plugins/official/browser/actions/nextTick'
+import { WebSocketPlugin } from '../plugins/official/browser/attributes/websocket'
+import { WebSocketSendAction } from '../plugins/official/logic/actions/websocket'
+import { GraphQLPlugin } from '../plugins/official/browser/attributes/graphql'
 
 setAlias('star')
 
@@ -108,11 +111,14 @@ load(
   IdAttribute,
   IdAction,
   NextTick,
+  WebSocketPlugin,
+  GraphQLPlugin,
   // Logic
   Fit,
   SetAll,
   ToggleAll,
   Peek,
+  WebSocketSendAction,
 )
 
 apply()
