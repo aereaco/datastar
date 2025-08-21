@@ -19,6 +19,11 @@ const globalDragState = {
   initialRects: new Map<HTMLElement, DOMRect>(),
   group: null as string | null,
   pullMode: 'true' as 'true' | 'false' | 'clone',
+  lastTouch: null as Touch | null,
+  touchMoveHandler: null as ((e: TouchEvent) => void) | null,
+  touchEndHandler: null as ((e: TouchEvent) => void) | null,
+  scrollInterval: null as number | null,
+  lastDragOverTarget: null as HTMLElement | null,
 };
 
 export const Sort: AttributePlugin = {
@@ -48,6 +53,34 @@ export const Sort: AttributePlugin = {
       child => child.hasAttribute('data-sort-item')
     ) as HTMLElement[];
 
+    const startDrag = (target: HTMLElement, dragEvent?: DragEvent) => {
+        globalDragState.isDragging = true;
+        globalDragState.draggedItem = target;
+        globalDragState.draggedItemKey = target.getAttribute('data-sort-item');
+        globalDragState.sourceContainer = container as HTMLElement;
+        globalDragState.group = groupName;
+        globalDragState.pullMode = pullMode;
+
+        if (dragEvent) {
+            dragEvent.dataTransfer!.effectAllowed = 'move';
+            dragEvent.dataTransfer!.setData('text/plain', globalDragState.draggedItemKey!);
+        }
+
+        globalDragState.initialRects.clear();
+        document.querySelectorAll('[data-sort-item][data-animate-flip]').forEach(item => {
+            globalDragState.initialRects.set(item as HTMLElement, item.getBoundingClientRect());
+        });
+
+        setTimeout(() => {
+            target.classList.add(config.dragClass || 'is-dragging');
+        }, 0);
+
+        globalDragState.ghostElement = target.cloneNode(true) as HTMLElement;
+        globalDragState.ghostElement.classList.add(config.ghostClass || 'sortable-ghost');
+        document.body.appendChild(globalDragState.ghostElement);
+        updateGhostPosition(dragEvent || globalDragState.lastTouch!);
+    }
+
     const handleDragStart = (e: Event) => {
       const dragEvent = e as DragEvent;
       const target = dragEvent.target as HTMLElement;
@@ -61,31 +94,7 @@ export const Sort: AttributePlugin = {
           dragEvent.preventDefault();
           return;
       }
-
-      globalDragState.isDragging = true;
-      globalDragState.draggedItem = target;
-      globalDragState.draggedItemKey = target.getAttribute('data-sort-item');
-      globalDragState.sourceContainer = container as HTMLElement;
-      globalDragState.group = groupName;
-      globalDragState.pullMode = pullMode;
-
-      dragEvent.dataTransfer!.effectAllowed = 'move';
-      dragEvent.dataTransfer!.setData('text/plain', globalDragState.draggedItemKey!);
-
-      globalDragState.initialRects.clear();
-      const allItems = document.querySelectorAll('[data-sort-item][data-animate-flip]');
-      allItems.forEach(item => {
-        globalDragState.initialRects.set(item as HTMLElement, item.getBoundingClientRect());
-      });
-
-      setTimeout(() => {
-        target.classList.add(config.dragClass || 'is-dragging');
-      }, 0);
-
-      globalDragState.ghostElement = target.cloneNode(true) as HTMLElement;
-      globalDragState.ghostElement.classList.add(config.ghostClass || 'sortable-ghost');
-      document.body.appendChild(globalDragState.ghostElement);
-      updateGhostPosition(dragEvent);
+      startDrag(target, dragEvent);
     };
 
     const handleDrag = (e: Event) => {
@@ -118,10 +127,10 @@ export const Sort: AttributePlugin = {
         const isCompatible = (globalDragState.group === null && targetGroupName === null) || (globalDragState.group !== null && globalDragState.group === targetGroupName);
 
         if (!isCompatible || !targetPutMode) {
-            dragEvent.dataTransfer!.dropEffect = 'none';
+            if (dragEvent.dataTransfer) dragEvent.dataTransfer.dropEffect = 'none';
             return;
         }
-        dragEvent.dataTransfer!.dropEffect = 'move';
+        if (dragEvent.dataTransfer) dragEvent.dataTransfer.dropEffect = 'move';
 
         targetContainer.classList.add(config.dragOverClass || 'drag-over');
         globalDragState.targetContainer = targetContainer;
@@ -191,7 +200,7 @@ export const Sort: AttributePlugin = {
         cleanupDragState();
     };
 
-    const updateGhostPosition = (e: DragEvent) => {
+    const updateGhostPosition = (e: DragEvent | Touch) => {
         if (!globalDragState.ghostElement) return;
         globalDragState.ghostElement.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
     };
@@ -209,6 +218,9 @@ export const Sort: AttributePlugin = {
         if (globalDragState.targetContainer) {
             globalDragState.targetContainer.classList.remove(config.dragOverClass || 'drag-over');
         }
+        if (globalDragState.scrollInterval) {
+            clearInterval(globalDragState.scrollInterval);
+        }
         
         globalDragState.isDragging = false;
         globalDragState.draggedItem = null;
@@ -218,10 +230,12 @@ export const Sort: AttributePlugin = {
         globalDragState.ghostElement = null;
         globalDragState.placeholderElement = null;
         globalDragState.group = null;
+        globalDragState.lastTouch = null;
+        globalDragState.scrollInterval = null;
         globalDragState.initialRects.clear();
     };
 
-    const getNewIndex = (e: DragEvent, targetContainer: HTMLElement) => {
+    const getNewIndex = (e: DragEvent | Touch, targetContainer: HTMLElement) => {
         const items = Array.from(targetContainer.children).filter(
             child => child !== globalDragState.placeholderElement && child !== globalDragState.draggedItem && child.hasAttribute('data-sort-item')
         );
@@ -243,12 +257,113 @@ export const Sort: AttributePlugin = {
         return { newIndex: items.length };
     };
 
+    const handleTouchStart = (e: Event) => {
+        const touchEvent = e as TouchEvent;
+        const target = touchEvent.target as HTMLElement;
+        if (!target.hasAttribute('data-sort-item') || (config.filter && target.matches(config.filter))) return;
+
+        const handle = target.querySelector('[data-sort-handle]');
+        if (handle && !handle.contains(target)) return;
+
+        touchEvent.preventDefault(); // Prevent scrolling
+
+        globalDragState.lastTouch = touchEvent.touches[0];
+
+        const delay = config.delay || 150;
+        const threshold = config.touchStartThreshold || 5;
+        let startX = globalDragState.lastTouch.clientX;
+        let startY = globalDragState.lastTouch.clientY;
+        let moved = false;
+
+        const timer = setTimeout(() => {
+            if (!moved) {
+                startDrag(target);
+                document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                document.addEventListener('touchend', handleTouchEnd);
+                document.addEventListener('touchcancel', handleTouchEnd);
+            }
+        }, delay);
+
+        const moveListener = (ev: TouchEvent) => {
+            const touch = ev.touches[0];
+            if (Math.abs(touch.clientX - startX) > threshold || Math.abs(touch.clientY - startY) > threshold) {
+                moved = true;
+                clearTimeout(timer);
+                document.removeEventListener('touchmove', moveListener);
+            }
+        };
+        document.addEventListener('touchmove', moveListener);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+        if (!globalDragState.isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        globalDragState.lastTouch = touch;
+        updateGhostPosition(touch);
+        autoScroll(touch);
+
+        const elementOver = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement;
+        const containerOver = elementOver ? elementOver.closest('[data-sort]') as HTMLElement : null;
+
+        if (containerOver && containerOver !== globalDragState.lastDragOverTarget) {
+            if (globalDragState.lastDragOverTarget) {
+                const leaveEvent = new DragEvent('dragleave', { bubbles: true, cancelable: true, relatedTarget: containerOver });
+                globalDragState.lastDragOverTarget.dispatchEvent(leaveEvent);
+            }
+            const enterEvent = new DragEvent('dragenter', { bubbles: true, cancelable: true, relatedTarget: globalDragState.lastDragOverTarget });
+            containerOver.dispatchEvent(enterEvent);
+        }
+        globalDragState.lastDragOverTarget = containerOver;
+
+        if (containerOver) {
+            const overEvent = new DragEvent('dragover', { bubbles: true, cancelable: true });
+            Object.defineProperties(overEvent, {
+                clientX: { value: touch.clientX },
+                clientY: { value: touch.clientY },
+                dataTransfer: { value: new DataTransfer() }
+            });
+            containerOver.dispatchEvent(overEvent);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (!globalDragState.isDragging) return;
+        if (globalDragState.targetContainer) {
+            const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true });
+            globalDragState.targetContainer.dispatchEvent(dropEvent);
+        }
+        handleDragEnd();
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchcancel', handleTouchEnd);
+    };
+
+    const autoScroll = (touch: Touch) => {
+        if (globalDragState.scrollInterval) {
+            clearInterval(globalDragState.scrollInterval);
+        }
+
+        globalDragState.scrollInterval = setInterval(() => {
+            const { clientX, clientY } = touch;
+            const scrollSpeed = config.animationDuration || 10;
+            const scrollSensitivity = 50;
+
+            if (clientY < scrollSensitivity) window.scrollBy(0, -scrollSpeed);
+            else if (clientY > window.innerHeight - scrollSensitivity) window.scrollBy(0, scrollSpeed);
+
+            if (clientX < scrollSensitivity) window.scrollBy(-scrollSpeed, 0);
+            else if (clientX > window.innerWidth - scrollSensitivity) window.scrollBy(scrollSpeed, 0);
+        }, 15) as any;
+    };
+
     const attachListeners = () => {
         getDraggableItems().forEach(item => {
             item.setAttribute('draggable', 'true');
             item.addEventListener('dragstart', handleDragStart);
             item.addEventListener('drag', handleDrag);
             item.addEventListener('dragend', handleDragEnd);
+            item.addEventListener('touchstart', handleTouchStart, { passive: false });
         });
         container.addEventListener('dragover', handleDragOver as EventListener);
         container.addEventListener('dragleave', handleDragLeave as EventListener);
@@ -260,6 +375,7 @@ export const Sort: AttributePlugin = {
             item.removeEventListener('dragstart', handleDragStart);
             item.removeEventListener('drag', handleDrag);
             item.removeEventListener('dragend', handleDragEnd);
+            item.removeEventListener('touchstart', handleTouchStart);
         });
         container.removeEventListener('dragover', handleDragOver as EventListener);
         container.removeEventListener('dragleave', handleDragLeave as EventListener);
