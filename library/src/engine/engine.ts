@@ -502,12 +502,16 @@ function genRX(
       'ctx.actions.$1.fn(ctx,',
     )
   }
- 
-  // Replace any signal calls ($foo -> foo)
+
+  // This is the original, stable signal replacement logic.
+  // It correctly handles nested signals like $router.layout.
   const signalNames = ctx.signals.paths()
   if (signalNames.length) {
-    const signalsRe = new RegExp(`\\$(${signalNames.join('|')})\\b`, 'g')
-    userExpression = userExpression.replaceAll(signalsRe, `$1`)
+    const signalsRe = new RegExp(`\\$(${signalNames.join('|')})(\\W|$)`, 'gm')
+    userExpression = userExpression.replaceAll(
+      signalsRe,
+      `ctx.signals.signal('$1').value$2`,
+    )
   }
 
   // Replace any escaped values
@@ -515,26 +519,8 @@ function genRX(
     userExpression = userExpression.replace(k, v)
   }
 
-  // Create a proxy for signals to be used in the evaluation scope
-  const signalsProxy = new Proxy(ctx.signals, {
-    get(target, prop, receiver) {
-        if (typeof prop === 'string' && target.exists(prop)) {
-            return target.value(prop);
-        }
-        return Reflect.get(target, prop, receiver);
-    },
-    set(target, prop, value, receiver) {
-        if (typeof prop === 'string') {
-            target.setValue(prop, value);
-            return true;
-        }
-        return Reflect.set(target, prop, value, receiver);
-    }
-  });
-
-  const scopeStack = closestDataStack(ctx.el);
-  //const mergedProxy = mergeProxies([...scopeStack, signalsProxy]);
-
+  // The 'with' block will make local variables available.
+  // Global signals are accessed directly via the modified userExpression (ctx.signals...).
   const fnContent = `with(scope) { return (() => {\n${userExpression}\n})() }`
   ctx.fnContent = fnContent
 
@@ -542,9 +528,10 @@ function genRX(
     const fn = new Function('ctx', 'scope', ...argNames, fnContent)
     return (...args: any[]) => {
       try {
-        // Re-merge proxies on every call to get latest signal values in the scope
-        const latestMergedProxy = mergeProxies([...scopeStack, signalsProxy]);
-        return fn(ctx, latestMergedProxy, ...args)
+        // Create the proxy that has the latest scope data right before execution.
+        const scopeStack = closestDataStack(ctx.el);
+        const mergedProxy = mergeProxies([...scopeStack]);
+        return fn(ctx, mergedProxy, ...args)
       } catch (error: any) {
         throw runtimeErr('ExecuteExpression', ctx, {
           error: error.message,
