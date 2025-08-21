@@ -4,13 +4,11 @@ import {
   Requirement,
   type CleanupUpdateCallback,
   type MutationUpdateCallback,
+  type RuntimeContext,
 } from '../../../../engine/types'
 
 // Regular expression to parse "item in items" syntax.
 const forAliasRE = /((.*) in)? *(.*)/
-
-// Regular expression to strip parentheses from an expression.
-const stripParensRE = /^\s*\(|\)\s*$/g
 
 export const For: AttributePlugin = {
   type: PluginType.Attribute,
@@ -18,15 +16,15 @@ export const For: AttributePlugin = {
   keyReq: Requirement.Denied,
   valReq: Requirement.Must,
 
-  onLoad: ({ el, value, effect, rx, signals }) => {
+  onLoad: (ctx: RuntimeContext) => {
+    const { el, value, effect, applyToElement } = ctx
+
     if (!(el instanceof HTMLTemplateElement)) {
       throw new Error('data-for is only supported on <template> elements.')
     }
 
     let currentCleanup: CleanupUpdateCallback = () => {}
-    let currentItemsExpression: string = ''
-    let currentAlias: string = ''
-    let previousNodes: Element[] = [] // Changed from Node[] to Element[]
+    let previousNodes: Element[] = []
 
     const setupLoop = (expression: string) => {
       // Clean up previous effect and nodes
@@ -36,49 +34,53 @@ export const For: AttributePlugin = {
 
       const parts = expression.match(forAliasRE)
       if (!parts) {
-        throw new Error(`Invalid data-for expression: "${expression}"`);
+        throw new Error(`Invalid data-for expression: "${expression}"`)
       }
 
-      currentItemsExpression = parts[3].trim()
-      currentAlias = parts[2] ? parts[2].trim().replace(stripParensRE, '') : 'item'
-      const indexName = 'index' // Default index name
+      const itemsExpression = parts[3].trim()
+      
+      const originalCtxValue = ctx.value
+      // @ts-ignore
+      ctx.value = itemsExpression
+      const itemsRx = ctx.rx
+      
+      currentCleanup = effect(() => {
+        let items: any = itemsRx()
 
-      const render = () => {
-        const items = rx<any[]>()
+        if (typeof items === 'number' && items >= 0) {
+          items = Array.from({ length: items }, (_, i) => i + 1)
+        } else if (!Array.isArray(items)) {
+          items = []
+        }
 
-        const newNodes: Element[] = [] // Changed from Node[] to Element[]
+        const newNodes: Element[] = []
         const parent = el.parentElement
         if (!parent) return
 
-        items.forEach((item, index) => {
+        // This is a simplified loop implementation without keyed diffing.
+        // It removes all previous nodes and adds new ones.
+        previousNodes.forEach(node => node.remove())
+
+        items.forEach(() => {
           const templateClone = document.importNode(el.content, true)
-          const itemRoot = templateClone.firstElementChild
+          
+          Array.from(templateClone.children).forEach(childNode => {
+            if (childNode instanceof HTMLElement || childNode instanceof SVGElement) {
+              // NOTE: The scope of the iteration (item, index) is not available
+              // to the child elements with the current engine implementation.
+              // Expressions inside the template cannot reference iteration variables.
+              applyToElement(childNode)
+              newNodes.push(childNode)
+            }
+          })
+        })
 
-          if (itemRoot) {
-            // Inject item and index into a new scope for this iteration
-            // This is a simplified concept. A real implementation would need
-            // to properly manage nested scopes and reactivity.
-            const itemScope = { [currentAlias]: item, [indexName]: index };
-            (itemRoot as any).__scope = itemScope; // This is a placeholder for proper scope injection
-
-            // A real implementation would need to recursively apply plugins
-            // to the new nodes within this new scope.
-            // For now, we'll just append.
-            newNodes.push(itemRoot)
-          }
-        });
-
-        // Basic diffing: remove all old nodes and add new ones.
-        // A real implementation would use a keyed diffing algorithm for performance.
-        previousNodes.forEach(node => node.remove());
-        newNodes.forEach(node => parent.insertBefore(node, el));
-        previousNodes = newNodes;
-      }
-
-      currentCleanup = effect(() => {
-        signals.upsertIfMissing(currentItemsExpression, [])
-        render()
+        newNodes.forEach(node => parent.insertBefore(node, el))
+        previousNodes = newNodes
       })
+
+      // @ts-ignore
+      ctx.value = originalCtxValue
     }
 
     // Initial setup
