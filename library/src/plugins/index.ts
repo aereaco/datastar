@@ -30,6 +30,7 @@ import { Class } from './official/dom/attributes/class'
 import { On } from './official/dom/attributes/on'
 import { Ref } from './official/dom/attributes/ref'
 import { Show } from './official/dom/attributes/show'
+import { Sort } from './official/dom/attributes/sort'
 import { Text } from './official/dom/attributes/text'
 import { JsonSignals } from './official/dom/attributes/jsonSignals'
 import { Ignore } from './official/dom/attributes/ignore'
@@ -55,6 +56,7 @@ export {
   On,
   Ref,
   Show,
+  Sort,
   Text,
   JsonSignals,
   Ignore,

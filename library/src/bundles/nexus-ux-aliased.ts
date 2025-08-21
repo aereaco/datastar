@@ -35,6 +35,7 @@ import { For } from '../plugins/official/dom/attributes/for'
 import { On } from '../plugins/official/dom/attributes/on'
 import { Ref } from '../plugins/official/dom/attributes/ref'
 import { Show } from '../plugins/official/dom/attributes/show'
+import { Sort } from '../plugins/official/dom/attributes/sort'
 import { Style } from '../plugins/official/dom/attributes/style'
 import { Text } from '../plugins/official/dom/attributes/text'
 import { Teleport } from '../plugins/official/dom/attributes/teleport'
@@ -68,6 +69,7 @@ load(
   On,
   Ref,
   Show,
+  Sort,
   Style,
   Text,
   Teleport,
