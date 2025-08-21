@@ -7,7 +7,6 @@ import {
 } from '../../../../engine/types'
 import { jsStrToObject } from '../../../../utils/text'
 
-// Module-level state for drag operations
 const globalDragState = {
   isDragging: false,
   draggedItem: null as HTMLElement | null,
@@ -20,8 +19,6 @@ const globalDragState = {
   group: null as string | null,
   pullMode: 'true' as 'true' | 'false' | 'clone',
   lastTouch: null as Touch | null,
-  touchMoveHandler: null as ((e: TouchEvent) => void) | null,
-  touchEndHandler: null as ((e: TouchEvent) => void) | null,
   scrollInterval: null as number | null,
   lastDragOverTarget: null as HTMLElement | null,
 };
@@ -53,17 +50,18 @@ export const Sort: AttributePlugin = {
       child => child.hasAttribute('data-sort-item')
     ) as HTMLElement[];
 
-    const startDrag = (target: HTMLElement, dragEvent?: DragEvent) => {
+    const startDrag = (target: HTMLElement, e: DragEvent | Touch) => {
         globalDragState.isDragging = true;
         globalDragState.draggedItem = target;
+        target.setAttribute('aria-grabbed', 'true');
         globalDragState.draggedItemKey = target.getAttribute('data-sort-item');
         globalDragState.sourceContainer = container as HTMLElement;
         globalDragState.group = groupName;
         globalDragState.pullMode = pullMode;
 
-        if (dragEvent) {
-            dragEvent.dataTransfer!.effectAllowed = 'move';
-            dragEvent.dataTransfer!.setData('text/plain', globalDragState.draggedItemKey!);
+        if (e instanceof DragEvent) {
+            e.dataTransfer!.effectAllowed = 'move';
+            e.dataTransfer!.setData('text/plain', globalDragState.draggedItemKey!);
         }
 
         globalDragState.initialRects.clear();
@@ -71,14 +69,12 @@ export const Sort: AttributePlugin = {
             globalDragState.initialRects.set(item as HTMLElement, item.getBoundingClientRect());
         });
 
-        setTimeout(() => {
-            target.classList.add(config.dragClass || 'is-dragging');
-        }, 0);
+        setTimeout(() => target.classList.add(config.dragClass || 'is-dragging'), 0);
 
         globalDragState.ghostElement = target.cloneNode(true) as HTMLElement;
         globalDragState.ghostElement.classList.add(config.ghostClass || 'sortable-ghost');
         document.body.appendChild(globalDragState.ghostElement);
-        updateGhostPosition(dragEvent || globalDragState.lastTouch!);
+        updateGhostPosition(e);
     }
 
     const handleDragStart = (e: Event) => {
@@ -88,7 +84,6 @@ export const Sort: AttributePlugin = {
         dragEvent.preventDefault();
         return;
       }
-      
       const handle = target.querySelector('[data-sort-handle]');
       if (handle && !handle.contains(dragEvent.target as Node)) {
           dragEvent.preventDefault();
@@ -98,9 +93,8 @@ export const Sort: AttributePlugin = {
     };
 
     const handleDrag = (e: Event) => {
-        const dragEvent = e as DragEvent;
         if (!globalDragState.isDragging) return;
-        updateGhostPosition(dragEvent);
+        updateGhostPosition(e as DragEvent);
     };
 
     const handleDragEnd = () => {
@@ -128,9 +122,11 @@ export const Sort: AttributePlugin = {
 
         if (!isCompatible || !targetPutMode) {
             if (dragEvent.dataTransfer) dragEvent.dataTransfer.dropEffect = 'none';
+            targetContainer.setAttribute('aria-dropeffect', 'none');
             return;
         }
         if (dragEvent.dataTransfer) dragEvent.dataTransfer.dropEffect = 'move';
+        targetContainer.setAttribute('aria-dropeffect', 'move');
 
         targetContainer.classList.add(config.dragOverClass || 'drag-over');
         globalDragState.targetContainer = targetContainer;
@@ -145,6 +141,20 @@ export const Sort: AttributePlugin = {
         }
         
         const placeholder = globalDragState.placeholderElement!;
+        const items = getDraggableItems().filter(item => item !== placeholder && item !== globalDragState.draggedItem);
+
+        if (items.length === 0) {
+            const threshold = config.emptyInsertThreshold || 5;
+            const rect = targetContainer.getBoundingClientRect();
+            if (dragEvent.clientX > rect.left - threshold && dragEvent.clientX < rect.right + threshold &&
+                dragEvent.clientY > rect.top - threshold && dragEvent.clientY < rect.bottom + threshold) {
+                if (!targetContainer.contains(placeholder)) {
+                    targetContainer.appendChild(placeholder);
+                }
+            }
+            return;
+        }
+
         const { newIndex } = getNewIndex(dragEvent, targetContainer);
         const refElement = targetContainer.children[newIndex];
         
@@ -157,6 +167,7 @@ export const Sort: AttributePlugin = {
         const dragEvent = e as DragEvent;
         if (container.contains(dragEvent.relatedTarget as Node)) return;
         container.classList.remove(config.dragOverClass || 'drag-over');
+        container.setAttribute('aria-dropeffect', 'none');
         if (globalDragState.targetContainer === container) {
             globalDragState.targetContainer = null;
         }
@@ -208,6 +219,7 @@ export const Sort: AttributePlugin = {
     const cleanupDragState = () => {
         if (globalDragState.draggedItem) {
             globalDragState.draggedItem.classList.remove(config.dragClass || 'is-dragging');
+            globalDragState.draggedItem.setAttribute('aria-grabbed', 'false');
         }
         if (globalDragState.ghostElement) {
             globalDragState.ghostElement.remove();
@@ -217,6 +229,7 @@ export const Sort: AttributePlugin = {
         }
         if (globalDragState.targetContainer) {
             globalDragState.targetContainer.classList.remove(config.dragOverClass || 'drag-over');
+            globalDragState.targetContainer.setAttribute('aria-dropeffect', 'none');
         }
         if (globalDragState.scrollInterval) {
             clearInterval(globalDragState.scrollInterval);
@@ -260,12 +273,13 @@ export const Sort: AttributePlugin = {
     const handleTouchStart = (e: Event) => {
         const touchEvent = e as TouchEvent;
         const target = touchEvent.target as HTMLElement;
-        if (!target.hasAttribute('data-sort-item') || (config.filter && target.matches(config.filter))) return;
+        const item = target.closest('[data-sort-item]') as HTMLElement;
+        if (!item || (config.filter && item.matches(config.filter))) return;
 
-        const handle = target.querySelector('[data-sort-handle]');
+        const handle = item.querySelector('[data-sort-handle]');
         if (handle && !handle.contains(target)) return;
 
-        touchEvent.preventDefault(); // Prevent scrolling
+        touchEvent.preventDefault();
 
         globalDragState.lastTouch = touchEvent.touches[0];
 
@@ -277,7 +291,7 @@ export const Sort: AttributePlugin = {
 
         const timer = setTimeout(() => {
             if (!moved) {
-                startDrag(target);
+                startDrag(item, globalDragState.lastTouch!);
                 document.addEventListener('touchmove', handleTouchMove, { passive: false });
                 document.addEventListener('touchend', handleTouchEnd);
                 document.addEventListener('touchcancel', handleTouchEnd);
@@ -306,13 +320,15 @@ export const Sort: AttributePlugin = {
         const elementOver = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement;
         const containerOver = elementOver ? elementOver.closest('[data-sort]') as HTMLElement : null;
 
-        if (containerOver && containerOver !== globalDragState.lastDragOverTarget) {
+        if (containerOver !== globalDragState.lastDragOverTarget) {
             if (globalDragState.lastDragOverTarget) {
                 const leaveEvent = new DragEvent('dragleave', { bubbles: true, cancelable: true, relatedTarget: containerOver });
                 globalDragState.lastDragOverTarget.dispatchEvent(leaveEvent);
             }
-            const enterEvent = new DragEvent('dragenter', { bubbles: true, cancelable: true, relatedTarget: globalDragState.lastDragOverTarget });
-            containerOver.dispatchEvent(enterEvent);
+            if (containerOver) {
+                const enterEvent = new DragEvent('dragenter', { bubbles: true, cancelable: true, relatedTarget: globalDragState.lastDragOverTarget });
+                containerOver.dispatchEvent(enterEvent);
+            }
         }
         globalDragState.lastDragOverTarget = containerOver;
 
@@ -340,20 +356,29 @@ export const Sort: AttributePlugin = {
     };
 
     const autoScroll = (touch: Touch) => {
-        if (globalDragState.scrollInterval) {
-            clearInterval(globalDragState.scrollInterval);
-        }
+        if (globalDragState.scrollInterval) clearInterval(globalDragState.scrollInterval);
 
         globalDragState.scrollInterval = setInterval(() => {
             const { clientX, clientY } = touch;
-            const scrollSpeed = config.animationDuration || 10;
-            const scrollSensitivity = 50;
+            const scrollSpeed = config.scrollSpeed || 10;
+            const scrollSensitivity = config.scrollSensitivity || 30;
 
-            if (clientY < scrollSensitivity) window.scrollBy(0, -scrollSpeed);
-            else if (clientY > window.innerHeight - scrollSensitivity) window.scrollBy(0, scrollSpeed);
-
-            if (clientX < scrollSensitivity) window.scrollBy(-scrollSpeed, 0);
-            else if (clientX > window.innerWidth - scrollSensitivity) window.scrollBy(scrollSpeed, 0);
+            let scrollable = container;
+            while(scrollable && scrollable.scrollHeight <= scrollable.clientHeight && scrollable.scrollWidth <= scrollable.clientWidth && scrollable.parentElement) {
+                scrollable = scrollable.parentElement;
+            }
+            if (scrollable === document.body || scrollable === document.documentElement) {
+                if (clientY < scrollSensitivity) window.scrollBy(0, -scrollSpeed);
+                else if (clientY > window.innerHeight - scrollSensitivity) window.scrollBy(0, scrollSpeed);
+                if (clientX < scrollSensitivity) window.scrollBy(-scrollSpeed, 0);
+                else if (clientX > window.innerWidth - scrollSensitivity) window.scrollBy(scrollSpeed, 0);
+            } else {
+                const rect = scrollable.getBoundingClientRect();
+                if (clientY < rect.top + scrollSensitivity) scrollable.scrollTop -= scrollSpeed;
+                else if (clientY > rect.bottom - scrollSensitivity) scrollable.scrollTop += scrollSpeed;
+                if (clientX < rect.left + scrollSensitivity) scrollable.scrollLeft -= scrollSpeed;
+                else if (clientX > rect.right - scrollSensitivity) scrollable.scrollLeft += scrollSpeed;
+            }
         }, 15) as any;
     };
 
