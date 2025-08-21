@@ -6,6 +6,7 @@ examples
 site
 build
 #data
+.gemini/
 .rollback
 .task
 .idea
