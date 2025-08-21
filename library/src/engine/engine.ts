@@ -256,7 +256,7 @@ function applyAttributePlugin(
   if (!el.id.length) el.id = elUniqId(el)
 
   // Extract the key and modifiers
-  let [key, ...rawModifiers] = rawKey.slice(plugin.name.length).split(/\_\_+/)
+  let [key, ...rawModifiers] = rawKey.slice(plugin.name.length).split(/\_+/)
 
   const hasKey = key.length > 0
   if (hasKey) {
@@ -515,13 +515,15 @@ function genRX(
   }
 
   // Replace any action calls
-  const actionsRe = new RegExp(`@(${Object.keys(actions).join('|')})\(`, 'gm')
-
-  // Add ctx to action calls
-  userExpression = userExpression.replaceAll(
-    actionsRe,
-    'ctx.actions.$1.fn(ctx,',
-  )
+  const actionKeys = Object.keys(actions);
+  if (actionKeys.length > 0) {
+    const actionsRe = new RegExp(`@(${actionKeys.join('|')})\(`, 'gm')
+    // Add ctx to action calls
+    userExpression = userExpression.replaceAll(
+      actionsRe,
+      'ctx.actions.$1.fn(ctx,',
+    )
+  }
 
   // Replace any signal calls
   const signalNames = ctx.signals.paths()
@@ -557,7 +559,8 @@ function genRX(
 
   const fnContent = `with(scope) { return (() => {
 ${userExpression}
-})() }`
+})() }
+`
   ctx.fnContent = fnContent
 
   try {
