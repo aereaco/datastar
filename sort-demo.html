@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus-UX Data-Sort Demo</title>
+    <script type="module" src="./library/dist/bundles/nexus-ux.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .sortable-list { 
+            border: 1px solid #ccc; 
+            min-height: 100px; 
+            padding: 10px; 
+            margin-bottom: 20px;
+            display: flex; /* Example for horizontal layout */
+            gap: 10px;
+        }
+        .sortable-item {
+            background-color: #f0f0f0;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: grab;
+            transition: transform 0.3s ease-out; /* Default transition for FLIP */
+            flex-shrink: 0; /* For horizontal layout */
+        }
+        .sortable-item.is-dragging {
+            opacity: 0; /* Hide original item */
+        }
+        .sortable-ghost {
+            background-color: #e0e0e0;
+            border: 1px dashed #555;
+            opacity: 0.8;
+            position: fixed; /* Handled by data-sort */
+            pointer-events: none; /* Handled by data-sort */
+            z-index: 10000; /* Handled by data-sort */
+        }
+        .sortable-placeholder {
+            background-color: #cceeff;
+            border: 1px dashed #3399ff;
+            min-height: 40px; /* Example placeholder height */
+            margin-bottom: 5px;
+            transition: all 0.3s ease-out; /* For placeholder appearance/disappearance */
+        }
+        .sortable-list.drag-over {
+            border-color: #3399ff;
+            box-shadow: 0 0 5px rgba(51, 153, 255, 0.5);
+        }
+        .handle {
+            cursor: grab;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .no-drag {
+            background-color: #fdd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Nexus-UX `data-sort` Demo</h1>
+
+    <div data-signals="{ 
+        listA: ['Item 1A', 'Item 2A', 'Item 3A', 'Item 4A'],
+        listB: ['Item 1B', 'Item 2B', 'Item 3B'],
+        listC: ['Item 1C', 'Item 2C', 'Item 3C', 'Item 4C', 'Item 5C']
+    }">
+
+        <h2>List A (Single List Sort)</h2>
+        <div 
+            data-sort="$listA.reorder($itemKey, $newIndex)" 
+            class="sortable-list"
+            data-sort-config='{ "direction": "vertical" }'
+        >
+            <template data-for="item in $listA">
+                <div data-sort-item="{{item}}" data-animate-flip class="sortable-item" data-text="{{item}}"></div>
+            </template>
+        </div>
+
+        <h2>List B (Cross-List Sort - Group 'sharedGroup')</h2>
+        <div 
+            data-sort="$listB.reorder($itemKey, $newIndex)" 
+            data-sort-group="sharedGroup:pull(true):put(true)" 
+            class="sortable-list"
+        >
+            <template data-for="item in $listB">
+                <div data-sort-item="{{item}}" data-animate-flip class="sortable-item" data-text="{{item}}"></div>
+            </template>
+        </div>
+
+        <h2>List C (Cross-List Sort - Group 'sharedGroup' - Clone & Filter)</h2>
+        <div 
+            data-sort="$listC.reorder($itemKey, $newIndex)" 
+            data-sort-group="sharedGroup:pull(clone):put(true)" 
+            data-sort-config='{ "filter": ".no-drag" }'
+            class="sortable-list"
+        >
+            <template data-for="item in $listC">
+                <div data-sort-item="{{item}}" data-animate-flip class="sortable-item" data-text="{{item}}"
+                    data-class="{ 'no-drag': item === 'Item 3C' }"
+                ></div>
+            </template>
+        </div>
+
+        <h2>List D (Horizontal Sort with Handle)</h2>
+        <div 
+            data-sort="$listD.reorder($itemKey, $newIndex)" 
+            data-sort-config='{ "direction": "horizontal" }'
+            class="sortable-list"
+            data-signals="{ listD: ['H-Item 1', 'H-Item 2', 'H-Item 3'] }"
+        >
+            <template data-for="item in $listD">
+                <div data-sort-item="{{item}}" data-animate-flip class="sortable-item">
+                    <span data-sort-handle class="handle">☰</span> <span data-text="{{item}}"></span>
+                </div>
+            </template>
+        </div>
+
+    </div>
+
+    <script>
+        // Example reorder function for signals (to be implemented by developer)
+        // This would typically be part of your application's data store
+        Object.prototype.reorder = function(itemKey, newIndex) {
+            const list = this.value.slice(); // Create a shallow copy
+            const oldIndex = list.indexOf(itemKey);
+            if (oldIndex > -1) {
+                const [movedItem] = list.splice(oldIndex, 1);
+                list.splice(newIndex, 0, movedItem);
+                this.value = list; // Update the signal
+            }
+        };
+    </script>
+
+</body>
+</html>
