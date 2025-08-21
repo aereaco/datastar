@@ -6,9 +6,10 @@ import {
   type MutationUpdateCallback,
   type RuntimeContext,
 } from '../../../../engine/types'
+import { addScopeToNode } from '../../../../engine/scope'
 
-// Regular expression to parse "item in items" syntax.
-const forAliasRE = /((.*) in)? *(.*)/
+// Regular expression to parse "item, index in items" syntax.
+const forAliasRE = /(?:([\w$_]+)|\(([\w$_]+)\s*,\s*([\w$_]+)\))\s+in\s+(.*)/
 
 export const For: AttributePlugin = {
   type: PluginType.Attribute,
@@ -34,16 +35,18 @@ export const For: AttributePlugin = {
 
       const parts = expression.match(forAliasRE)
       if (!parts) {
-        throw new Error(`Invalid data-for expression: "${expression}"`)
+        throw new Error(`Invalid data-for expression: "${expression}"`);
       }
 
-      const itemsExpression = parts[3].trim()
-      
+      const itemsExpression = parts[4].trim()
+      const alias = parts[1] || parts[2] || 'item'
+      const indexName = parts[3] || 'index'
+
       const originalCtxValue = ctx.value
       // @ts-ignore
       ctx.value = itemsExpression
       const itemsRx = ctx.rx
-      
+
       currentCleanup = effect(() => {
         let items: any = itemsRx()
 
@@ -61,14 +64,13 @@ export const For: AttributePlugin = {
         // It removes all previous nodes and adds new ones.
         previousNodes.forEach(node => node.remove())
 
-        items.forEach(() => {
+        items.forEach((item: any, index: number) => {
           const templateClone = document.importNode(el.content, true)
-          
+          const scope = { [alias]: item, [indexName]: index }
+
           Array.from(templateClone.children).forEach(childNode => {
             if (childNode instanceof HTMLElement || childNode instanceof SVGElement) {
-              // NOTE: The scope of the iteration (item, index) is not available
-              // to the child elements with the current engine implementation.
-              // Expressions inside the template cannot reference iteration variables.
+              addScopeToNode(childNode, scope)
               applyToElement(childNode)
               newNodes.push(childNode)
             }

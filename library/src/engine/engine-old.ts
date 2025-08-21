@@ -3,7 +3,6 @@ import { camel } from '../utils/text'
 import { effect, untracked } from '../vendored/preact-core'
 import { DSP, DSS } from './consts'
 import { initErr, runtimeErr } from './errors'
-import { closestDataStack, mergeProxies } from './scope'
 import { SignalsRoot, type SignalFilterOptions } from './signals'
 import {
   type ActionPlugin,
@@ -476,9 +475,9 @@ function genRX(
   // (importantly we ignore the content within these blocks):
   //
   // regex            \/(\\\/|[^\/])*\/
-  // double quotes      "(\\\"|[^\"])*"
-  // single quotes      '(\\\'|[^\'])*'
-  // ticks              `(\\\`|[^`])*`
+  // double quotes      "(\\"|[^\"])*"
+  // single quotes      '(\\'|[^'])*'
+  // ticks              `(\\`|[^`])*`
   //
   // We also want to match the non delimiter part of statements
   // note we only support ; statement delimiters:
@@ -486,7 +485,7 @@ function genRX(
   // [^;]
   //
   const statementRe =
-    /(\/(\\\/|[^\/])*\/|"(\\\"|[^\"])*"|'(\\\'|[^\'])*'|`(\\\`|[^`])*`|[^;])+/gm
+    /(\/(\\\/|[^\/])*\/|"(\\"|[^\"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|[^;])+/gm
   const statements = ctx.value.trim().match(statementRe)
   if (statements) {
     const lastIdx = statements.length - 1
@@ -515,7 +514,7 @@ function genRX(
   }
 
   // Replace any action calls
-  const actionsRe = new RegExp(`@(${Object.keys(actions).join('|')})\(`, 'gm')
+  const actionsRe = new RegExp(`@(${Object.keys(actions).join('|')})\\(`, 'gm')
 
   // Add ctx to action calls
   userExpression = userExpression.replaceAll(
@@ -526,9 +525,12 @@ function genRX(
   // Replace any signal calls
   const signalNames = ctx.signals.paths()
   if (signalNames.length) {
-    // Match any valid `$signalName` and replace it with just `signalName`
-    const signalsRe = new RegExp(`\$(${signalNames.join('|')})(\b|\.)`, 'gm')
-    userExpression = userExpression.replaceAll(signalsRe, `$1$2`)
+    // Match any valid `$signalName` followed by a non-word character or end of string
+    const signalsRe = new RegExp(`\\$(${signalNames.join('|')})(\\W|$)`, 'gm')
+    userExpression = userExpression.replaceAll(
+      signalsRe,
+      `ctx.signals.signal('$1').value$2`,
+    )
   }
 
   // Replace any escaped values
@@ -536,35 +538,14 @@ function genRX(
     userExpression = userExpression.replace(k, v)
   }
 
-  const signalsProxy = new Proxy(ctx.signals, {
-    get(target, prop, receiver) {
-        if (typeof prop === 'string' && target.exists(prop)) {
-            return target.value(prop);
-        }
-        return Reflect.get(target, prop, receiver);
-    },
-    set(target, prop, value, receiver) {
-        if (typeof prop === 'string') {
-            target.setValue(prop, value);
-            return true;
-        }
-        return Reflect.set(target, prop, value, receiver);
-    }
-  });
-
-  const scopeStack = closestDataStack(ctx.el);
-  const mergedProxy = mergeProxies([...scopeStack, signalsProxy]);
-
-  const fnContent = `with(scope) { return (() => {
-${userExpression}
-})() }`
+  const fnContent = `return (() => {\n${userExpression}\n})()` // Wrap in IIFE
   ctx.fnContent = fnContent
 
   try {
-    const fn = new Function('ctx', 'scope', ...argNames, fnContent)
+    const fn = new Function('ctx', ...argNames, fnContent)
     return (...args: any[]) => {
       try {
-        return fn(ctx, mergedProxy, ...args)
+        return fn(ctx, ...args)
       } catch (error: any) {
         throw runtimeErr('ExecuteExpression', ctx, {
           error: error.message,
