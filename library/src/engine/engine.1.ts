@@ -2,8 +2,8 @@ import { Hash, attrHash, elUniqId, walkDOM } from '../utils/dom'
 import { camel } from '../utils/text'
 import { effect, untracked } from '../vendored/preact-core'
 import { DSP, DSS } from './consts'
-import { closestDataStack, mergeProxies } from './scope'
 import { initErr, runtimeErr } from './errors'
+import { closestDataStack, mergeProxies } from './scope'
 import { SignalsRoot, type SignalFilterOptions } from './signals'
 import {
   type ActionPlugin,
@@ -256,7 +256,7 @@ function applyAttributePlugin(
   if (!el.id.length) el.id = elUniqId(el)
 
   // Extract the key and modifiers
-  let [key, ...rawModifiers] = rawKey.slice(plugin.name.length).split(/\_\_+/)
+  let [key, ...rawModifiers] = rawKey.slice(plugin.name.length).split(/\_+/)
 
   const hasKey = key.length > 0
   if (hasKey) {
@@ -471,8 +471,22 @@ function genRX(
 
   // This regex allows Nexus-UX expressions to support nested
   // regex and strings that contain ; without breaking.
+  //
+  // Each of these regex defines a block type we want to match
+  // (importantly we ignore the content within these blocks):
+  //
+  // regex            \/(\\\/|[^\/])*\/
+  // double quotes      "(\\\"|[^\"])*"
+  // single quotes      '(\\\'|[^\'])*'
+  // ticks              `(\\\`|[^`])*`
+  //
+  // We also want to match the non delimiter part of statements
+  // note we only support ; statement delimiters:
+  //
+  // [^;]
+  //
   const statementRe =
-    /(\/(\\\/|[^/])*\/"(\\"|[^"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|[^;])+/gm
+    /(\/(\\\/|[^\/])*\/|"(\\\"|[^\"])*"|'(\\\'|[^\'])*'|`(\\\`|[^`])*`|[^;])+/gm
   const statements = ctx.value.trim().match(statementRe)
   if (statements) {
     const lastIdx = statements.length - 1
@@ -493,21 +507,30 @@ function genRX(
     userExpression = userExpression.replace(DSP + k + DSS, v)
   }
 
+  const fnCall = /@(\w*)\(/gm
+  const matches = userExpression.matchAll(fnCall)
+  const methodsCalled = new Set<string>()
+  for (const match of matches) {
+    methodsCalled.add(match[1])
+  }
+
   // Replace any action calls
   const actionKeys = Object.keys(actions);
   if (actionKeys.length > 0) {
-    const actionsRe = new RegExp(`@(${actionKeys.join('|')})\\(`, 'gm')
+    const actionsRe = new RegExp(`@(${actionKeys.join('|')})\(`, 'gm')
+    // Add ctx to action calls
     userExpression = userExpression.replaceAll(
       actionsRe,
       'ctx.actions.$1.fn(ctx,',
     )
   }
- 
-  // Replace any signal calls ($foo -> foo)
+
+  // Replace any signal calls
   const signalNames = ctx.signals.paths()
   if (signalNames.length) {
-    const signalsRe = new RegExp(`\\$(${signalNames.join('|')})\\b`, 'g')
-    userExpression = userExpression.replaceAll(signalsRe, `$1`)
+    // Match any valid `$signalName` and replace it with just `signalName`
+    const signalsRe = new RegExp(`\$(${signalNames.join('|')})(\b|\.)`, 'gm')
+    userExpression = userExpression.replaceAll(signalsRe, `$1$2`)
   }
 
   // Replace any escaped values
@@ -515,7 +538,6 @@ function genRX(
     userExpression = userExpression.replace(k, v)
   }
 
-  // Create a proxy for signals to be used in the evaluation scope
   const signalsProxy = new Proxy(ctx.signals, {
     get(target, prop, receiver) {
         if (typeof prop === 'string' && target.exists(prop)) {
@@ -533,18 +555,19 @@ function genRX(
   });
 
   const scopeStack = closestDataStack(ctx.el);
-  //const mergedProxy = mergeProxies([...scopeStack, signalsProxy]);
+  const mergedProxy = mergeProxies([...scopeStack, signalsProxy]);
 
-  const fnContent = `with(scope) { return (() => {\n${userExpression}\n})() }`
+  const fnContent = `with(scope) { return (() => {
+${userExpression}
+})() }
+`
   ctx.fnContent = fnContent
 
   try {
     const fn = new Function('ctx', 'scope', ...argNames, fnContent)
     return (...args: any[]) => {
       try {
-        // Re-merge proxies on every call to get latest signal values in the scope
-        const latestMergedProxy = mergeProxies([...scopeStack, signalsProxy]);
-        return fn(ctx, latestMergedProxy, ...args)
+        return fn(ctx, mergedProxy, ...args)
       } catch (error: any) {
         throw runtimeErr('ExecuteExpression', ctx, {
           error: error.message,
