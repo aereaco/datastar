@@ -8,8 +8,36 @@ import {
 } from '../../../../engine/types'
 import { addScopeToNode } from '../../../../engine/scope'
 
-// Regular expression to parse "item, index in items" syntax.
-const forAliasRE = /(?:([\w$_]+)|\(([\w$_]+)\s*,\s*([\w$_]+)\))\s+in\s+(.*)/
+function parseForExpression(expression: string) {
+    const forIteratorRE = /,([^,\}\]]*)$/
+    const stripParensRE = /^\s*\(|\)\s*$/g
+    const forAliasRE = /([\s\S]*?)\s+in\s+([\s\S]*)/
+    const inMatch = expression.match(forAliasRE)
+
+    if (!inMatch) return null
+
+    const res: { items: string; item: string; index: string } = {
+        items: inMatch[2].trim(),
+        item: '',
+        index: 'index', // Default index name
+    }
+
+    let aliasString = inMatch[1].replace(stripParensRE, '').trim()
+
+    const iteratorMatch = aliasString.match(forIteratorRE)
+
+    if (iteratorMatch) {
+        // Handles "item, index"
+        res.item = aliasString.replace(forIteratorRE, '').trim()
+        res.index = iteratorMatch[1].trim()
+    } else {
+        // Handles "item" - the single alias is ALWAYS the item
+        res.item = aliasString
+    }
+
+    return res
+}
+
 
 export const For: AttributePlugin = {
   type: PluginType.Attribute,
@@ -28,19 +56,18 @@ export const For: AttributePlugin = {
     let previousNodes: Element[] = []
 
     const setupLoop = (expression: string) => {
-      // Clean up previous effect and nodes
       currentCleanup()
       previousNodes.forEach(node => node.remove())
       previousNodes = []
 
-      const parts = expression.match(forAliasRE)
+      const parts = parseForExpression(expression)
       if (!parts) {
         throw new Error(`Invalid data-for expression: "${expression}"`);
       }
 
-      const itemsExpression = parts[4].trim()
-      const alias = parts[1] || parts[2] || 'item'
-      const indexName = parts[3] || 'index'
+      const itemsExpression = parts.items
+      const alias = parts.item
+      const indexName = parts.index
 
       const originalCtxValue = ctx.value
       // @ts-ignore
@@ -60,13 +87,11 @@ export const For: AttributePlugin = {
         const parent = el.parentElement
         if (!parent) return
 
-        // This is a simplified loop implementation without keyed diffing.
-        // It removes all previous nodes and adds new ones.
         previousNodes.forEach(node => node.remove())
 
-        items.forEach((item: any, index: number) => {
+        items.forEach((itemValue: any, indexValue: number) => {
           const templateClone = document.importNode(el.content, true)
-          const scope = { [alias]: item, [indexName]: index }
+          const scope = { [alias]: itemValue, [indexName]: indexValue }
 
           Array.from(templateClone.children).forEach(childNode => {
             if (childNode instanceof HTMLElement || childNode instanceof SVGElement) {
@@ -85,7 +110,6 @@ export const For: AttributePlugin = {
       ctx.value = originalCtxValue
     }
 
-    // Initial setup
     setupLoop(value)
 
     const cleanupCallback: CleanupUpdateCallback = () => {
@@ -95,9 +119,9 @@ export const For: AttributePlugin = {
     }
 
     const mutationCallback: MutationUpdateCallback = (newValue) => {
-      if (newValue !== null) { // Attribute value changed
+      if (newValue !== null) {
         setupLoop(newValue)
-      } else { // Attribute removed
+      } else {
         cleanupCallback()
       }
     }

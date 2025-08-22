@@ -519,8 +519,6 @@ function genRX(
     userExpression = userExpression.replace(k, v)
   }
 
-  // The 'with' block will make local variables available.
-  // Global signals are accessed directly via the modified userExpression (ctx.signals...).
   const fnContent = `with(scope) { return (() => {\n${userExpression}\n})() }`
   ctx.fnContent = fnContent
 
@@ -528,10 +526,10 @@ function genRX(
     const fn = new Function('ctx', 'scope', ...argNames, fnContent)
     return (...args: any[]) => {
       try {
-        // Create the proxy that has the latest scope data right before execution.
-        const scopeStack = closestDataStack(ctx.el);
-        const mergedProxy = mergeProxies([...scopeStack]);
-        return fn(ctx, mergedProxy, ...args)
+        // Re-create proxy on each call to get the latest scope from the stack
+        const latestScopeStack = closestDataStack(ctx.el);
+        const latestMergedProxy = mergeProxies([...latestScopeStack]);
+        return fn(ctx, latestMergedProxy, ...args)
       } catch (error: any) {
         throw runtimeErr('ExecuteExpression', ctx, {
           error: error.message,

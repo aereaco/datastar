@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="h-full" lang="en" data-router="{layout: '_layouts/admin-layout.html'}">
+<html class="h-full" lang="en" data-router="{layout: '_layouts/admin-layout.html'}" data-theme="synthwave">
   
   <head>
     <meta charset="UTF-8" />
@@ -7,6 +7,7 @@
     <title>Aerea Dashboard</title>
     <!-- DaisyUI -->
     <link href="assets/styles/daisyui@5.0.46.css" rel="stylesheet" type="text/css" />
+    <link href="assets/styles/daisyui-themes@5.0.46.css" rel="stylesheet" type="text/css" />
 
     <!-- OverlayScrollbars -->
     <link href="assets/styles/overlayscrollbars@2.10.1.css" rel="stylesheet" type="text/css">   
@@ -17,7 +18,7 @@
     <script src="assets/scripts/tailwindcss@4.1.11.js"></script>
 
     <!-- Datastar & Plugins -->
-    <script type="module" src="../../bundles/nexus-ux.js"></script>
+    <script type="module" src="../bundles/nexus-ux.js"></script>
 
     <style>
             
@@ -28,10 +29,6 @@
 
       h2 {
         font-size: 0.875rem;
-      }
-
-      p {
-        margin-block-end: 1.5rem;
       }
 
       body, html {
@@ -48,7 +45,7 @@
   <template >
     <div class="flex flex-col h-full">
       <div class="flex-1 p-6">
-        <h1 class="text-2xl font-bold mb-4">Welcome to the Aerea Nexus</h1>
+        <h1 class="text-2xl font-bold mb-4">Welcome to Aerea Nexus</h1>
         <p class="text-lg">This is your main area where you can manage your documents and settings.</p>
       </div>
       <div class="p-6">

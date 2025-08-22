@@ -6,10 +6,10 @@
         
         <div class="grid grid-cols-1 gap-3 p-3"
             x-data="{  }">
-            <template x-for="theme in appData.themes" :key="theme">
+            <template data-for="theme in $themes" :key="theme">
                 <label :class="{ '[&amp;_svg]:visible': currentTheme === theme }" class="outline-base-content text-start outline-offset-4 theme-controller">
                     <input
-                        _data-on-click="setTimeout(() => { $openThemeOptions = !$openThemeOptions; }, 00);"
+                        data-on-click="setTimeout(() => { $openThemeOptions = !$openThemeOptions; }, 00);"
                         @change="() => updateTheme(theme)"
                         type="radio"
                         name="theme-radios"
