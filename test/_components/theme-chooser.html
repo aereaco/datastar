@@ -1,50 +1,49 @@
 <template>
-    <div class="flex justify-between pb-4">
-                
-        <div class="pt-3">
-            <span data-text="($theme.state !== 2 ? 'Set ' : '') + $theme.types[$theme.state].title + ($theme.state !== 2 ? ' Theme:' : ' Selected')"></span>                    
-        </div>
-        
-        <theme-switcher class="btn btn-ghost btn-circle size-16"
-            data-component="_components/theme-switcher.html"
-        ></theme-switcher>
+  <div class="flex justify-between pb-4">
 
+    <div class="pt-3">
+      <span
+        data-text="($theme.state !== 2 ? 'Set ' : '') + $theme.types[$theme.state].title + ($theme.state !== 2 ? ' Theme:' : ' Selected')"></span>
     </div>
-    <div title="Change Theme" class="dropdown w-full" data-signals="{ openThemeOptions: false }">
 
-    <div
-        tabindex="0"
-        class="btn btn-block bg-base-100"
-        data-attr-disabled="$theme.state == 2"
-        data-on-click="$openThemeOptions = !$openThemeOptions"
-    >                            
-                                
-    <span class="w-full cursor-pointer font-sans">
+    <theme-switcher class="btn btn-ghost btn-circle size-16"
+      data-component="_components/theme-switcher.html"></theme-switcher>
+
+  </div>
+  <div title="Change Theme" class="dropdown w-full" data-signals="{ openThemeOptions: false }">
+    <button class="btn btn-block bg-base-100"
+      data-attr-disabled="$theme.state == 2"
+      data-on-click="$openThemeOptions = !$openThemeOptions"
+       >
+
+      <span class="w-full cursor-pointer font-sans">
         <span class="grid grid-cols-5 grid-rows-3">
-            <span class="col-span-5 row-span-3 row-start-1 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="invisible h-3 w-3 shrink-0"><path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"></path></svg>
-                <span class="flex-grow text-sm" data-text="document.documentElement.getAttribute('data-theme')"></span>
-                <span class="flex h-full shrink-0 flex-wrap gap-1">
-                    <span class="bg-primary rounded-badge w-2"></span>
-                    <span class="bg-secondary rounded-badge w-2"></span>
-                    <span class="bg-accent rounded-badge w-2"></span>
-                    <span class="bg-neutral rounded-badge w-2"></span>
-                </span>
+          <span class="col-span-5 row-span-3 row-start-1 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+              class="invisible h-3 w-3 shrink-0">
+              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"></path>
+            </svg>
+            <span class="flex-grow text-sm" data-text="document.documentElement.getAttribute('data-theme')"></span>
+            <span class="flex h-full shrink-0 flex-wrap gap-1">
+              <span class="bg-primary rounded-badge w-2"></span>
+              <span class="bg-secondary rounded-badge w-2"></span>
+              <span class="bg-accent rounded-badge w-2"></span>
+              <span class="bg-neutral rounded-badge w-2"></span>
             </span>
+          </span>
         </span>
-    </span>
-    </div>
+      </span>
+    </button>
     <!--<theme-options
-        data-if="$openThemeOptions"
-        data-component="_components/theme-options.html"
-        data-attr-disabled="$theme.state == 2"
-        @close="openThemeOptions = false"
-        @select="currentTheme = $event.detail.theme"
-        @select-state="currentState = $event.detail.state"
-        @select-type="currentType = $event.detail.type">                          
+      data-if="$openThemeOptions"
+      data-component="_components/theme-options.html"
+      data-attr-disabled="$theme.state == 2"
+      @close="openThemeOptions = false"
+      @select="currentTheme = $event.detail.theme"
+      @select-state="currentState = $event.detail.state"
+      @select-type="currentType = $event.detail.type">                          
     </theme-options>-->
-    <template data-if="openThemeOptions">
-               
+    <template data-if="$openThemeOptions">
+      <theme-options data-component="_components/theme-options.html"></theme-options>
     </template>
 </template>
-

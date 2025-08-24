@@ -1,37 +1,21 @@
 <template>
-    <link href="assets/styles/admin-layout.css" rel="stylesheet" type="text/css">
-    <div id="theme"
-        data-signals__fetch__ifmissing="assets/data/theme.json"
-        data-persist
-        class="h-full overflow-hidden"
-        data-class="{ 'expanded': $theme.expanded }"
-        data-effect="document.documentElement.dir = $theme.rtl ? 'rtl' : 'ltr'"
-    >
-        <admin-header
-            class="admin-header bg-neutral"
-            data-component="_components/admin-header.html"
-        ></admin-header>
+  <link href="assets/styles/admin-layout.css" rel="stylesheet" type="text/css">
+  <div id="theme" data-signals__fetch__ifmissing="assets/data/theme.json" data-persist class="h-full overflow-hidden"
+    data-class="{ 'expanded': $theme.expanded }"
+    data-effect="document.documentElement.dir = $theme.rtl ? 'rtl' : 'ltr'">
+    <admin-header class="admin-header bg-neutral" data-component="_components/admin-header.html"></admin-header>
 
-        <admin-tabs
-            class="admin-tabs bg-base-300/80 -mb-14 z-10 transition-all"
-            data-class="{ '-mt-16 h-0 overflow-hidden': !$bookmarks.visible, }"
-            data-component="_components/admin-tabs.html"
-        ></admin-tabs>
-        
-        <admin-sidebar
-            id="sidebar"
-            class="admin-sidebar bg-neutral"
-            data-component="_components/admin-sidebar.html"  
-            data-signals="{ sidebarOpen: false, sidebarHovered: false }"
-            data-class="{ 'open': $sidebarOpen, 'hovered': $sidebarHovered }"
-            data-on-mouseenter="!$sidebarOpen ? $sidebarHovered = true : null;"
-            data-on-mouseleave="$sidebarHovered ? $sidebarHovered = false : null"
-            data-on-click="($sidebarOpen || $sidebarHovered) && event.target.closest('a, #sidebar .close') ? ($sidebarOpen = false, $sidebarHovered = false) : null;"
-        ></admin-sidebar>
+    <admin-tabs class="admin-tabs bg-base-300/80 -mb-14 z-10 transition-all"
+      data-class="{ '-mt-16 h-0 overflow-hidden': !$bookmarks.visible, }"
+      data-component="_components/admin-tabs.html"></admin-tabs>
 
-        <admin-main
-            class="admin-main"
-            data-component="_components/admin-main.html"
-        ></admin-main>
-    </div>
+    <admin-sidebar id="sidebar" class="admin-sidebar bg-neutral" data-component="_components/admin-sidebar.html"
+      data-signals="{ sidebarOpen: false, sidebarHovered: false }"
+      data-class="{ 'open': $sidebarOpen, 'hovered': $sidebarHovered }"
+      data-on-mouseenter="!$sidebarOpen ? $sidebarHovered = true : null;"
+      data-on-mouseleave="$sidebarHovered ? $sidebarHovered = false : null"
+      data-on-click="($sidebarOpen || $sidebarHovered) && event.target.closest('a, #sidebar .close') ? ($sidebarOpen = false, $sidebarHovered = false) : null;"></admin-sidebar>
+
+    <admin-main class="admin-main" data-component="_components/admin-main.html"></admin-main>
+  </div>
 </template>
