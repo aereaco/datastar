@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced data-for Tests</title>
+  <script type="module" src="../bundles/nexus-ux.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+</head>
+<body class="p-8">
+
+  <div class="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8" 
+       data-signals="{ 
+         users: [ 
+           {id: 1, name: 'Alice', email: 'alice@example.com'}, 
+           {id: 2, name: 'Bob', email: 'bob@example.com'}, 
+           {id: 3, name: 'Charlie', email: 'charlie@example.com'} 
+         ],
+         product: { name: 'Laptop', price: 1200, stock: 42, specs: { cpu: 'M3', ram: '16GB' } },
+         nextUserId: 4
+       }">
+
+    <!-- Column 1: Keyed Array Iteration -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Keyed Array Iteration</h2>
+        <p>Tests `by item.id` for state preservation and performance.</p>
+        
+        <div class="divider">Users List</div>
+        <div id="user-list" class="flex flex-col gap-2">
+          <template data-for="user in users by user.id">
+            <div class="flex items-center gap-2 p-2 border rounded-lg">
+              <input type="checkbox" class="checkbox">
+              <span class="font-bold" data-text="user.name"></span>
+              (<span data-text="user.email"></span>)
+            </div>
+          </template>
+        </div>
+
+        <div class="card-actions justify-end mt-4">
+          <button class="btn btn-primary" data-on-click="users = [...users, {id: nextUserId, name: 'New User', email: 'new@example.com'}]; nextUserId++">Add User</button>
+          <button class="btn btn-secondary" data-on-click="users = users.slice(1)">Remove First</button>
+          <button class="btn btn-accent" data-on-click="users = [...users].reverse()">Reverse</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Object Iteration & Destructuring -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Object Iteration & Destructuring</h2>
+
+        <div class="divider">Object Iteration</div>
+        <p>Iterating over the `product` object.</p>
+        <ul class="list-disc list-inside">
+          <template data-for="(value, key) in product by key">
+            <li><strong data-text="key"></strong>: <span data-text="JSON.stringify(value)"></span></li>
+          </template>
+        </ul>
+
+        <div class="divider">Destructuring</div>
+        <p>Using destructuring on the `users` array.</p>
+        <div class="flex flex-col gap-2">
+          <template data-for="({ name, email }, index) in users by email">
+            <div class="p-2 border rounded-lg">
+              <span data-text="index + 1"></span>. 
+              <span data-text="name"></span> - 
+              <span data-text="email"></span>
+            </div>
+          </template>
+        </div>
+
+        <div class="divider">Collection Variable</div>
+        <p>Displaying the length of the collection.</p>
+        <div class="flex flex-col gap-2">
+          <template data-for="(user, index, collection) in users by user.id">
+            <div class="p-2 border rounded-lg">
+              <span data-text="`User ${index + 1} of ${collection.length}`"></span>
+            </div>
+          </template>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

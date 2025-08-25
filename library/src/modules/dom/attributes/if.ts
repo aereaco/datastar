@@ -43,9 +43,11 @@ export const If: AttributePlugin = {
               }
             });
           }
+          (el as any)._ds_if_rendered = currentInsertedNodes.length > 0 ? currentInsertedNodes[currentInsertedNodes.length - 1] : null;
         } else {
           currentInsertedNodes.forEach(node => node.parentNode?.removeChild(node))
           currentInsertedNodes = []
+          delete (el as any)._ds_if_rendered;
         }
       })
     }

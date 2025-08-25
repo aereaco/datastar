@@ -10,7 +10,7 @@
 
 Nexus-UX helps you build reactive web applications with the simplicity of server-side rendering and the power of a full-stack SPA framework.
 
-Getting started is as easy as adding a single 29.2 KiB script tag to your HTML.
+Getting started is as easy as adding a single 30.0 KiB script tag to your HTML.
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/gh/aereaco/nexus-ux@v0.0.1-alpha/bundles/nexus-ux.js"></script>
