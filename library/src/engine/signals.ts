@@ -83,9 +83,9 @@ function mergeNested(
         }
 
         const s = new Signal(value)
-        s._onChange = () => {
+        s.subscribe(() => {
           dispatchSignalEvent({ updated: [key] })
-        }
+        })
         target[key] = s
 
         evt.added.push(key)
@@ -236,9 +236,9 @@ export class SignalsRoot {
     }
 
     const signal = new Signal(defaultValue)
-    signal._onChange = () => {
+    signal.subscribe(() => {
       dispatchSignalEvent({ updated: [dotDelimitedPath] })
-    }
+    })
     subSignals[last] = signal
 
     dispatchSignalEvent({ added: [dotDelimitedPath] })
