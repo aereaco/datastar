@@ -1,4 +1,25 @@
-<template>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data-for Scope Test</title>
+    <!-- DaisyUI -->
+    <link href="assets/styles/daisyui@5.0.46.css" rel="stylesheet" type="text/css" />
+    <link href="assets/styles/daisyui-themes@5.0.46.css" rel="stylesheet" type="text/css" />
+
+    <!-- OverlayScrollbars -->
+    <link href="assets/styles/overlayscrollbars@2.10.1.css" rel="stylesheet" type="text/css">   
+    <script src="assets/scripts/overlayscrollbars@2.10.1.js"></script>
+    <script src="assets/scripts/globalscrollbars-osb-plugin.js" async></script>
+      
+    <!-- TailwindCSS -->
+    <script src="assets/scripts/tailwindcss@4.1.11.js"></script>
+
+    <!-- Nexus-UX & Plugins -->
+    <script type="module" src="../bundles/nexus-ux.js"></script>
+</head>
+<body class="p-8">
   <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8" data-signals="{ items: ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'] }">
     <!-- Column 1: data-for Lists -->
     <div class="card bg-base-100 shadow-xl p-6">
@@ -192,4 +213,6 @@
     </div>
 
   </div>
-</template>
+
+</body>
+</html>

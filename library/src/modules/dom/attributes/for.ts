@@ -25,7 +25,6 @@ function parseForExpression(expression: string) {
   if (!inMatch) return null;
 
   const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-  const stripParensRE = /^\s*\(|\)\s*$/g;
 
   const res = {
     items: inMatch[2].trim(),
@@ -35,7 +34,10 @@ function parseForExpression(expression: string) {
     key: keyExpression,
   };
 
-  let aliasString = inMatch[1].replace(stripParensRE, '').trim();
+  let aliasString = inMatch[1].trim();
+  if (aliasString.startsWith('(') && aliasString.endsWith(')')) {
+    aliasString = aliasString.slice(1, -1).trim();
+  }
   let iteratorMatch = aliasString.match(forIteratorRE);
 
   if (iteratorMatch) {
@@ -120,7 +122,10 @@ export const For: AttributePlugin = {
         items = [];
       }
 
-      const newScopes: Record<string, any>[] = [];
+  // Store both the computed (raw) scope variables and the original item/index
+  // so we can recreate a reactive scope correctly for destructuring and
+  // object-iteration cases.
+  const newScopes: Array<{ raw: Record<string, any>, itemValue: any, indexValue: any }> = [];
       const newKeys: string[] = [];
 
       // Generate new keys and scopes
@@ -129,12 +134,12 @@ export const For: AttributePlugin = {
         const itemValue = isObjectIteration ? items[i][1] : items[i];
         const indexValue = isObjectIteration ? items[i][0] : i;
 
-        const scope = getIterationScopeVariables(parts, itemValue, indexValue, items);
-        newScopes.push(scope);
+  const scope = getIterationScopeVariables(parts, itemValue, indexValue, items);
+  newScopes.push({ raw: scope, itemValue, indexValue });
 
         let key;
         if (parts.key) {
-          // Evaluate key expression within the item's scope
+          // Evaluate key expression within the item's scope (use the raw scope)
           const keyFn = new Function('scope', `with(scope) { return ${parts.key} }`);
           key = keyFn(scope);
         } else {
@@ -198,7 +203,7 @@ export const For: AttributePlugin = {
         delete lookup[key];
       }
 
-      // Process Moves
+  // Process Moves
       for (const [keyInSpot, keyForSpot] of moves) {
         const elInSpot = lookup[keyInSpot].element;
         const elForSpot = lookup[keyForSpot].element;
@@ -209,27 +214,31 @@ export const For: AttributePlugin = {
         marker.before(elInSpot);
         marker.remove();
 
-        // Refresh scope for the moved element
-        const newScopeData = newScopes[newKeys.indexOf(keyForSpot)];
+        // Refresh scope for the moved element (use raw scope values)
+        const newScopeWrapper = newScopes[newKeys.indexOf(keyForSpot)];
+        const newScopeData = newScopeWrapper && newScopeWrapper.raw;
         const existingScope = lookup[keyForSpot].scope;
-        for (const scopeKey in newScopeData) {
-          if (existingScope[scopeKey]) {
-            existingScope[scopeKey].value = newScopeData[scopeKey];
+        if (newScopeData) {
+          for (const scopeKey in newScopeData) {
+            if (existingScope[scopeKey]) {
+              existingScope[scopeKey].value = newScopeData[scopeKey];
+            }
           }
         }
       }
 
-      // Process Adds
+  // Process Adds
       for (const [lastKey, index] of adds) {
         let lastEl = (lastKey === 'template') ? el : lookup[lastKey].element;
         if ((lastEl as any)._ds_if_rendered) {
             lastEl = (lastEl as any)._ds_if_rendered as Element;
         }
-        const key = newKeys[index];
-        const scopeData = newScopes[index];
-
-        const templateClone = document.importNode(el.content, true);
-        const reactiveScope = getIterationScopeVariables(parts, scopeData[parts.item], scopeData[parts.index], items, true);
+  const key = newKeys[index];
+  const scopeWrapper = newScopes[index];
+  const templateClone = document.importNode(el.content, true);
+  // Build a reactive scope from the actual item/index values so destructuring
+  // and object iterations resolve correctly.
+  const reactiveScope = getIterationScopeVariables(parts, scopeWrapper.itemValue, scopeWrapper.indexValue, items, true);
 
         const firstChild = templateClone.firstElementChild;
         if (firstChild && (firstChild instanceof HTMLElement || firstChild instanceof SVGElement)) {
@@ -242,8 +251,10 @@ export const For: AttributePlugin = {
 
       // Process Sames (Scope Refresh)
       for (const key of sames) {
-        const newScopeData = newScopes[newKeys.indexOf(key)];
+        const newScopeWrapper = newScopes[newKeys.indexOf(key)];
+        const newScopeData = newScopeWrapper && newScopeWrapper.raw;
         const existingScope = lookup[key].scope;
+        if (!newScopeData) continue;
         for (const scopeKey in newScopeData) {
           if (existingScope[scopeKey] && existingScope[scopeKey].value !== newScopeData[scopeKey]) {
             existingScope[scopeKey].value = newScopeData[scopeKey];

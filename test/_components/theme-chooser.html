@@ -44,6 +44,8 @@
       @select-type="currentType = $event.detail.type">                          
     </theme-options>-->
     <template data-if="$openThemeOptions">
-      <theme-options data-component="_components/theme-options.html"></theme-options>
+      <div class="dropdown-content bg-base-200 text-base-content rounded-box top-px h-[15rem] max-h-[calc(100vh-10rem)] w-full overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5 mt-16 z-[200]">
+        <theme-options data-component="_components/theme-options.html"></theme-options>
+      </div>
     </template>
 </template>

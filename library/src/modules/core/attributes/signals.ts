@@ -7,6 +7,7 @@ import {
 } from '../../../engine/types'
 import { attrHash } from '../../../utils/dom'
 import { modifyCasing } from '../../../utils/text'
+import { addScopeToNode } from '../../../engine/scope' // Import addScopeToNode
 
 const FETCHING_ATTR_CAMEL = 'nexusSignalsFetching'
 
@@ -75,7 +76,8 @@ export const Signals: AttributePlugin = {
       return
     }
 
-    let managedSignalPaths: string[] = []; // Tracks signals explicitly set/managed by this plugin instance
+  let managedSignalPaths: string[] = []; // Tracks signals explicitly set/managed by this plugin instance
+  let currentRemoveScope: (() => void) | undefined; // Tracks the cleanup function for the local scope
 
     const setupSignals = (currentAttributeValue: string) => {
       // Clean up any previously set signals
@@ -86,23 +88,29 @@ export const Signals: AttributePlugin = {
 
       const rx = genRX()
 
+      let topLevelSignals: string[] = []; // To store top-level signal names for local scope
+
       if (key !== '') {
         const k = modifyCasing(key, mods);
-        // Execute genRX() to get the actual value from the expression
-        const v = currentAttributeValue === '' ? currentAttributeValue : rx(); 
-        
+        const v = currentAttributeValue === '' ? currentAttributeValue : rx();
+
         if (ifMissing) {
           signals.upsertIfMissing(k, v);
         } else {
           signals.setValue(k, v);
         }
         managedSignalPaths.push(k);
+        topLevelSignals.push(k.split('.')[0]); // Capture top-level name
       } else {
-        // Execute genRX() to get the actual nested values object from the expression
-        const newValues = rx() as NestedValues; 
+        const newValues = rx() as NestedValues;
 
-        // Recursively collect all paths that are being set by this operation
-        // This is crucial for accurate cleanup later.
+        // Capture top-level keys immediately so nested objects like `product`
+        // are exposed as top-level names in the local scope (they may be
+        // backed by leaf signals after merge). We'll still merge the nested
+        // values into the signals registry so leaf paths are available.
+        topLevelSignals = Object.keys(newValues);
+
+        // Collect all leaf paths for cleanup/management after merge
         const collectPaths = (obj: NestedValues, prefix: string = '') => {
           for (const prop in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, prop)) {
@@ -119,6 +127,34 @@ export const Signals: AttributePlugin = {
 
         signals.merge(newValues, ifMissing);
       }
+
+      // Clean up previous local scope if it exists
+      if (currentRemoveScope) {
+        currentRemoveScope();
+      }
+
+      // Create a proxy for local scope exposure (reverting Experiment 1)
+      const localScopeProxy = {};
+      for (const signalName of new Set(topLevelSignals)) { // Use Set to avoid duplicates
+        Object.defineProperty(localScopeProxy, signalName, {
+          get: () => {
+            // Prefer an explicit top-level signal when present, otherwise
+            // reconstruct the object from leaf signals via subset().
+            try {
+              if (signals.exists(signalName)) {
+                return signals.value(signalName)
+              }
+            } catch {
+              // ignore - we'll fall back to subset below
+            }
+            return signals.subset(signalName)
+          },
+          enumerable: true, // Make it enumerable so it appears in `with(scope)`
+        });
+      }
+
+      // Add this proxy to the element's local scope
+      currentRemoveScope = addScopeToNode(el, localScopeProxy);
     };
 
     // Initial setup on plugin load
@@ -126,7 +162,10 @@ export const Signals: AttributePlugin = {
 
     // Cleanup function for when the plugin is removed from the DOM or its attribute changes
     const cleanupCallback: CleanupUpdateCallback = () => {
-      signals.remove(...managedSignalPaths);
+      if (currentRemoveScope) {
+        currentRemoveScope(); // Clean up local scope
+      }
+      signals.remove(...managedSignalPaths); // Existing cleanup for global signals
     };
 
     // Update callback for when the data-signals attribute value changes

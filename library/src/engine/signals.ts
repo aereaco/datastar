@@ -163,9 +163,17 @@ export type SignalFilterOptions = {
 
 export class SignalsRoot {
   #signals: NestedSignal = {}
+  #computedCache: Record<string, Computed> = {}
 
   exists(dotDelimitedPath: string): boolean {
-    return !!this.signal(dotDelimitedPath)
+    const parts = dotDelimitedPath.split('.')
+    let subSignals = this.#signals
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
+      if (!subSignals[part]) return false
+      subSignals = subSignals[part] as NestedSignal
+    }
+    return true
   }
 
   signal<T>(dotDelimitedPath: string): Signal<T> | null {
@@ -180,9 +188,20 @@ export class SignalsRoot {
     }
     const last = parts[parts.length - 1]
     const signal = subSignals[last]
-    if (!signal)
-      throw internalErr(from, 'SignalNotFound', { path: dotDelimitedPath })
-    return signal as Signal<T>
+    if (!signal) return null
+    if (signal instanceof Signal) return signal as Signal<T>
+
+    // It's a nested object. Return (and cache) a computed Signal that
+    // reconstructs the plain object from the subtree's Signals.
+    const cacheKey = dotDelimitedPath
+    if (this.#computedCache[cacheKey]) {
+      return this.#computedCache[cacheKey] as unknown as Signal<T>
+    }
+
+    const subtree = subSignals[last] as NestedSignal
+    const comp = computed(() => nestedValues(subtree)) as Computed
+    this.#computedCache[cacheKey] = comp
+    return comp as unknown as Signal<T>
   }
 
   setSignal<T extends Signal<T>>(dotDelimitedPath: string, signal: T) {
@@ -197,6 +216,8 @@ export class SignalsRoot {
     }
     const last = parts[parts.length - 1]
     subSignals[last] = signal
+  // Underlying structure changed — clear computed cache
+  this.#computedCache = {}
   }
 
   setComputed<T>(dotDelimitedPath: string, fn: () => T) {
@@ -216,6 +237,8 @@ export class SignalsRoot {
     if (oldValue !== value) {
       dispatchSignalEvent({ updated: [dotDelimitedPath] })
     }
+  // Value update may change reconstructed objects
+  this.#computedCache = {}
   }
 
   upsertIfMissing<T>(dotDelimitedPath: string, defaultValue: T) {
@@ -243,7 +266,10 @@ export class SignalsRoot {
 
     dispatchSignalEvent({ added: [dotDelimitedPath] })
 
-    return { signal: signal, inserted: true }
+  // New signal added -> invalidate computed cache
+  this.#computedCache = {}
+
+  return { signal: signal, inserted: true }
   }
 
   remove(...dotDelimitedPaths: string[]) {
@@ -267,12 +293,16 @@ export class SignalsRoot {
       removed.push(path)
     }
     dispatchSignalEvent({ removed })
+  // Removal affects reconstructed objects
+  this.#computedCache = {}
   }
 
   merge(other: NestedValues, onlyIfMissing = false) {
     const evt = mergeNested(this.#signals, other, onlyIfMissing)
     if (evt.added.length || evt.removed.length || evt.updated.length) {
       dispatchSignalEvent(evt)
+  // Merge may produce nested changes; clear cache
+  this.#computedCache = {}
     }
   }
 

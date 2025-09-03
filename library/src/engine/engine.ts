@@ -471,8 +471,7 @@ function genRX(
 
   // This regex allows Nexus-UX expressions to support nested
   // regex and strings that contain ; without breaking.
-  const statementRe =
-    /(\/(\\\/|[^/])*\/"(\\"|[^"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|[^;])+/gm
+  const statementRe = /(\/(\\\/|[^/])*\/"(\\"|[^"])*"|'(\\'|[^'])*'|`(\\`|[^`])*`|[^;])+/gm
   const statements = ctx.value.trim().match(statementRe)
   if (statements) {
     const lastIdx = statements.length - 1
@@ -505,9 +504,25 @@ function genRX(
 
   // This is the original, stable signal replacement logic.
   // It correctly handles nested signals like $router.layout.
-  const signalNames = ctx.signals.paths()
+  let signalNames = ctx.signals.paths() || []
+  // Also include top-level root keys from the signals values so $root
+  // references (e.g. $product) are recognized even when only leaf paths
+  // like product.name exist in paths().
+  try {
+    const roots = Object.keys(ctx.signals.values() || {})
+    for (const r of roots) {
+      if (!signalNames.includes(r)) signalNames.push(r)
+    }
+  } catch (e) {
+    // ignore
+  }
+
   if (signalNames.length) {
-    const signalsRe = new RegExp(`\\$(${signalNames.join('|')})(\\W|$)`, 'gm')
+    // Escape any regex-special chars and sort by descending length so
+    // longer names (e.g. product.name) are matched before shorter ones.
+    const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    signalNames = Array.from(new Set(signalNames)).map((s) => s).sort((a, b) => b.length - a.length)
+    const signalsRe = new RegExp(`\\$(${signalNames.map(esc).join('|')})(\\W|$)`, 'gm')
     userExpression = userExpression.replaceAll(
       signalsRe,
       `ctx.signals.signal('$1').value$2`,
