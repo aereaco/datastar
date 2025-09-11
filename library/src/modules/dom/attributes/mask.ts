@@ -6,7 +6,6 @@ import {
   type MutationUpdateCallback,
 } from '../../../engine/types'
 
-// Helper functions adapted from AlpineJS's mask plugin
 function format(input: string, template: string): string {
   if (input === '') return ''
   const stripped = stripDown(template, input)
